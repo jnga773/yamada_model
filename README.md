@@ -1,9 +1,11 @@
 # Yamada Model - Numerical Continuation Scripts
 
-This repository contains the code used to calculate the bifurcation diagram and phase resetting results for the Yamada model of a Q-switching laser [1,2]:
+This repository contains the code used to calculate the bifurcation diagram and phase resetting results for the Yamada model of a Q-switching laser [1,2]
+
 $$ \dot{G} = \gamma ( A - G - G I ) ,$$
 $$ \dot{Q} = \gamma ( B - Q - a Q I ) ,$$
 $$ \dot{I} = ( G - Q - 1 ) I ,$$
+
 where $G$ is the gain, $Q$ the absorption, and $I$ the intensity.
 
 This repository essentially contains two programs: `bifurcations` and `phase_resetting`. 
