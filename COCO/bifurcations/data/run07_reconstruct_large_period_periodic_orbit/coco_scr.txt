@@ -1,0 +1,11 @@
+
+    STEP   DAMPING               NORMS              COMPUTATION TIMES
+  IT SIT     GAMMA     ||d||     ||f||     ||U||   F(x)  DF(x)  SOLVE
+   0                          9.27e+00  1.83e+05    0.0    0.0    0.0
+   1   1  1.00e+00  3.29e-03  3.10e-03  1.83e+05    0.0    0.0    0.0
+   2   1  1.00e+00  1.26e-06  1.33e-09  1.83e+05    0.0    0.1    0.0
+   3   1  1.00e+00  7.41e-13  3.26e-11  1.83e+05    0.0    0.1    0.0
+
+ STEP      TIME        ||U||  LABEL  TYPE             A homo.po.orb.coll.err_TF homo.po.period
+    0  00:00:00   1.8273e+05      1  EP      6.5165e+00              1.1023e+01     1.8273e+05
+   10  00:00:00   1.8273e+05      2  EP      6.5165e+00              6.1612e-02     1.8273e+05

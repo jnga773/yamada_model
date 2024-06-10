@@ -1,0 +1,99 @@
+#==============================================================================!
+#                AUTO-07 SETTINGS: PHASE RESET 1 - PERTURBATION                !
+#==============================================================================!
+#-----------------------------!
+#     Initial Calculation     !
+#-----------------------------!
+# Equation file
+e = './functions/yamada_PR'
+
+# Initial solution data file
+dat = './data/initial_solution_PR'
+
+# Problem type
+IPS = 4
+# Set branching switching (1=off, -1=branch switch, 2=LP or HB).
+ISW = 1
+# Set initial solution to 0
+IRS = 0
+
+# Turn off fold detection
+ILP = 0
+ISP = 0
+
+#----------------------------#
+#     Parameter Settings     #
+#----------------------------#
+# Maximum number of parameters
+NPAR     = 13
+
+# Continuation parameters
+ICP      = ['A_perturb', 'theta_new', 'eta', 'mu_s', 'T']
+
+# Set boundary for parameters
+UZSTOP   = {'theta_new': [-1e6, 2.0001], 'eta': [-1e-4, 1e-2],
+            'mu_s': [0.99, 1.01]}
+
+#------------------------------#
+#     State Space Settings     #
+#------------------------------#
+# State space variables
+unames   = { 1: 'seg1_x1',  2: 'seg1_x2',  3: 'seg1_x3',
+             4: 'seg1_w1',  5: 'seg1_w2',  6: 'seg1_w3',
+             7: 'seg2_x1',  8: 'seg2_x2',  9: 'seg2_x3',
+            10: 'seg2_w1', 11: 'seg2_w2', 12: 'seg2_w3',
+            13: 'seg3_x1', 14: 'seg3_x2', 15: 'seg3_x3',
+            16: 'seg4_x1', 17: 'seg4_x2', 18: 'seg4_x3'}
+
+# State space dimesion
+NDIM     = 18
+
+#------------------------------------------#
+#     Jacobian and Boundary Conditions     #
+#------------------------------------------#
+# User defines derivatives: 0 = no, 1 = yes
+JAC = 0
+
+# Number of boundary conditionsn(for the phase resetting problem = NDIM + 4)
+NBC = 22
+
+# Number of integral conditions
+NINT = 0
+
+#-------------------------------#
+#     Continuation Settings     #
+#-------------------------------#
+# Number of steps
+NMX = 2000
+# Number of saved steps
+NPR = 100
+
+# NTST
+NTST = 1250
+
+# Step sizes
+DSMIN = 1e-2
+DS    = -5e-2
+DSMAX = 1e-1
+
+# Number of collocation points?
+NCOL = 4
+# Set adaptive mesh interval
+IAD = 1
+
+#----------------------------#
+#     Tolerance Settings     #
+#----------------------------#
+# Maximum number of iterations for locating special solutions/points
+ITMX = 8
+# Maximum number of correction steps
+ITNW = 7
+# Corrector uses full newton for [NWTN] number of steps
+NWTN = 5
+
+# Relative convergence criterion: Parameters
+EPSL = 1e-7
+# Relative convergence criterion: Solution components
+EPSU = 1e-7
+# Relative convergence criterion: Arc lenght
+EPSS = 1e-7

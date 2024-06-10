@@ -1,0 +1,136 @@
+#==============================================================================!
+#                            INITIAL CONTINUATION                              !
+#==============================================================================!
+# Function file
+e = './functions/yamada'
+
+#--------------------------!
+#     Problem Settings     !
+#--------------------------!
+# Problem type: 0 = AE
+#               1 = FP(ODEs)
+#               2 = PO
+#               4 = BVP
+#               7 = BVP with Floquet
+IPS      = 1
+
+# Starting solution label
+IRS      = 0
+
+# Fold detection: 0 = off, 1 = on
+ILP      = 1
+
+# Bifrucation detection: 0 = off
+#                        1 = BP (FP)
+#                        2 = all
+#                        3 = BP (PO, BVP)
+ISP  = 2
+
+# Branch switching: 1 = normal
+#                  -1 = switch branch (BP, HB, PD)
+#                   2 = switch to two-parameter cont. (LP, BP, HB, TR)
+#                   3 = switch to three-parameter cont. (BP)
+ISW  = 1
+
+#----------------------------#
+#     Parameter Settings     #
+#----------------------------#
+# Parameter names
+parnames = {1:'gamma', 2:'A', 3:'B', 4:'a'}
+
+# Maximum number of parameters
+NPAR     = 4
+
+# Continuation parameters
+ICP      = ['A', 'gamma']
+
+# Set boundary for A parameter
+UZSTOP   = {'A': [5.0, 20.0], 'gamma': [0.0, 0.4]}
+
+#------------------------------#
+#     State Space Settings     #
+#------------------------------#
+# State space variables
+unames   = {1:'x1', 2:'x2', 3:'x3'}
+
+# State space dimesion
+NDIM     = 3
+
+#------------------------------------------#
+#     Jacobian and Boundary Conditions     #
+#------------------------------------------#
+# User defines derivatives: 0 = no, 1 = yes
+JAC = 1
+
+# Number of boundary conditions
+NBC = 0
+
+# Number of integral conditions
+NINT = 0
+
+#-------------------------------!
+#     Continuation Settings     !
+#-------------------------------!
+# Maximum number of steps
+NMX  = 100
+
+# Print and save restart data every [NPR] steps
+NPR  = 10
+
+# Automatic branch switching for the first MXFP bifrucation points if IPS=0, 1
+MXBF = 0
+
+# Control diagnostic output: 0 = none
+#                            1 = little
+#                            2 = normal
+#                            4 = extensive
+IID  = 2
+
+#----------------------------!
+#     Mesh Grid Settings     !
+#----------------------------!
+# Number of mesh grid intevals
+NTST = 50
+
+# Number of collocation points
+NCOL = 4
+
+# Mesh adaption every [IAD] steps: 0 = off
+IAD  = 3
+
+# Step size adaption every [IADS] step: 0 = off
+IADS  = 1
+
+#------------------------------!
+#     Convergence Settings     !
+#------------------------------!
+# Convergence criterion: Parameters
+EPSL = 1e-06
+
+# Convergence criterion: Solution criterion
+EPSU = 1e-06
+
+# Convergence criterion: Special points
+EPSS = 0.0001
+
+#-----------------------------------------!
+#     Continuation Step-Size Settings     !
+#-----------------------------------------!
+# Start step size
+DS    = 1e-2
+
+# Step size inerval DSMIN <= h <= DSMAX
+DSMIN = 5e-2
+DSMAX = 1e-1
+
+#----------------------------#
+#     Tolerance Settings     #
+#----------------------------#
+# # Maximum number of iterations for locating special solutions/points
+# ITMX = 8
+
+# # Maximum number of correction steps
+# ITNW = 7
+
+# # Corrector uses full newton for [NWTN] number of steps
+# NWTN = 3
