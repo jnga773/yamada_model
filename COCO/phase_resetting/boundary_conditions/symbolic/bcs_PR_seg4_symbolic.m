@@ -63,21 +63,12 @@ function bcs_coco_out = bcs_PR_seg4_symbolic()
            0.0;
            sin(theta_perturb)];
 
-%   % Vector difference
-%   vec_diff = [x1_seg4(1) - x0_seg2(1);
-%               x1_seg4(2) - x0_seg2(2);
-%               x1_seg4(3) - x0_seg2(3)];
-
   % Boundary Conditions - Segment 4
   bcs_seg4_1 = x0_seg4 - x0_seg3 - (A_perturb * d_vec);
-
-  bcs_seg4_2    = dot(x1_seg4 - x0_seg2, w0_seg2);  
-%   bcs_seg4_2 = (vec_diff(1) * w0_seg2(1)) + ...
-%                (vec_diff(2) * w0_seg2(2)) + ...
-%                (vec_diff(3) * w0_seg2(3));
-
-  bcs_seg4_3    = norm(x1_seg4 - x0_seg2) - eta;
-%   bcs_seg4_3 = sqrt((vec_diff(1) ^ 2) + (vec_diff(2) ^ 2) + (vec_diff(3) ^ 2)) - eta;
+  bcs_seg4_2 = dot(x1_seg4 - x0_seg2, w0_seg2);
+  % bcs_seg4_3 = norm(x1_seg4 - x0_seg2) - eta;
+  % bcs_seg4_3 = (norm(x1_seg4 - x0_seg2) ^ 2) - eta;
+  bcs_seg4_3 = ((x1_seg4(1) - x0_seg2(1)) ^ 2) + ((x1_seg4(2) - x0_seg2(2)) ^ 2) + ((x1_seg4(3) - x0_seg2(3)) ^ 2) - eta;
 
   % Boundary condition vector
   bcs = [bcs_seg4_1;

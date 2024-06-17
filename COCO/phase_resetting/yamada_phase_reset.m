@@ -227,8 +227,8 @@ bcs_funcs.bcs_seg1_seg2 = bcs_PR_seg1_seg2_symbolic();
 bcs_funcs.bcs_seg3 = bcs_PR_seg3_symbolic();
 
 % Boundary conditions: Segment 4
-bcs_funcs.bcs_seg4 = {@bcs_PR_seg4};
-% bcs_funcs.bcs_seg4 = bcs_PR_seg4_symbolic();
+% bcs_funcs.bcs_seg4 = {@bcs_PR_seg4};
+bcs_funcs.bcs_seg4 = bcs_PR_seg4_symbolic();
 
 %------------------------------------------------------%
 %%     First Continuation: Perturbation Amplitude     %%

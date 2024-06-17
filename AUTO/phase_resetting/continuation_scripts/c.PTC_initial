@@ -31,7 +31,7 @@ NPAR     = 13
 ICP      = ['A_perturb', 'theta_new', 'eta', 'mu_s', 'T']
 
 # Set boundary for parameters
-UZSTOP   = {'A_perturb': [-1e-4, 30.0], 'eta': [-1e-4, 1e-2],
+UZSTOP   = {'A_perturb': [-1e-4, 30.0], 'eta': [-1e-4, 1e-4],
             'mu_s': [0.99, 1.01]}
 
 #------------------------------#
@@ -51,8 +51,8 @@ NDIM     = 18
 #------------------------------------------#
 #     Jacobian and Boundary Conditions     #
 #------------------------------------------#
-# User defines derivatives: 0 = no, 1 = yes
-JAC = 0
+# User defines derivatives: 0 = no, 1 = yes, -1 = only state space
+JAC = 1
 
 # Number of boundary conditionsn(for the phase resetting problem = NDIM + 4)
 NBC = 22
@@ -85,11 +85,11 @@ IAD = 1
 #     Tolerance Settings     #
 #----------------------------#
 # Maximum number of iterations for locating special solutions/points
-ITMX = 8
+ITMX = 13
 # Maximum number of correction steps
 ITNW = 7
 # Corrector uses full newton for [NWTN] number of steps
-NWTN = 5
+NWTN = 10
 
 # Relative convergence criterion: Parameters
 EPSL = 1e-7

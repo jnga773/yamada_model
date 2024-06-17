@@ -59,7 +59,7 @@ def set_parameters_PR(sol_in):
     from numpy import pi, cos, sin
 
     # Integer for period
-    k             = 30
+    k             = 50
     # Distance from perturbed segment to \Gamma
     eta           = 0.0
     # \theta_old (where perturbation starts)
@@ -100,20 +100,20 @@ from numpy import linspace
 SP_points = linspace(0.0, 5.0, 11)
 # SP_points = [0.05, 0.1, 25.0, 30.0]
 
-# # Copy continuation script
-# auto.copy('./continuation_scripts/', 'PR_1')
+# Copy continuation script
+auto.copy('./continuation_scripts/', 'PTC_initial')
 
-# # Try set up phase reset calculation lol
-# run08_phase_reset_perturbation = auto.run(c='PR_1', PAR=par_PR, parnames=pnames_PR, DS='-',
-#                                           NTST=par_PR[6] * 50,
-#                                           UZR={'A_perturb': SP_points},
-#                                           UZSTOP={'A_perturb': 5.1})
+# Try set up phase reset calculation lol
+run08_phase_reset_perturbation = auto.run(c='PTC_initial', PAR=par_PR, parnames=pnames_PR, DS='-',
+                                          NTST=par_PR[6] * 50,
+                                          UZR={'A_perturb': SP_points},
+                                          UZSTOP={'A_perturb': 5.1})
 
-# #-------------------#
-# #     Save Data     #
-# #-------------------#
-# # Save data
-# data_funcs.save_move_data(run08_phase_reset_perturbation, run_new_str)
+#-------------------#
+#     Save Data     #
+#-------------------#
+# Save data
+data_funcs.save_move_data(run08_phase_reset_perturbation, run_new_str)
 
 #--------------#
 #     Plot     #
@@ -141,7 +141,7 @@ run_old_str = 'run08_phase_reset_perturbation'
 run_old = data_funcs.bd_read(run_old_str)
 # Previous solution label
 label_old = [sol['LAB'] for sol in run_old('UZ')]
-label_old = label_old[-1]
+label_old = label_old[0]
 
 # Print to console
 print('~~~ Phase Reset: Second Run ~~~')
@@ -149,30 +149,31 @@ print('Compute phase transition curve (PTC)')
 print('Run name: {}'.format(run_new_str))
 print('Continuing from point {} in run: {}'.format(label_old, run_old_str))
 
-# #--------------------------#
-# #     Run Continuation     #
-# #--------------------------#
-# # Continue from previous solution
-# run09_PTC_single = auto.run(run_old(label_old),
-#                             ICP=['theta_old', 'theta_new', 'eta', 'mu_s', 'T'],
-#                             UZSTOP={'theta_old': [0.0, 2.0], 'theta_new': [-1.0, 12.0]},
-#                             NMX=800, NPR=10)
-# run09_PTC_single += auto.run(DS='-')
-# # Merge results
-# run09_PTC_single = auto.merge(run09_PTC_single)
-# # Relabel results
-# run09_PTC_single = auto.relabel(run09_PTC_single)
+#--------------------------#
+#     Run Continuation     #
+#--------------------------#
+# Continue from previous solution
+run09_PTC_single = auto.run(run_old(label_old),
+                            ICP=['theta_old', 'theta_new', 'eta', 'mu_s', 'T'],
+                            UZSTOP={'theta_old': [0.0, 2.0], 'theta_new': [-1.0, 12.0]},
+                            DSMIN=7.5e-2, DS=7.5e-2, DSMAX=7.5e-2,
+                            NMX=5000, NPR=100)
+run09_PTC_single += auto.run(DS='-')
+# Merge results
+run09_PTC_single = auto.merge(run09_PTC_single)
+# Relabel results
+run09_PTC_single = auto.relabel(run09_PTC_single)
 
-# #-------------------#
-# #     Save Data     #
-# #-------------------#
-# data_funcs.save_move_data(run09_PTC_single, run_new_str)
+#-------------------#
+#     Save Data     #
+#-------------------#
+data_funcs.save_move_data(run09_PTC_single, run_new_str)
 
-# #--------------#
-# #     Plot     #
-# #--------------#
-# # Plot single PTC solution
-# plot_PTC.plot_single_PTC(run09_PTC_single)
+#--------------#
+#     Plot     #
+#--------------#
+# Plot single PTC solution
+plot_PTC.plot_single_PTC(run09_PTC_single)
 
 # Print clear line
 print('\n')
@@ -220,10 +221,10 @@ def calculate_PTC(i):
 
     # Run continuation
     run_scan = auto.run(run_old(this_label), LAB=1,
-                        DSMIN=1e-1, DS=1e-1, DSMAX=1e-1,
-                        NMX=2000, NPR=100,
+                        DSMIN=7.5e-2, DS=7.5e-2, DSMAX=7.5e-2,
+                        NMX=8000, NPR=500,
                         ICP=['theta_old', 'theta_new', 'eta', 'mu_s', 'T'],
-                        UZSTOP={'theta_old': [0.0, 2.0], 'theta_new': [-1.0, 12.0]})
+                        UZSTOP={'theta_old': [0.0, 2.0]})
     run_scan += auto.run(DS='-')
     
     #-------------------#

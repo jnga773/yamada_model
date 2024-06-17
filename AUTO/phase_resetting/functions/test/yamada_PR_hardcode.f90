@@ -5,12 +5,6 @@
 ! resetting problem of the Yamada model in AUTO.
 !
 ! This module contains the following subroutines:
-! - FIELD          : Vector field encoding of the Yamada model.
-! - FIELD_DFDX     : Encoding of the state-space Jacobian.
-! - FIELD_DFDP     : Encoding of the parameter-space Jacobian.
-! - ADJOINT_DFDX   : Encoding of the state-space Jacobian of the adjoint
-!                    equations.
-!
 ! - FUNC           : The encoded vector field of the continuation problem.
 ! - PR_SEGS        : The encoded vector field of the four segments of the
 !                    phase resetting problem.
@@ -57,333 +51,6 @@
 !       PAR(11)  - Amplitude of perurbation (A_perturb),
 !       PAR(12)  - Angle at which perturbation is applied (theta_perturb),
 !       PAR(13)  - Azimuthal angle at which perturbation is applied (phi_perturb).
-
-!==============================================================================!
-!                     CHANGE THESE VARIABLES AND FUNCTIONS                     !
-!==============================================================================!
-MODULE VECTOR_FIELD
-  ! This module contains the global variables for 'xdim' and 'pdim' (in COCO
-  ! language), the original dimensions of the state vector and parameter vector
-  ! for the default vector field.
-
-  IMPLICIT NONE
-
-  ! Original dimension of vector field
-  INTEGER, PARAMETER :: xdim = 3
-  ! Original dimension of parameter vector
-  INTEGER, PARAMETER :: pdim = 4
-
-  CONTAINS
-
-  SUBROUTINE FIELD(x_in, p_in, F_out)
-    ! Vector field encoding of the Yamada model of a saturable
-    ! laser. The vector field is described by the set of
-    ! coupled ODEs:
-    !          G' = \gamma (A - G - G I) ,
-    !          Q' = \gamma (B - Q - a Q I) ,
-    !          I' = (G - Q - 1) I .
-    !
-    ! Input
-    ! ----------
-    ! x_in   : REAL(KIND=8), ARRAY
-    !     State variables of the vector field
-    ! PAR : REAL(KIND=8), ARRAY
-    !     Equation parameters.
-    !
-    ! Output
-    ! ----------
-    ! F_out  : REAL(KIND=8), ARRAY
-    !    Equation or ODE right-hand-side values
-
-    !============================================================================!
-    !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-    !============================================================================!
-
-    IMPLICIT NONE
-
-    !-------------------------!
-    !     INPUT ARGUMENTS     !
-    !-------------------------!
-    ! State variables of the vector field
-    REAL(KIND=8), INTENT(IN)    :: x_in(xdim)
-    ! Equation parameters
-    REAL(KIND=8), INTENT(IN)    :: p_in(*)
-
-    !--------------------------!
-    !     OUTPUT ARGUMENTS     !
-    !--------------------------!
-    ! Equation or ODE right-hand-side values
-    REAL(KIND=8), INTENT(OUT)   :: F_out(xdim)
-
-    !--------------------------!
-    !     SUBROUTINE STUFF     !
-    !--------------------------!
-    ! State space variables
-    REAL(KIND=8)                :: G, Q, I
-    ! Vector field parameters
-    REAL(KIND=8)                :: gamma, A_pump, B, a
-
-    !============================================================================!
-    !                              INPUT PARAMETERS                              !
-    !============================================================================!
-    ! Grab the state-space variables from x_in
-    G = x_in(1)
-    Q = x_in(2)
-    I = x_in(3)
-
-    ! Grab the parameter variables from p_in
-    gamma  = p_in(1)
-    A_pump = p_in(2)
-    B      = p_in(3)
-    a      = p_in(4)
-
-    !============================================================================!
-    !                            VECTOR FIELD ENCODING                           !
-    !============================================================================!
-    ! The system of equations
-    F_out(1) = gamma * (A_pump - G - (G * I))
-    F_out(2) = gamma * (B - Q - (a * Q * I))
-    F_out(3) = (G - Q - 1.0d0) * I
-
-  END SUBROUTINE FIELD
-
-  SUBROUTINE FIELD_DFDX(x_in, p_in, J_out)
-    ! Encoding of the state-space Jacobian of the Yamada model.
-    !
-    ! Input
-    ! ----------
-    ! x_in   : REAL(KIND=8), ARRAY
-    !     State variables of the vector field
-    ! PAR : REAL(KIND=8), ARRAY
-    !     Equation parameters.
-    !
-    ! Output
-    ! ----------
-    ! J_out  : REAL(KIND=8), ARRAY(NDIM, NDIM)
-    !    State-space Jacobian
-
-    !============================================================================!
-    !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-    !============================================================================!
-
-    IMPLICIT NONE
-
-    !-------------------------!
-    !     INPUT ARGUMENTS     !
-    !-------------------------!
-    ! State variables of the vector field
-    REAL(KIND=8), INTENT(IN)    :: x_in(xdim)
-    ! Equation parameters
-    REAL(KIND=8), INTENT(IN)    :: p_in(*)
-
-    !--------------------------!
-    !     OUTPUT ARGUMENTS     !
-    !--------------------------!
-    ! Equation or ODE right-hand-side values
-    REAL(KIND=8), INTENT(OUT)   :: J_out(xdim, xdim)
-
-    !--------------------------!
-    !     SUBROUTINE STUFF     !
-    !--------------------------!
-    ! State space variables
-    REAL(KIND=8)                :: G, Q, I
-    ! Vector field parameters
-    REAL(KIND=8)                :: gamma, A_pump, B, a
-
-    !============================================================================!
-    !                              INPUT PARAMETERS                              !
-    !============================================================================!
-    ! Grab the state-space variables from x_in
-    G = x_in(1)
-    Q = x_in(2)
-    I = x_in(3)
-
-    ! Grab the parameter variables from p_in
-    gamma  = p_in(1)
-    A_pump = p_in(2)
-    B      = p_in(3)
-    a      = p_in(4)
-
-    !============================================================================!
-    !                             JACOBIAN ENCODING                              !
-    !============================================================================!
-    ! State-space Jacobian
-    J_out(1, 1) = -gamma * (1.0d0 + I)
-    J_out(1, 2) = 0.0d0
-    J_out(1, 3) = -gamma * G
-
-    J_out(2, 1) = 0.0d0
-    J_out(2, 2) = -gamma * (1.0d0 + (a * I))
-    J_out(2, 3) = -gamma * a * Q
-
-    J_out(3, 1) = I
-    J_out(3, 2) = -I
-    J_out(3, 3) = G - Q - 1.0d0
-
-  END SUBROUTINE FIELD_DFDX
-
-  SUBROUTINE FIELD_DFDP(x_in, p_in, J_out)
-    ! Encoding of the parameter-space Jacobian of the Yamada model.
-    !
-    ! Input
-    ! ----------
-    ! x_in   : REAL(KIND=8), ARRAY
-    !     State variables of the vector field
-    ! PAR : REAL(KIND=8), ARRAY
-    !     Equation parameters.
-    !
-    ! Output
-    ! ----------
-    ! J_out  : REAL(KIND=8), ARRAY(NDIM, NDIM)
-    !    Parameter-space Jacobian
-
-    !============================================================================!
-    !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-    !============================================================================!
-
-    IMPLICIT NONE
-
-    !-------------------------!
-    !     INPUT ARGUMENTS     !
-    !-------------------------!
-    ! State variables of the vector field
-    REAL(KIND=8), INTENT(IN)    :: x_in(xdim)
-    ! Equation parameters
-    REAL(KIND=8), INTENT(IN)    :: p_in(*)
-
-    !--------------------------!
-    !     OUTPUT ARGUMENTS     !
-    !--------------------------!
-    ! Equation or ODE right-hand-side values
-    REAL(KIND=8), INTENT(OUT)   :: J_out(xdim, *)
-
-    !--------------------------!
-    !     SUBROUTINE STUFF     !
-    !--------------------------!
-    ! State space variables
-    REAL(KIND=8)                :: G, Q, I
-    ! Vector field parameters
-    REAL(KIND=8)                :: gamma, A_pump, B, a
-
-    !============================================================================!
-    !                              INPUT PARAMETERS                              !
-    !============================================================================!
-    ! Grab the state-space variables from x_in
-    G = x_in(1)
-    Q = x_in(2)
-    I = x_in(3)
-
-    ! Grab the parameter variables from p_in
-    gamma  = p_in(1)
-    A_pump = p_in(2)
-    B      = p_in(3)
-    a      = p_in(4)
-
-    !============================================================================!
-    !                             JACOBIAN ENCODING                              !
-    !============================================================================!
-    ! Parameter-space Jacobian
-    J_out(1, 1) = A_pump - G - (G * I)
-    J_out(1, 2) = gamma
-    J_out(1, 3) = 0.0d0
-    J_out(1, 4) = 0.0d0
-
-    J_out(2, 1) = B - Q - (a * Q * I)
-    J_out(2, 2) = 0.0d0
-    J_out(2, 3) = gamma
-    J_out(2, 4) = -gamma * Q * I
-
-    J_out(3, 1) = 0.0d0
-    J_out(3, 2) = 0.0d0
-    J_out(3, 3) = 0.0d0
-    J_out(3, 4) = 0.0d0
-
-  END SUBROUTINE FIELD_DFDP
-
-  SUBROUTINE ADJOINT_DFDX(U_in, p_in, J_out)
-    ! Encoding of the state-space Jacobian of the adjoint equations.
-    !
-    ! Input
-    ! ----------
-    ! U_in   : REAL(KIND=8), ARRAY
-    !     State variables of the vector field
-    ! PAR : REAL(KIND=8), ARRAY
-    !     Equation parameters.
-    !
-    ! Output
-    ! ----------
-    ! J_out  : REAL(KIND=8), ARRAY(NDIM, NDIM)
-    !    State-space Jacobian
-
-    !============================================================================!
-    !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-    !============================================================================!
-
-    IMPLICIT NONE
-
-    !-------------------------!
-    !     INPUT ARGUMENTS     !
-    !-------------------------!
-    ! State variables of the vector field
-    REAL(KIND=8), INTENT(IN)    :: U_in(2*xdim)
-    ! Equation parameters
-    REAL(KIND=8), INTENT(IN)    :: p_in(*)
-
-    !--------------------------!
-    !     OUTPUT ARGUMENTS     !
-    !--------------------------!
-    ! Equation or ODE right-hand-side values
-    REAL(KIND=8), INTENT(OUT)   :: J_out(xdim, 2*xdim)
-
-    !--------------------------!
-    !     SUBROUTINE STUFF     !
-    !--------------------------!
-    ! State space variables
-    REAL(KIND=8)                :: G, Q, I
-    ! Adjoint space variables
-    REAL(KIND=8)                :: w1, w2, w3
-    ! Vector field parameters
-    REAL(KIND=8)                :: gamma, A_pump, B, a
-
-    !============================================================================!
-    !                              INPUT PARAMETERS                              !
-    !============================================================================!
-    ! Grab the state-space variables from U_in
-    G  = U_in(1)
-    Q  = U_in(2)
-    I  = U_in(3)
-    ! Grab the adjoint-space variables from v
-    w1 = U_in(4)
-    w2 = U_in(5)
-    w3 = U_in(6)
-
-    ! Grab the parameter variables from p_in
-    gamma  = p_in(1)
-    A_pump = p_in(2)
-    B      = p_in(3)
-    a      = p_in(4)
-
-    !============================================================================!
-    !                             JACOBIAN ENCODING                              !
-    !============================================================================!
-    ! State-space Jacobian
-    J_out(1, 3) = (gamma * w1) + (gamma * a * w2)
-    J_out(1, 4) = gamma * (1.0d0 + I)
-    J_out(1, 6) = -I
-    
-    J_out(2, 3) = (gamma * a * w2) + w3
-    J_out(2, 5) = gamma * ((a * I) + 1.0d0)
-    J_out(2, 6) = I
-
-    J_out(3, 1) = (gamma * a * w2) - w3
-    J_out(3, 2) = (gamma * a * w2) + w3
-    J_out(3, 4) = gamma * G
-    J_out(3, 5) = gamma * a * Q
-    J_out(3, 6) = -(G - Q - 1.0d0)
-  
-  END SUBROUTINE ADJOINT_DFDX
-
-END MODULE VECTOR_FIELD
 
 !==============================================================================!
 !                      CONTINUATION PROBLEM VECTOR FIELD                       !
@@ -444,30 +111,28 @@ SUBROUTINE FUNC(NDIM, U, ICP, PAR, IJAC, F_out, DFDU, DFDP)
   !----------------------!
   !     VECTOR FIELD     !
   !----------------------!
-  CALL PR_SEGS(NDIM, U, PAR, F_out)
+  CALL PR_SEGS(U, PAR, F_out)
 
   IF (IJAC .EQ. 0) RETURN
   !-------------------------------!
   !     JACOBIAN: STATE-SPACE     !
   !-------------------------------!
-  CALL PR_SEGS_DFDX(NDIM, U, PAR, DFDU)
+  CALL PR_SEGS_DFDX(U, PAR, DFDU)
 
   IF (IJAC .EQ. 1) RETURN
   !-----------------------------------!
   !     JACOBIAN: PARAMETER-SPACE     !
   !-----------------------------------!
-  CALL PR_SEGS_DFDP(NDIM, U, PAR, DFDP)
+  CALL PR_SEGS_DFDP(U, PAR, DFDP)
 
   ! End of subroutine
 END SUBROUTINE FUNC
 
-SUBROUTINE PR_SEGS(NDIM, U, PAR, F_out)
+SUBROUTINE PR_SEGS(U, PAR, F_out)
   ! Vector field encoding for the four segments of the phase resetting problem.
   !
   ! Input
   ! ----------
-  ! NDIM   : INTEGER
-  !     Dimension of the algebraic or ODE system.
   ! U   : REAL(KIND=8)
   !     State variables of the vector field.
   ! PAR : REAL(KIND=8)
@@ -478,45 +143,43 @@ SUBROUTINE PR_SEGS(NDIM, U, PAR, F_out)
   ! F_out  : REAL(KIND=8), ARRAY
   !    Equation or ODE right-hand-side values
 
-  !============================================================================!
-  !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-  !============================================================================!
-  ! Import global variables and vector fields
-  USE VECTOR_FIELD
-
   IMPLICIT NONE
+  
+  !--------------------------------!
+  !     STATE-SPACE DIMENSIONS     !
+  !--------------------------------!
+  ! State-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: xdim = 3
+  ! Parameter-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: pdim = 4
 
   !-------------------------!
   !     INPUT ARGUMENTS     !
   !-------------------------!
-  ! Dimension of the algebraic or ODE system
-  INTEGER, INTENT(IN)         :: NDIM
   ! State variables of the vector field
-  REAL(KIND=8), INTENT(IN)    :: U(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U(18)
   ! Equation parameters
-  REAL(KIND=8), INTENT(IN)    :: PAR(*)
+  REAL(KIND=8), INTENT(IN)    :: PAR(13)
 
   !--------------------------!
   !     OUTPUT ARGUMENTS     !
   !--------------------------!
   ! Equation or ODE right-hand-side values
-  REAL(KIND=8), INTENT(OUT)   :: F_out(NDIM)
+  REAL(KIND=8), INTENT(OUT)   :: F_out(18)
 
   !--------------------------!
   !     SUBROUTINE STUFF     !
   !--------------------------!
-  ! Vector field
-  REAL(KIND=8)                :: vec_field(xdim)
   ! State space Jacobian
   REAL(KIND=8)                :: J_DFDX(xdim, xdim)
   ! Segment 1: State-space and adjoint-space vectors
-  REAL(KIND=8)                :: x_seg1(xdim), w_seg1(xdim)
+  REAL(KIND=8)                :: x1_vec(xdim), w1_vec(xdim)
   ! Segment 2: State-space and adjoint-space vectors
-  REAL(KIND=8)                :: x_seg2(xdim), w_seg2(xdim)
+  REAL(KIND=8)                :: x2_vec(xdim), w2_vec(xdim)
   ! Segment 3: State-space vector
-  REAL(KIND=8)                :: x_seg3(xdim)
+  REAL(KIND=8)                :: x3_vec(xdim)
   ! Segment 4: State-space vector
-  REAL(KIND=8)                :: x_seg4(xdim)
+  REAL(KIND=8)                :: x4_vec(xdim)
   ! Yamada model parameters
   REAL(KIND=8)                :: gamma, A_pump, B, a
   ! Phase resetting parameters
@@ -526,15 +189,15 @@ SUBROUTINE PR_SEGS(NDIM, U, PAR, F_out)
   !                              INPUT PARAMETERS                              !
   !============================================================================!
   ! Segment 1: State-space and adjoint-space vectors
-  x_seg1    = U(1 : xdim)
-  w_seg1    = U(xdim+1 : 2*xdim)
+  x1_vec    = U(1 : xdim)
+  w1_vec    = U(xdim+1 : 2*xdim)
   ! Segment 2: State-space and adjoint-space vectors
-  x_seg2    = U((2*xdim)+1 : 3*xdim)
-  w_seg2    = U((3*xdim)+1 : 4*xdim)
+  x2_vec    = U((2*xdim)+1 : 3*xdim)
+  w2_vec    = U((3*xdim)+1 : 4*xdim)
   ! Segment 3: State-space vector
-  x_seg3    = U((4*xdim)+1 : 5*xdim)
+  x3_vec    = U((4*xdim)+1 : 5*xdim)
   ! Segment 4: State-space vector
-  x_seg4    = U((5*xdim)+1 : 6*xdim)
+  x4_vec    = U((5*xdim)+1 : 6*xdim)
 
   ! Yamada model parameters
   gamma     = PAR(1)
@@ -557,57 +220,74 @@ SUBROUTINE PR_SEGS(NDIM, U, PAR, F_out)
   !-------------------!
   !     Segment 1     !
   !-------------------!
-  ! Calculate vector field
-  CALL FIELD(x_seg1, PAR, vec_field)
-  ! Calculate Jacobian
-  CALL FIELD_DFDX(x_seg1, PAR, J_DFDX)
-
   ! Vector field
-  F_out(1 : xdim) = T * theta_new * vec_field
+  F_out(1)   = gamma * (A_pump - x1_vec(1) - (x1_vec(1) * x1_vec(3)))
+  F_out(2)   = gamma * (B - x1_vec(2) - (a * x1_vec(2) * x1_vec(3)))
+  F_out(3)   = x1_vec(3) * (x1_vec(1) - x1_vec(2) - 1.0d0)
+
   ! Adjoint equation
-  F_out(xdim+1 : 2*xdim) = -T * theta_new * MATMUL(TRANSPOSE(J_DFDX), w_seg1)
+  F_out(4)   = -(w1_vec(3) * x1_vec(3)) + &
+             & gamma * w1_vec(1) * (x1_vec(3) + 1.0d0)
+  F_out(5)   = (w1_vec(3) * x1_vec(3)) + &
+             & gamma * w1_vec(2) * (a * x1_vec(3) + 1.0d0)
+  F_out(6)   = -(x1_vec(1) - x1_vec(2) - 1.0d0) * w1_vec(3) + &
+              & gamma * w1_vec(1) * x1_vec(1) + &
+             & a * gamma * w1_vec(2) * x1_vec(2)
+
+  ! Multiply by T \theta_new
+  F_out(1:6) = F_out(1:6) * T * theta_new
 
   !-------------------!
   !     Segment 2     !
   !-------------------!
-  ! Calculate vector field
-  CALL FIELD(x_seg2, PAR, vec_field)
-  ! Calculate Jacobian
-  CALL FIELD_DFDX(x_seg2, PAR, J_DFDX)
-
   ! Vector field
-  F_out(2*xdim+1 : 3*xdim) = T * (1.0d0 - theta_new) * vec_field
+  F_out(7)    = gamma * (A_pump - x2_vec(1) - (x2_vec(1) * x2_vec(3)))
+  F_out(8)    = gamma * (B - x2_vec(2) - (a * x2_vec(2) * x2_vec(3)))
+  F_out(9)    = x2_vec(3) * (x2_vec(1) - x2_vec(2) - 1.0d0)
+
   ! Adjoint equation
-  F_out(3*xdim+1 : 4*xdim) = -T * (1.0d0 - theta_new) * MATMUL(TRANSPOSE(J_DFDX), w_seg2)
+  F_out(10)    = -(w2_vec(3) * x2_vec(3)) + &
+               & gamma * w2_vec(1) * (x2_vec(3) + 1.0d0)
+  F_out(11)    = (w2_vec(3) * x2_vec(3)) + &
+               & gamma * w2_vec(2) * (a * x2_vec(3) + 1.0d0)
+  F_out(12)    = (-x2_vec(1) + x2_vec(2) + 1.0d0) * w2_vec(3) - &
+               & gamma * (-x2_vec(1)) * w2_vec(1) + &
+               & a * gamma * w2_vec(2) * x2_vec(2)
+
+  ! Multiply by T (1 - \theta_new)
+  F_out(7:12) = F_out(7:12) * T * (1.0d0 - theta_new)
 
   !-------------------!
   !     Segment 3     !
   !-------------------!
-  ! Calculate vector field
-  CALL FIELD(x_seg3, PAR, vec_field)
-
   ! Vector field
-  F_out(4*xdim+1 : 5*xdim) = T * (1.0d0 - theta_old) * vec_field
+  F_out(13)    = gamma * (A_pump - x3_vec(1) - (x3_vec(1) * x3_vec(3)))
+  F_out(14)    = gamma * (B - x3_vec(2) - (a * x3_vec(2) * x3_vec(3)))
+  F_out(15)    = x3_vec(3) * (x3_vec(1) - x3_vec(2) - 1.0d0)
+
+  ! Multiply by T (1 - \theta_old)
+  F_out(13:15) = F_out(13:15) * T * (1.0d0 - theta_old)
 
   !-------------------!
   !     Segment 4     !
   !-------------------!
-  ! Calculate vector field
-  CALL FIELD(x_seg4, PAR, vec_field)
-
   ! Vector field
-  F_out(5*xdim+1 : 6*xdim) = k * T * vec_field
+  F_out(16)    = gamma * (A_pump - x4_vec(1) - (x4_vec(1) * x4_vec(3)))
+  F_out(17)    = gamma * (B - x4_vec(2) - (a * x4_vec(2) * x4_vec(3)))
+  F_out(18)    = x4_vec(3) * (x4_vec(1) - x4_vec(2) - 1.0d0)
+
+  ! Multiply by k T
+  F_out(16:18) = F_out(16:18) * k * T
+
 
 END SUBROUTINE PR_SEGS
 
-SUBROUTINE PR_SEGS_DFDX(NDIM, U, PAR, J_out)
+SUBROUTINE PR_SEGS_DFDX(U, PAR, J_out)
   ! Encoding of the state-sapce Jacobian for the four segments of the
   ! phase resetting problem.
   !
   ! Input
   ! ----------
-  ! NDIM   : INTEGER
-  !     Dimension of the algebraic or ODE system.
   ! U   : REAL(KIND=8)
   !     State variables of the vector field.
   ! PAR : REAL(KIND=8)
@@ -618,35 +298,35 @@ SUBROUTINE PR_SEGS_DFDX(NDIM, U, PAR, J_out)
   ! J_out  : REAL(KIND=8), ARRAY
   !    Equation or ODE right-hand-side values
 
-  !============================================================================!
-  !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-  !============================================================================!
-  ! Import global variables and vector fields
-  USE VECTOR_FIELD
-
   IMPLICIT NONE
+  
+  !--------------------------------!
+  !     STATE-SPACE DIMENSIONS     !
+  !--------------------------------!
+  ! State-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: xdim = 3
+  ! Parameter-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: pdim = 4
 
   !-------------------------!
   !     INPUT ARGUMENTS     !
   !-------------------------!
-  ! Dimension of the algebraic or ODE system
-  INTEGER, INTENT(IN)         :: NDIM
   ! State variables of the vector field
-  REAL(KIND=8), INTENT(IN)    :: U(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U(18)
   ! Equation parameters
-  REAL(KIND=8), INTENT(IN)    :: PAR(*)
+  REAL(KIND=8), INTENT(IN)    :: PAR(13)
 
   !--------------------------!
   !     OUTPUT ARGUMENTS     !
   !--------------------------!
   ! Equation or ODE right-hand-side values
-  REAL(KIND=8), INTENT(OUT)   :: J_out(NDIM, NDIM)
+  REAL(KIND=8), INTENT(OUT)   :: J_out(18, 18)
 
   !--------------------------!
   !     SUBROUTINE STUFF     !
   !--------------------------!
   ! State space Jacobian
-  REAL(KIND=8)                :: Jacobian(xdim, xdim)
+  REAL(KIND=8)                :: J_DFDX(xdim, xdim)
   ! Segment 1: State-space and adjoint-space vectors
   REAL(KIND=8)                :: x1_vec(xdim), w1_vec(xdim)
   ! Segment 2: State-space and adjoint-space vectors
@@ -747,11 +427,13 @@ SUBROUTINE PR_SEGS_DFDX(NDIM, U, PAR, J_out)
   !-------------------!
   !     Segment 1     !
   !-------------------!
-  ! Call state-space Jacobian
-  CALL FIELD_DFDX(x1_vec, PAR, Jacobian)
-  J_out(1:xdim, 1:xdim) = T * theta_new * Jacobian
-
-  ! Call adjoint-space Jacobian
+  J_out(1, 1)   = -t21
+  J_out(1, 3)   = T * gamma * t11 * theta_new
+  J_out(2, 2)   = -t29
+  J_out(2, 3)   = -t18
+  J_out(3, 1)   = t8
+  J_out(3, 2)   = t20
+  J_out(3, 3)   = -t36
   J_out(4, 3)   = t39
   J_out(4, 4)   = t21
   J_out(4, 6)   = t20
@@ -767,11 +449,13 @@ SUBROUTINE PR_SEGS_DFDX(NDIM, U, PAR, J_out)
   !-------------------!
   !     Segment 2     !
   !-------------------!
-  ! Call state-space Jacobian
-  CALL FIELD_DFDX(x2_vec, PAR, Jacobian)
-  J_out(2*xdim+1:3*xdim, 2*xdim+1:3*xdim) = T * (1.0d0 - theta_new) * Jacobian
-
-  ! Call adjoint-space Jacobian
+  J_out(7, 7)   = t35
+  J_out(7, 9)   = t28
+  J_out(8, 8)   = t40
+  J_out(8, 9)   = t31
+  J_out(9, 7)   = t33
+  J_out(9, 8)   = t26
+  J_out(9, 9)   = t41
   J_out(10, 9)  = t42
   J_out(10, 10) = -t35
   J_out(10, 12) = t26
@@ -787,27 +471,33 @@ SUBROUTINE PR_SEGS_DFDX(NDIM, U, PAR, J_out)
   !-------------------!
   !     Segment 3     !
   !-------------------!
-  ! Call state-space Jacobian
-  CALL FIELD_DFDX(x3_vec, PAR, Jacobian)
-  J_out(4*xdim+1:5*xdim, 4*xdim+1:5*xdim) = T * (1.0d0 - theta_old) * Jacobian
+  J_out(13, 13) = T * gamma * t9 * (x3_vec(3) + 1.0d0)
+  J_out(13, 15) = T * gamma * t9 * x3_vec(1)
+  J_out(14, 14) = T * gamma * t9 * (a * x3_vec(3) + 1.0d0)
+  J_out(14, 15) = T * a * gamma * t9 * x3_vec(2)
+  J_out(15, 13) = -t25
+  J_out(15, 14) = t25
+  J_out(15, 15) = -T * t9 * (x3_vec(1) - x3_vec(2) - 1.0d0)
 
   !-------------------!
   !     Segment 4     !
   !-------------------!
-  ! Call state-space Jacobian
-  CALL FIELD_DFDX(x4_vec, PAR, Jacobian)
-  J_out(5*xdim+1:6*xdim, 5*xdim+1:6*xdim) = k * T * Jacobian
+  J_out(16, 16) = -T * gamma * k * (x4_vec(3) + 1.0d0)
+  J_out(16, 18) = -T * gamma * k * x4_vec(1)
+  J_out(17, 17) = -T * gamma * k * (a * x4_vec(3) + 1.0d0)
+  J_out(17, 18) = -T * a * gamma * k * x4_vec(2)
+  J_out(18, 16) = t6
+  J_out(18, 17) = -t6
+  J_out(18, 18) = T * k * (x4_vec(1) - x4_vec(2) - 1.0d0)
 
 END SUBROUTINE PR_SEGS_DFDX
 
-SUBROUTINE PR_SEGS_DFDP(NDIM, U, PAR, J_out)
+SUBROUTINE PR_SEGS_DFDP(U, PAR, J_out)
   ! Encoding of the parameter-sapce Jacobian for the four segments of the
   ! phase resetting problem.
   !
   ! Input
   ! ----------
-  ! NDIM   : INTEGER
-  !     Dimension of the algebraic or ODE system.
   ! U   : REAL(KIND=8)
   !     State variables of the vector field.
   ! PAR : REAL(KIND=8)
@@ -818,29 +508,29 @@ SUBROUTINE PR_SEGS_DFDP(NDIM, U, PAR, J_out)
   ! J_out  : REAL(KIND=8), ARRAY
   !    Equation or ODE right-hand-side values
 
-  !============================================================================!
-  !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-  !============================================================================!
-  ! Import global variables and vector fields
-  USE VECTOR_FIELD
-
   IMPLICIT NONE
+  
+  !--------------------------------!
+  !     STATE-SPACE DIMENSIONS     !
+  !--------------------------------!
+  ! State-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: xdim = 3
+  ! Parameter-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: pdim = 4
 
   !-------------------------!
   !     INPUT ARGUMENTS     !
   !-------------------------!
-  ! Dimension of the algebraic or ODE system
-  INTEGER, INTENT(IN)         :: NDIM
   ! State variables of the vector field
-  REAL(KIND=8), INTENT(IN)    :: U(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U(18)
   ! Equation parameters
-  REAL(KIND=8), INTENT(IN)    :: PAR(*)
+  REAL(KIND=8), INTENT(IN)    :: PAR(13)
 
   !--------------------------!
   !     OUTPUT ARGUMENTS     !
   !--------------------------!
   ! Equation or ODE right-hand-side values
-  REAL(KIND=8), INTENT(OUT)   :: J_out(NDIM, *)
+  REAL(KIND=8), INTENT(OUT)   :: J_out(18, 13)
 
   !--------------------------!
   !     SUBROUTINE STUFF     !
@@ -1054,7 +744,7 @@ END SUBROUTINE PR_SEGS_DFDP
 !                             BOUNDARY CONDITIONS                              !
 !==============================================================================!
 SUBROUTINE BCND(NDIM, PAR, ICP, NBC, U0, U1, FB, IJAC, DBC)
-  ! Boundary conditions...
+  ! Boundary conditions for the continuation problem
   !
   ! Input
   ! ----------
@@ -1083,8 +773,6 @@ SUBROUTINE BCND(NDIM, PAR, ICP, NBC, U0, U1, FB, IJAC, DBC)
   !============================================================================!
   !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
   !============================================================================!
-  ! Import global variables and vector fields
-  USE VECTOR_FIELD
 
   IMPLICIT NONE
 
@@ -1120,25 +808,25 @@ SUBROUTINE BCND(NDIM, PAR, ICP, NBC, U0, U1, FB, IJAC, DBC)
   !-----------------------------!
   !     BOUNDARY CONDITIONS     !
   !-----------------------------!
-  CALL BCS_SEGS(NDIM, NBC, U0, U1, PAR, FB)
+  CALL BCS_SEGS(U0, U1, PAR, FB)
 
   IF (IJAC .EQ. 0) RETURN
   !-------------------------------!
   !     JACOBIAN: STATE-SPACE     !
   !-------------------------------!
   ! Jacobian of the boundary condition with respect to the state-space variables
-  CALL BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, DBC(1:NBC, 1:NDIM))
+  CALL BCS_SEGS_DFDU(U0, U1, PAR, DBC(1:NBC, 1:NDIM))
 
   IF (IJAC .EQ. 1) RETURN
   !-----------------------------------!
   !     JACOBIAN: PARAMETER-SPACE     !
   !-----------------------------------!
   ! Jacobian of the boundary condition with respect to the parameters
-  CALL BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, DBC(1:NBC, 2*NDIM+1:2*pdim+9))
+  CALL BCS_SEGS_DFDP(U0, U1, PAR, DBC(1:NBC, 2*NDIM+1:2*pdim+9))
 
 END SUBROUTINE BCND
 
-SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
+SUBROUTINE BCS_SEGS(U0, U1, PAR, BCS_out)
   ! Boundary conditions of the four segments of the phase resetting problem:
   !                        x1(0) - x2(1) = 0 ,
   !                        x1(1) - x2(0) = 0 ,
@@ -1153,10 +841,6 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
   !
   ! Input
   ! ----------
-  ! NDIM : INTEGER
-  !     Dimension of the algebraic or ODE system
-  ! NBC  : INTEGER
-  !     Number of boundary conditions
   ! U0   : REAL(KIND=8), ARRAY
   !     State variable values at the 'left' boundary
   ! U1   : REAL(KIND=8), ARRAY
@@ -1172,30 +856,32 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
   !============================================================================!
   !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
   !============================================================================!
-  ! Import global variables
-  USE VECTOR_FIELD
 
   IMPLICIT NONE
+  
+  !--------------------------------!
+  !     STATE-SPACE DIMENSIONS     !
+  !--------------------------------!
+  ! State-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: xdim = 3
+  ! Parameter-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: pdim = 4
 
   !-------------------------!
   !     INPUT ARGUMENTS     !
   !-------------------------!
-  ! Dimension of the algebraic or ODE system
-  INTEGER, INTENT(IN)         :: NDIM
-  ! Number of boundary conditions
-  INTEGER, INTENT(IN)         :: NBC
   ! State variable values at the 'left' boundary
-  REAL(KIND=8), INTENT(IN)    :: U0(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U0(18)
   ! State variable values at the 'right' boundary
-  REAL(KIND=8), INTENT(IN)    :: U1(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U1(18)
   ! Equation parameters.
-  REAL(KIND=8), INTENT(IN)    :: PAR(*)
+  REAL(KIND=8), INTENT(IN)    :: PAR(13)
 
   !--------------------------!
   !     OUTPUT ARGUMENTS     !
   !--------------------------!
   ! The value of the boundary condition functions
-  REAL(KIND=8), INTENT(OUT)   :: BCS_out(NBC)
+  REAL(KIND=8), INTENT(OUT)   :: BCS_out(22)
 
   !--------------------------!
   !     SUBROUTINE STUFF     !
@@ -1315,16 +1001,12 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
 
 END SUBROUTINE BCS_SEGS
 
-SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
+SUBROUTINE BCS_SEGS_DFDU(U0, U1, PAR, J_out)
   ! Encoding of the Jacobian of the boundary conditions with
   ! respect to the initial state-space vector components.
   !
   ! Input
   ! ----------
-  ! NDIM : INTEGER
-  !     Dimension of the algebraic or ODE system
-  ! NBC  : INTEGER
-  !     Number of boundary conditions
   ! U0   : REAL(KIND=8), ARRAY
   !     State variable values at the 'left' boundary
   ! U1   : REAL(KIND=8), ARRAY
@@ -1337,25 +1019,23 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
   ! J_out  : REAL(KIND=8), ARRAY
   !    Equation or ODE right-hand-side values
 
-  !============================================================================!
-  !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-  !============================================================================!
-  ! Import global variables
-  USE VECTOR_FIELD
-
   IMPLICIT NONE
+  
+  !--------------------------------!
+  !     STATE-SPACE DIMENSIONS     !
+  !--------------------------------!
+  ! State-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: xdim = 3
+  ! Parameter-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: pdim = 4
 
   !-------------------------!
   !     INPUT ARGUMENTS     !
   !-------------------------!
-  ! Dimension of the algebraic or ODE system
-  INTEGER, INTENT(IN)         :: NDIM
-  ! Number of boundary conditions
-  INTEGER, INTENT(IN)         :: NBC
   ! State variable values at the 'left' boundary
-  REAL(KIND=8), INTENT(IN)    :: U0(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U0(*)
   ! State variable values at the 'right' boundary
-  REAL(KIND=8), INTENT(IN)    :: U1(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U1(*)
   ! Equation parameters
   REAL(KIND=8), INTENT(IN)    :: PAR(*)
 
@@ -1363,7 +1043,7 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
   !     OUTPUT ARGUMENTS     !
   !--------------------------!
   ! Equation or ODE right-hand-side values
-  REAL(KIND=8), INTENT(OUT)   :: J_out(NBC, 2*NDIM)
+  REAL(KIND=8), INTENT(OUT)   :: J_out(22, *)
 
   !--------------------------!
   !     SUBROUTINE STUFF     !
@@ -1566,16 +1246,12 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
 
 END SUBROUTINE BCS_SEGS_DFDU
 
-SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
+SUBROUTINE BCS_SEGS_DFDP(U0, U1, PAR, J_out)
   ! Encoding of the Jacobian of the boundary conditions with
   ! respect to the parameters.
   !
   ! Input
   ! ----------
-  ! NDIM : INTEGER
-  !     Dimension of the algebraic or ODE system
-  ! NBC  : INTEGER
-  !     Number of boundary conditions
   ! U0   : REAL(KIND=8), ARRAY
   !     State variable values at the 'left' boundary
   ! U1   : REAL(KIND=8), ARRAY
@@ -1588,25 +1264,23 @@ SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
   ! J_out  : REAL(KIND=8), ARRAY
   !    Equation or ODE right-hand-side values
 
-  !============================================================================!
-  !                   DEFINING AND DECLARING VARIABLES/ARRAYS                  !
-  !============================================================================!
-  ! Import global variables
-  USE VECTOR_FIELD
-
   IMPLICIT NONE
+  
+  !--------------------------------!
+  !     STATE-SPACE DIMENSIONS     !
+  !--------------------------------!
+  ! State-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: xdim = 3
+  ! Parameter-space dimension of the Yamada model
+  INTEGER, PARAMETER          :: pdim = 4
 
   !-------------------------!
   !     INPUT ARGUMENTS     !
   !-------------------------!
-  ! Dimension of the algebraic or ODE system
-  INTEGER, INTENT(IN)         :: NDIM
-  ! Number of boundary conditions
-  INTEGER, INTENT(IN)         :: NBC
   ! State variable values at the 'left' boundary
-  REAL(KIND=8), INTENT(IN)    :: U0(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U0(*)
   ! State variable values at the 'right' boundary
-  REAL(KIND=8), INTENT(IN)    :: U1(NDIM)
+  REAL(KIND=8), INTENT(IN)    :: U1(*)
   ! Equation parameters
   REAL(KIND=8), INTENT(IN)    :: PAR(*)
 
@@ -1614,7 +1288,7 @@ SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
   !     OUTPUT ARGUMENTS     !
   !--------------------------!
   ! Equation or ODE right-hand-side values
-  REAL(KIND=8), INTENT(OUT)   :: J_out(NBC, *)
+  REAL(KIND=8), INTENT(OUT)   :: J_out(22, *)
 
   !--------------------------!
   !     SUBROUTINE STUFF     !
@@ -1964,5 +1638,4 @@ SUBROUTINE PVLS(NDIM, U, PAR)
   ! Equation parameters.
   REAL(KIND=8), INTENT(INOUT) :: PAR(*)
 
-  
 END SUBROUTINE PVLS

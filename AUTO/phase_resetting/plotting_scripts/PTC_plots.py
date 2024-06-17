@@ -34,18 +34,33 @@ def plot_single_PTC(run_in):
     theta_perturb = sol_read['theta_perturb']
     # Perturbation vector
     d_perturb     = [cos(theta_perturb), sin(theta_perturb)]
+    
+    # "Fix" data so theta's less than 1
+    mask_pos = theta_old > 1.0
+    mask_neg = theta_old <= 1.0
+    
+    # theta_old < 1
+    theta_old_1 = theta_old[mask_neg]
+    theta_new_1 = theta_new[mask_neg]
+    
+    # theta_old > 1
+    theta_old_2 = theta_old[mask_pos] - 1.0
+    theta_new_2 = theta_new[mask_pos]
 
     #-------------------------------------------------------------------------#
     #                                   Plot                                  #
     #-------------------------------------------------------------------------#
     fig = plt.figure(num='Single PTC Test', figsize=[8, 8])
+    fig.clear()
     ax = plt.gca()
 
     #--------------#
     #     Plot     #
     #--------------#
     # Plot isochron
-    ax.plot(theta_old, theta_new)
+    # ax.plot(theta_old, theta_new)
+    ax.plot(theta_old_1, theta_new_1, color='C0', ls='solid')
+    ax.plot(theta_old_2, theta_new_2, color='C0', ls='solid')
     
     # Legend
     ax.legend(loc='upper right')
@@ -53,8 +68,8 @@ def plot_single_PTC(run_in):
     #--------------------#
     #     Axis Ticks     #
     #--------------------#
-    ax.set_xticks(arange(0.0, 2.5, 0.5))
-    ax.set_xticks(arange(0.25, 2.5, 0.5), minor=True)
+    ax.set_xticks(arange(0.0, 1.2, 0.2))
+    ax.set_xticks(arange(0.1, 1.2, 0.2), minor=True)
     
     ax.set_yticks(arange(0.0, 2.5, 0.5))
     ax.set_yticks(arange(0.25, 2.5, 0.5), minor=True)
@@ -62,7 +77,7 @@ def plot_single_PTC(run_in):
     #---------------------#
     #     Axis Limits     #
     #---------------------#
-    ax.set_xlim(0.0, 2.0)
+    ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0.0, 2.0)
     
     #---------------------#
@@ -189,6 +204,7 @@ def plot_multi_PTC(run_str_in):
     #                                   Plot                                  #
     #-------------------------------------------------------------------------#
     fig = plt.figure(num='Multiple PTCs', figsize=[8, 8])
+    fig.clear()
     ax = plt.gca()
 
     #--------------#
@@ -198,6 +214,17 @@ def plot_multi_PTC(run_str_in):
     for i in range(len(theta_old)):
         old_plot = theta_old[i]
         new_plot = theta_new[i]
+        
+        # Create data mask so theta_old <= 1.0
+        mask1 = old_plot > 1.0
+        mask2 = old_plot <= 1.0
+        
+        # Two data sets to plot
+        theta_old1 = old_plot[mask1] - 1.0
+        theta_old2 = old_plot[mask2]
+        
+        theta_new1 = new_plot[mask1]
+        theta_new2 = new_plot[mask2]
 
         # Set colour and linestlye
         if i <= 9:
@@ -211,8 +238,13 @@ def plot_multi_PTC(run_str_in):
             ls     = 'dotted'
 
         # Plot without label
-        ax.plot(old_plot, new_plot, color=colour, ls=ls,
+        # ax.plot(old_plot, new_plot, color=colour, ls=ls,
+        #         label=r'$A_{{\mathrm{{p}}}} = {:.3f}$'.format(A_perturb[i]))
+        
+        # Plot the two data sets
+        ax.plot(theta_old1, theta_new1, color=colour, ls=ls,
                 label=r'$A_{{\mathrm{{p}}}} = {:.3f}$'.format(A_perturb[i]))
+        ax.plot(theta_old2, theta_new2, color=colour, ls=ls)
     
     # Legend
     ax.legend(loc='upper right')
@@ -220,8 +252,8 @@ def plot_multi_PTC(run_str_in):
     #--------------------#
     #     Axis Ticks     #
     #--------------------#
-    ax.set_xticks(arange(0.0, 2.5, 0.5))
-    ax.set_xticks(arange(0.25, 2.5, 0.5), minor=True)
+    ax.set_xticks(arange(0.0, 1.2, 0.2))
+    ax.set_xticks(arange(0.1, 1.2, 0.2), minor=True)
     
     ax.set_yticks(arange(0.0, 2.5, 0.5))
     ax.set_yticks(arange(0.25, 2.5, 0.5), minor=True)
@@ -229,7 +261,7 @@ def plot_multi_PTC(run_str_in):
     #---------------------#
     #     Axis Limits     #
     #---------------------#
-    ax.set_xlim(0.0, 2.0)
+    ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0.0, 2.0)
     
     #---------------------#
@@ -238,7 +270,7 @@ def plot_multi_PTC(run_str_in):
     ax.set_xlabel(r'$\theta_{\mathrm{old}}$')
     ax.set_ylabel(r'$\theta_{\mathrm{new}}$')
     
-    ax.set_title((r'PTC with'
+    ax.set_title((r'PTC with '
                   r'$\vec{{d}}_{{\mathrm{{p}}}} = \left( {:.1f}, 0.0, {:.1f} \right)$'
                   ).format(d_perturb[0], d_perturb[1]))
     
@@ -349,34 +381,77 @@ def read_level_set_scan_data(run_str_in):
     data_dir = sort_data_folders(run_str_in)
 
     # Empty arrays for data
-    theta_old = []
-    theta_new = []
-    A_perturb = []
+    A_perturb     = []
+    theta_perturb = []
+    theta_new     = []
 
     # Read data
     for idx, run in enumerate(data_dir):
         # Read data
         bd = bd_read('{}/{}'.format(run_str_in, run))
 
-        # Read iso1 values
-        theta_old_read = bd['theta_old']
+        # Read A_perturb values
+        A_perturb_read = bd['A_perturb']
 
-        # Read iso1 values
-        theta_new_read = bd['theta_new']
+        # Read theta_perturb values
+        theta_perturb_read = bd['theta_perturb']
 
-        # Read A_perturb value
+        # Read theta_new value
         sol = bd(1)
-        A_perturb_read = sol['A_perturb']
+        theta_new_read = sol['theta_new']
 
         # Append data
-        theta_old.append(theta_old_read)
-        theta_new.append(theta_new_read)
+        theta_perturb.append(theta_perturb_read)
         A_perturb.append(A_perturb_read)
+        theta_new.append(theta_new_read)
 
     #----------------#
     #     Output     #
     #----------------#
-    return theta_old, theta_new, A_perturb
+    return theta_perturb, A_perturb, theta_new
+
+#------------------------------------------------------------------------------#
+def save_level_set_scan(run_str_in):
+    """
+    Reads and saves the A_perturb, theta_perturb, and theta_new data
+    from the scan run 'run09_level_set_scan' to a MATLAB .mat file.
+
+    Input
+    -------
+    run_str_in : str
+        String label identifier for the current run.
+    """
+    from scipy.io import savemat
+    from python_files.write_data_functions import bd_read
+    from numpy import array
+
+    #-------------------#
+    #     Read Data     #
+    #-------------------#
+    # Read level set data
+    theta_perturb, A_perturb, theta_new = read_level_set_scan_data(run_str_in)
+
+    # Read a solution to get the unchanging parameters
+    run_in = bd_read('{}/sol_001'.format(run_str_in))
+    sol_read = run_in(1)
+
+    # Perturbation direction angle
+    theta_old = sol_read['theta_old']
+    # System parameters
+    gamma     = sol_read['gamma']
+    A         = sol_read['A']
+    B         = sol_read['B']
+    a         = sol_read['a']
+
+    #-------------------#
+    #     Save Data     #
+    #-------------------#
+    # Dictionary for data
+    mat_out = {'theta_perturb': theta_perturb, 'A_perturb': A_perturb, 'theta_new': theta_new,
+               'theta_old': theta_old, 'gamma': gamma, 'A': A, 'B': B, 'a': a}
+    
+    # Save data
+    savemat('./data/level_set_scan.mat', mat_out) 
 
 #------------------------------------------------------------------------------#
 # Plot single isochron against the periodic orbit in phase space
@@ -391,44 +466,42 @@ def plot_multi_level_set(run_str_in):
     """
     import matplotlib.pyplot as plt
     from python_files.write_data_functions import bd_read
-    from numpy import arange, cos, sin
+    from numpy import arange, pi
     
     # Add thesis style sheet
     plt.style.use('./plotting_scripts/figure_style.mplstyle')
 
+
     # Filename for figure
-    filename_out = "./images/PTC_multi.pdf"
+    filename_out = "./images/level_set_multi.pdf"
 
     #-------------------#
     #     Read Data     #
     #-------------------#
     # Cooridnates of the isochron
-    theta_old, theta_new, A_perturb = read_PTC_scan_data(run_str_in)
+    theta_perturb, A_perturb, theta_new = read_level_set_scan_data(run_str_in)
 
+    # Read a solution to get the unchanging parameters
     run_in = bd_read('{}/sol_001'.format(run_str_in))
     sol_read = run_in(1)
 
-    # Solution to read
-    sol_read = run_in(1)
-
     # Perturbation direction angle
-    theta_perturb = sol_read['theta_perturb']
-    # Perturbation vector
-    d_perturb     = [cos(theta_perturb), sin(theta_perturb)]
+    theta_old = sol_read['theta_old']
 
     #-------------------------------------------------------------------------#
     #                                   Plot                                  #
     #-------------------------------------------------------------------------#
     fig = plt.figure(num='Multiple PTCs', figsize=[8, 8])
+    fig.clf()
     ax = plt.gca()
 
     #--------------#
     #     Plot     #
     #--------------#
     # Plot PTC
-    for i in range(len(theta_old)):
-        old_plot = theta_old[i]
-        new_plot = theta_new[i]
+    for i in range(len(theta_perturb)):
+        theta_perturb_plot = theta_perturb[i] / pi
+        A_perturb_plot     = A_perturb[i]
 
         # Set colour and linestlye
         if i <= 9:
@@ -442,8 +515,8 @@ def plot_multi_level_set(run_str_in):
             ls     = 'dotted'
 
         # Plot without label
-        ax.plot(old_plot, new_plot, color=colour, ls=ls,
-                label=r'$A_{{\mathrm{{p}}}} = {:.3f}$'.format(A_perturb[i]))
+        ax.plot(theta_perturb_plot, A_perturb_plot, color=colour, ls=ls,
+                label=r'$\theta_{{\mathrm{{new}}}} = {:.3f}$'.format(theta_new[i]))
     
     # Legend
     ax.legend(loc='upper right')
@@ -451,27 +524,26 @@ def plot_multi_level_set(run_str_in):
     #--------------------#
     #     Axis Ticks     #
     #--------------------#
-    ax.set_xticks(arange(0.0, 2.5, 0.5))
-    ax.set_xticks(arange(0.25, 2.5, 0.5), minor=True)
+    # ax.set_xticks(arange(0.0, 2.5, 0.5))
+    # ax.set_xticks(arange(0.25, 2.5, 0.5), minor=True)
     
-    ax.set_yticks(arange(0.0, 2.5, 0.5))
-    ax.set_yticks(arange(0.25, 2.5, 0.5), minor=True)
+    # ax.set_yticks(arange(0.0, 2.5, 0.5))
+    # ax.set_yticks(arange(0.25, 2.5, 0.5), minor=True)
     
     #---------------------#
     #     Axis Limits     #
     #---------------------#
-    ax.set_xlim(0.0, 2.0)
-    ax.set_ylim(0.0, 2.0)
+    ax.set_xlim(-1.55, 0.55)
+    ax.set_ylim(0.0, 40.0)
     
     #---------------------#
     #     Axis Labels     #
     #---------------------#
-    ax.set_xlabel(r'$\theta_{\mathrm{old}}$')
-    ax.set_ylabel(r'$\theta_{\mathrm{new}}$')
+    ax.set_xlabel(r'$\theta_{\mathrm{p}} / \pi$')
+    ax.set_ylabel(r'$A_{\mathrm{p}}$')
     
-    ax.set_title((r'PTC with'
-                  r'$\vec{{d}}_{{\mathrm{{p}}}} = \left( {:.1f}, 0.0, {:.1f} \right)$'
-                  ).format(d_perturb[0], d_perturb[1]))
+    ax.set_title((r'Level Set with $\theta_{{\mathrm{{old}}}} = {:.3f}$'
+                  ).format(theta_old))
     
     #--------------#
     #     Grid     #

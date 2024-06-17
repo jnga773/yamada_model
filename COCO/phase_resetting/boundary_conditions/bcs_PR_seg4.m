@@ -102,9 +102,10 @@ function [data_in, y_out] = bcs_PR_seg4(prob_in, data_in, u_in)
            sin(theta_perturb)];
 
   % Boundary Conditions - Segment 4
-  bcs_seg4_1    = x0_seg4 - x0_seg3 - (A_perturb * d_vec);
-  bcs_seg4_2    = dot(x1_seg4 - x0_seg2, w0_seg2);
-  bcs_seg4_3    = norm(x1_seg4 - x0_seg2) - eta;
+  bcs_seg4_1 = x0_seg4 - x0_seg3 - (A_perturb * d_vec);
+  bcs_seg4_2 = dot(x1_seg4 - x0_seg2, w0_seg2);
+  % bcs_seg4_3 = norm(x1_seg4 - x0_seg2) - eta;
+  bcs_seg4_3 = (norm(x1_seg4 - x0_seg2) ^ 2) - eta;
 
   %----------------%
   %     Output     %
