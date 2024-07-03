@@ -116,7 +116,7 @@ def plot_base_periodic_orbit(ax_in):
     #     Read Data     #
     #-------------------#
     # Load data from matrix
-    data = loadmat('./data/initial_PO.mat')
+    data = loadmat('./data_mat/initial_PO.mat')
 
     # Plot things
     xbp  = data['xbp_PO']
@@ -171,7 +171,7 @@ def plot_initial_PO():
     #                                Read Data                                #
     #-------------------------------------------------------------------------#
     # Load data from matrix
-    data = loadmat('./data/initial_PO.mat')
+    data = loadmat('./data_mat/initial_PO.mat')
 
     # Plot things
     xbp = data['xbp_PO']

@@ -1,12 +1,12 @@
-#==============================================================================!
-#                            INITIAL CONTINUATION                              !
-#==============================================================================!
+#==============================================================================#
+#                            INITIAL CONTINUATION                              #
+#==============================================================================#
 # Function file
 e = './functions/yamada'
 
-#--------------------------!
-#     Problem Settings     !
-#--------------------------!
+#--------------------------#
+#     Problem Settings     #
+#--------------------------#
 # Problem type: 0 = AE
 #               1 = FP(ODEs)
 #               2 = PO
@@ -68,9 +68,9 @@ NBC = 0
 # Number of integral conditions
 NINT = 0
 
-#-------------------------------!
-#     Continuation Settings     !
-#-------------------------------!
+#-------------------------------#
+#     Continuation Settings     #
+#-------------------------------#
 # Maximum number of steps
 NMX  = 100
 
@@ -86,9 +86,9 @@ MXBF = 0
 #                            4 = extensive
 IID  = 2
 
-#----------------------------!
-#     Mesh Grid Settings     !
-#----------------------------!
+#----------------------------#
+#     Mesh Grid Settings     #
+#----------------------------#
 # Number of mesh grid intevals
 NTST = 50
 
@@ -101,9 +101,9 @@ IAD  = 3
 # Step size adaption every [IADS] step: 0 = off
 IADS  = 1
 
-#------------------------------!
-#     Convergence Settings     !
-#------------------------------!
+#------------------------------#
+#     Convergence Settings     #
+#------------------------------#
 # Convergence criterion: Parameters
 EPSL = 1e-06
 
@@ -113,9 +113,9 @@ EPSU = 1e-06
 # Convergence criterion: Special points
 EPSS = 0.0001
 
-#-----------------------------------------!
-#     Continuation Step-Size Settings     !
-#-----------------------------------------!
+#-----------------------------------------#
+#     Continuation Step-Size Settings     #
+#-----------------------------------------#
 # Start step size
 DS    = 1e-2
 

@@ -1,9 +1,9 @@
-#==============================================================================!
-#                AUTO-07 SETTINGS: PHASE RESET 1 - PERTURBATION                !
-#==============================================================================!
-#-----------------------------!
-#     Initial Calculation     !
-#-----------------------------!
+#==============================================================================#
+#                AUTO-07 SETTINGS: PHASE RESET 1 - PERTURBATION                #
+#==============================================================================#
+#-----------------------------#
+#     Initial Calculation     #
+#-----------------------------#
 # Equation file
 e = './functions/yamada_PR'
 
@@ -79,21 +79,21 @@ DSMAX = 1e-1
 # Number of collocation points?
 NCOL = 4
 # Set adaptive mesh interval
-IAD = 1
+IAD = 10
 
 #----------------------------#
 #     Tolerance Settings     #
 #----------------------------#
 # Maximum number of iterations for locating special solutions/points
-ITMX = 13
+ITMX = 10
 # Maximum number of correction steps
 ITNW = 7
 # Corrector uses full newton for [NWTN] number of steps
-NWTN = 10
+NWTN = 5
 
 # Relative convergence criterion: Parameters
-EPSL = 1e-7
+EPSL = 1e-5
 # Relative convergence criterion: Solution components
-EPSU = 1e-7
+EPSU = 1e-5
 # Relative convergence criterion: Arc lenght
-EPSS = 1e-7
+EPSS = 1e-5

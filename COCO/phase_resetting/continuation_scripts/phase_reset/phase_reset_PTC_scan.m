@@ -23,7 +23,7 @@ fprintf('Continuing from SP points in run: %s \n', run_old);
 %     Cycle through SP labels     %
 %---------------------------------%
 % Set number of threads
-M = 4;
+M = 7;
 parfor (run = 1 : length(label_old), M)
   % Label for this run
   this_run_label = label_old(run);
@@ -79,10 +79,10 @@ function phase_transition_scan_A_perturb(run_new_in, run_old_in, label_old_in, d
   prob = coco_set(prob, 'cont', 'h_max', 1e2);
 
   % Set adaptive mesh
-  prob = coco_set(prob, 'cont', 'NAdapt', 1);
+  prob = coco_set(prob, 'cont', 'NAdapt', 10);
 
   % Set number of steps
-  prob = coco_set(prob, 'cont', 'PtMX', 750);
+  prob = coco_set(prob, 'cont', 'PtMX', 800);
 
   %-------------------------------------------%
   %     Continue from Trajectory Segments     %
@@ -117,7 +117,7 @@ function phase_transition_scan_A_perturb(run_new_in, run_old_in, label_old_in, d
   % prob = coco_add_event(prob, 'SP', 'theta_old', SP_values);
 
   % Run COCO continuation
-  prange = {[0.0, 1.0], [], [-1e-4, 1e-2], [0.99, 1.01], []};
+  prange = {[0.0, 2.0], [], [-1e-4, 1e-2], [0.99, 1.01], []};
   coco(prob, run_new_in, [], 1, {'theta_old', 'theta_new', 'eta', 'mu_s', 'T', 'A_perturb'}, prange);
 
 end

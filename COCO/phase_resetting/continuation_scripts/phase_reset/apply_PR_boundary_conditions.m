@@ -52,7 +52,7 @@ function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
   [data2, uidx2]   = coco_get_func_data(prob, 'seg2.coll', 'data', 'uidx');
   [data3, uidx3]   = coco_get_func_data(prob, 'seg3.coll', 'data', 'uidx');
   [data4, uidx4]   = coco_get_func_data(prob, 'seg4.coll', 'data', 'uidx');
-  [dataep, uidxep] = coco_get_func_data(prob, 'singularity.ep', 'data', 'uidx');
+  % [dataep, uidxep] = coco_get_func_data(prob, 'singularity.ep', 'data', 'uidx');
 
   % Grab the indices from each of the orbit segments
   maps1 = data1.coll_seg.maps;

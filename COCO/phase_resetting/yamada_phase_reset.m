@@ -102,7 +102,7 @@ addpath('./plotting_scripts/initial_periodic_orbit/');
 run_names.initial_EP = 'run01_initial_EP';
 
 % Run continuation script
-% initial_equilibrium_point;
+initial_equilibrium_point;
 
 %----------------------------------------%
 %%     Continue from Branching Point     %
@@ -111,7 +111,7 @@ run_names.initial_EP = 'run01_initial_EP';
 run_names.branching_point = 'run02_branching_point_continuation';
 
 % Run continuation script
-% equilibrium_from_branching_point;
+equilibrium_from_branching_point;
 
 %-----------------------------------------%
 %%     Move A and \gamma on Hopf Line     %
@@ -121,7 +121,7 @@ run_names.branching_point = 'run02_branching_point_continuation';
 run_names.move_hopf = 'run03_move_hopf';
 
 % Run continuation script
-% move_hopf;
+move_hopf;
 
 %----------------------------------%
 %%     Hopf to Periodic Orbit     %%
@@ -131,7 +131,7 @@ run_names.move_hopf = 'run03_move_hopf';
 run_names.hopf_to_PO = 'run05_hopf_to_PO';
 
 % Run continuation
-% hopf_to_PO;
+hopf_to_PO;
 
 %------------------------------------------%
 %%     Compute Initial Periodic Orbit     %%
@@ -141,7 +141,7 @@ run_names.hopf_to_PO = 'run05_hopf_to_PO';
 run_names.initial_periodic_orbit = 'run06_initial_periodic_orbit';
 
 % Run continuation
-% initial_periodic_orbit;
+initial_periodic_orbit;
 
 %-------------------------------------------------------------------------%
 %%               Compute Floquet Bundle at Zero Phase Point              %%
@@ -175,7 +175,7 @@ bcs_funcs.bcs_floquet = bcs_floquet_symbolic();
 run_names.compute_floquet_1 = 'run07_compute_floquet_bundle_1_mu';
 
 % Run continuation script
-% floquet_mu;
+floquet_mu;
 
 %--------------------------------------------------------------------%
 %%     Compute Floquet Bundle at Zero Phase Point (with w_norm)     %%
@@ -187,7 +187,7 @@ run_names.compute_floquet_1 = 'run07_compute_floquet_bundle_1_mu';
 run_names.compute_floquet_2 = 'run08_compute_floquet_bundle_2_w';
 
 % Run continuation script
-% floquet_wnorm;
+floquet_wnorm;
 
 %-------------------------------------------------------------------------%
 %%                   Phase Response Curve Calculation                    %%

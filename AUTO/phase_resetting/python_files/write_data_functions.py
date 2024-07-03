@@ -329,7 +329,7 @@ def save_PO_data_matlab(sol_in):
                'p0_PO': [gamma, A, B, a]}
     
     # Save data
-    savemat('./data/initial_PO.mat', mat_out) 
+    savemat('./data_mat/initial_PO.mat', mat_out) 
 
 #------------------------------------------------------------------------------#
 # Calculate the initial solution to the adjoint BVP from
@@ -571,3 +571,6 @@ def write_initial_solution_phase_reset(bd_data_in, k_in):
 
     # Close file
     file_data.close()
+
+
+#------------------------------------------------------------------------------#

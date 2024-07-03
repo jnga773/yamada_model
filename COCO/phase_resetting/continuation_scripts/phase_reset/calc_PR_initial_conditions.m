@@ -99,7 +99,7 @@ function data_out = calc_PR_initial_conditions(run_in, label_in)
   % \theta_new (where segment comes back to \Gamma)
   theta_new     = 1.0;
   % Angle at which perturbation is applied?
-  theta_perturb = 0.5 * pi;
+  theta_perturb = 0.0;
   % Azimuthal angle at which perturbation is applied
   phi_perturb   = 0.0;
   % Size of perturbation
