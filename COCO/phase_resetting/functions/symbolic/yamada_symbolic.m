@@ -17,7 +17,7 @@ function F_coco_out = yamada_symbolic()
   pvec = [gam; A; B; a];
   
   % Symbolic vector field
-  F_vec = yamada_symbolic_field();
+  F_vec = yamada_symbolic_field(xvec, pvec);
 
   %-----------------%
   %     SymCOCO     %

@@ -39,10 +39,9 @@ function F_coco_out = func_seg1_symbolic()
   %     Calculate Things     %
   %--------------------------%
   % Vector field
-  F_vec = yamada_symbolic_field();
+  F_vec = yamada_symbolic_field(xvec, p_sys);
 
   % Vector equation
-  % vec_eqn = theta_new * F_vec;
   vec_eqn = T * theta_new * F_vec;
 
   % Calculate tranpose of Jacobian at point xvec

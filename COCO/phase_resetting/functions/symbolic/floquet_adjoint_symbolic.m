@@ -35,7 +35,7 @@ function F_coco_out = floquet_adjoint_symbolic()
   %     Calculate Things     %
   %--------------------------%
   % Vector field
-  F_vec = yamada_symbolic_field();
+  F_vec = yamada_symbolic_field(xvec, p_sys);
 
   % Vector field equations
   % F_eqn = F_vec

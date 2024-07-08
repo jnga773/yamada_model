@@ -24,9 +24,7 @@ function bcs_coco_out = bcs_PR_seg1_seg2_symbolic()
   %     Input     %
   %---------------%
   % Segment 1 - x(0)
-  syms G Q I
-  x0_seg1 = [G; Q; I];
-  % x0_seg1 = sym('x', [xdim, 1]);
+  x0_seg1 = sym('x', [xdim, 1]);
 
   % Segment 1 - w(0)
   w0_seg1 = sym('w0_seg1', [xdim, 1]);
@@ -72,7 +70,7 @@ function bcs_coco_out = bcs_PR_seg1_seg2_symbolic()
   %     Calculate Things     %
   %--------------------------%
   % Vector field
-  F_vec = yamada_symbolic_field();
+  F_vec = yamada_symbolic_field(x0_seg1, p_sys);
 
   % Boundary Conditions - Segments 1 and 2
   bcs_seg12_1   = x0_seg1 - x1_seg2;

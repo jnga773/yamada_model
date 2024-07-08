@@ -36,10 +36,9 @@ function F_coco_out = func_seg3_symbolic()
   %     Calculate Things     %
   %--------------------------%
   % Vector field
-  F_vec = yamada_symbolic_field();
+  F_vec = yamada_symbolic_field(xvec, p_sys);
 
   % Vector equation
-  % vec_eqn = (1 - theta_old) * F_vec;
   vec_eqn = T * (1 - theta_old) * F_vec;
 
   % Total equation

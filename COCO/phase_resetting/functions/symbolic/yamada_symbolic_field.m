@@ -1,22 +1,25 @@
-function F_out = yamada_symbolic_field()
+function F_out = yamada_symbolic_field(x_in, p_in)
   % F_out = yamada_symbolic_field()
   %
   % Symbolic notation of the Yamada vector field in the transformed axes.
   
   % State-space and parameter variables
-  syms G Q I
-  syms gam A B a
+  G     = x_in(1);
+  Q     = x_in(2);
+  I     = x_in(3);
+  gamma = p_in(1);
+  A     = p_in(2);
+  B     = p_in(3);
+  a     = p_in(4);
 
   %--------------------------%
   %     Calculate Things     %
   %--------------------------%
   % Vector field components
   % d/dt G
-  F1 = gam * (A - G - (G * I));
-
+  F1 = gamma * (A - G - (G * I));
   % d/dt Q
-  F2 = gam * (B - Q - (a * Q * I));
-
+  F2 = gamma * (B - Q - (a * Q * I));
   % d/dt QI
   F3 = I * (G - Q - 1);
 

@@ -23,9 +23,7 @@ function bcs_coco_out = bcs_PO_symbolic()
   %     Input     %
   %---------------%
   % Initial point of the periodic orbit
-  syms G Q I
-  x_init = [G; Q; I];
-  % x_init = sym('x', [xdim, 1]);
+  x_init = sym('x', [xdim, 1]);
 
   % Final point of the periodic orbit
   x_final = sym('x_final', [xdim, 1]);
@@ -43,7 +41,7 @@ function bcs_coco_out = bcs_PO_symbolic()
   %     Calculate Things     %
   %--------------------------%
   % Vector field
-  F_vec = yamada_symbolic_field();
+  F_vec = yamada_symbolic_field(x_init, p_sys);
 
   % Periodic boundary conditions
   bcs1 = x_init - x_final;
