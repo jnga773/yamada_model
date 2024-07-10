@@ -20,18 +20,18 @@ clc;
 
 % Add equation/functions to path
 addpath('./functions/');
-
-% % Hardcoded functions
-addpath('./functions/hardcoded/');
-addpath('./boundary_conditions/hardcoded/');
-% Symbolic functions
-addpath('./functions/symbolic/');
-addpath('./boundary_conditions/symbolic/');
+% Add field functions to path
+addpath('./functions/fields/');
+% Add boundary condition functions to path
+addpath('./functions/bcs/');
+% Add SymCOCO files to path
+addpath('./functions/symcoco/');
 
 % Add continuation scripts
-addpath('./continuation_scripts/');
+addpath('./continuation_scripts/initial_periodic_orbit/');
+
 % Add plotting scripts
-addpath('./plotting_scripts/');
+addpath('./plotting_scripts/initial_periodic_orbit');
 
 %--------------------%
 %     Parameters     %
@@ -83,7 +83,7 @@ bcs_funcs.bcs_T = bcs_T_symbolic();
 
 % Adjoint equations: Functions (for floquet_mu and floquet_wnorm)
 % funcs.floquet = {@floquet_adjoint};
-funcs.floquet = floquet_adjoint_symbolic();
+funcs.floquet = floquet_symbolic();
 
 % Boundary conditions: Floquet multipliers
 % bcs_funcs.bcs_floquet = {@bcs_floquet};

@@ -21,18 +21,22 @@ clc;
 % Add equation/functions to path
 addpath('./functions/');
 
-% % Hardcoded functions
-% addpath('./functions/hardcoded/');
-% addpath('./boundary_conditions/hardcoded/');
-% Symbolic functions
-addpath('./functions/symbolic/');
-addpath('./boundary_conditions/symbolic/');
+% Add equation/functions to path
+addpath('./functions/');
+% Add field functions to path
+% addpath('./functions/fields/hardcoded/');
+addpath('./functions/fields/');
+% Add boundary condition functions to path
+% addpath('./functions/bcs/hardcoded/');
+addpath('./functions/bcs/');
+% Add SymCOCO files to path
+addpath('./functions/symcoco/');
 
 % Add continuation scripts
-addpath('./continuation_scripts/');
+addpath('./continuation_scripts/PTC/');
 
 % Add plotting scripts
-addpath('./plotting_scripts/');
+addpath('./plotting_scripts/PTC');
 
 %-------------------------%
 %     Functions Lists     %
@@ -58,16 +62,16 @@ funcs.seg4 = func_seg4_symbolic();
 bcs_funcs.bcs_T = bcs_T_symbolic();
 
 % Boundary conditions: Segments 1 and 2
-% bcs_funcs.bcs_seg1_seg2 = {@bcs_PR_seg1_seg2};
-bcs_funcs.bcs_seg1_seg2 = bcs_PR_seg1_seg2_symbolic();
+% bcs_funcs.bcs_seg1_seg2 = {@bcs_seg1_seg2};
+bcs_funcs.bcs_seg1_seg2 = bcs_seg1_seg2_symbolic();
 
 % Boundary conditions: Segment 3
-% bcs_funcs.bcs_seg3 = {@bcs_PR_seg3};
-bcs_funcs.bcs_seg3 = bcs_PR_seg3_symbolic();
+% bcs_funcs.bcs_seg3 = {@bcs_seg3};
+bcs_funcs.bcs_seg3 = bcs_seg3_symbolic();
 
 % Boundary conditions: Segment 4
-% bcs_funcs.bcs_seg4 = {@bcs_PR_seg4};
-bcs_funcs.bcs_seg4 = bcs_PR_seg4_symbolic();
+% bcs_funcs.bcs_seg4 = {@bcs_seg4};
+bcs_funcs.bcs_seg4 = bcs_seg4_symbolic();
 
 %-------------------------------------------------------------------------%
 %%                   Increasing Pertubation Amplitude                    %%
@@ -97,8 +101,6 @@ fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 data_PR = calc_PR_initial_conditions(run_old, label_old);
 
 % Set some parameters
-% k: Integer number of periods
-data_PR.p0(data_PR.p_maps.k) = 25;
 % theta_perturb: Angle at which perturbation is applied in the (G-I) plane
 data_PR.p0(data_PR.p_maps.theta_perturb) = 0.0;
 % data_PR.p0(data_PR.p_maps.theta_perturb) = 0.5 * pi;
@@ -133,11 +135,14 @@ prob = coco_set(prob, 'coll', 'MXCL', 'off');
 %------------------%
 %     Set NTST     %
 %------------------%
-% NTST values
-NTST(1) = 25;
+% In calc_PR_initial conditions, we define segment 4 as having 'k' periods,
+% where 'k' is an integer. This is the perturbed segment, that may have to
+% orbit the unperturbed periodic orbit many times before "resetting". Hence
+% we have set the NTST for this segment (NTST(4)) as k * 50.
+NTST(1) = 50;
 NTST(2) = 20;
 NTST(3) = 20;
-NTST(4) = 25 * data_PR.p0(data_PR.p_maps.k);
+NTST(4) = 50 * data_PR.p0(data_PR.p_maps.k);
 
 prob = coco_set(prob, 'seg1.coll', 'NTST', NTST(1));
 prob = coco_set(prob, 'seg2.coll', 'NTST', NTST(2));
@@ -185,7 +190,7 @@ prob = apply_PR_boundary_conditions(prob, data_PR, bcs_funcs);
 %     Add COCO Events     %
 %-------------------------%
 % Array of values for special event
-SP_values = [linspace(0.0, 0.25, 21), linspace(0.30, 2.0, 41)];
+SP_values = [linspace(0.0, 0.25, 21), linspace(0.30, 2.0, 21)];
 
 % When the parameter we want (from param) equals a value in A_vec
 prob = coco_add_event(prob, 'SP', 'A_perturb', SP_values);
@@ -211,7 +216,7 @@ plot_phase_reset_phase_space(run_names.phase_reset_perturbation, label_plot, 1);
 plot_A_perturb_theta_new(run_names.phase_reset_perturbation);
 
 %-------------------------------------------------------------------------%
-%%                   Phase Response Curve Calculation                    %%
+%%                 Phase Transition Curve (PTC) - Single                 %%
 %-------------------------------------------------------------------------%
 %------------------%
 %     Run Name     %
@@ -226,7 +231,7 @@ label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
 label_old = label_old(end);
 
 % Print to console
-fprintf("~~~ Phase Reset: Second Run (phase_reset_2_theta_perturb.m) ~~~ \n");
+fprintf("~~~ Phase Reset: Second Run ~~~ \n");
 fprintf('Fix A_perturb and continue in theta_perturb \n');
 fprintf('Run name: %s \n', run_names.phase_transition_curve);
 fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
@@ -250,6 +255,9 @@ prob = coco_set(prob, 'cont', 'NAdapt', 1);
 
 % Set number of steps
 prob = coco_set(prob, 'cont', 'PtMX', 750);
+
+% Set norm to int
+prob = coco_set(prob, 'norm', 'Inf');
 
 %-------------------------------------------%
 %     Continue from Trajectory Segments     %
@@ -286,6 +294,51 @@ plot_phase_reset_phase_space(run_names.phase_transition_curve, label_plot(1), 1)
 
 % Plot phase transition curve (PTC)
 plot_phase_transition_curve(run_names.phase_transition_curve);
+
+%-------------------------------------------------------------------------%
+%%                Phase Transition Curve (PTC) - Multiple                %%
+%-------------------------------------------------------------------------%
+%------------------%
+%     Run Name     %
+%------------------%
+% Current run name
+run_names.phase_transition_curve = 'run10_phase_reset_PTC_scan';
+% Which run this continuation continues from
+run_old = run_names.phase_reset_perturbation;
+
+% Continuation point
+label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
+
+% Print to console
+fprintf("~~~ Phase Reset: Second Run ~~~ \n");
+fprintf('Calculate phase transition curve \n');
+fprintf('Run name: %s \n', run_names.phase_transition_curve);
+fprintf('Continuing from SP points in run: %s \n', run_old);
+
+%---------------------------------%
+%     Cycle through SP labels     %
+%---------------------------------%
+% Set number of threads
+M = 0;
+parfor (run = 1 : length(label_old), M)
+  % Label for this run
+  this_run_label = label_old(run);
+
+  % Data directory for this run
+  fprintf('\n Continuing from point %d in run: %s \n', this_run_label, run_old);
+
+  this_run_name = {run_names.phase_transition_curve; sprintf('run_%02d', run)};
+
+  % Run continuation
+  PTC_scan_A_perturb(this_run_name, run_old, this_run_label, data_PR, bcs_funcs);
+
+end
+
+%--------------------%
+%     Test Plots     %
+%--------------------%
+% Plot PTC plane in A_perturb
+% plot_PTC_plane_A_perturb(run_new, save_figure);
 
 %=========================================================================%
 %                               END OF FILE                               %
