@@ -1,5 +1,5 @@
-function data_out = calc_PR_initial_conditions(run_in, label_in)
-  % data_out = calc_initial_conditions(run_in, label_in)
+function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_perturb_in)
+  % data_out = calc_initial_conditions(k_in, theta_perturb_in, phi_perturb_in)
   %
   % Reads data from previous run solution and calculates the 
   % initial conditions for the various different trajectory segments.
@@ -7,47 +7,17 @@ function data_out = calc_PR_initial_conditions(run_in, label_in)
   %-------------------%
   %     Read Data     %
   %-------------------%
-  % Read COCO solution
-  [sol, data] = coll_read_solution('adjoint', run_in, label_in);
-
-  % Original dimension of state space
-  xdim = 0.5 * data.xdim;
-  % Original dimension of parameter space
-  pdim = data.pdim - 3;
-
-  % State space solution
-  xbp_read = sol.xbp;
-  
-  % Periodic orbit solution
-  gamma_read = xbp_read(:, 1:xdim);
-  % Perpendicular solution
-  wn_read    = xbp_read(:, xdim+1:end);
+  % Read from .mat
+  load('./data_mat/floquet_solution.mat', 'gamma_read', 'wn_read', ...
+       'p_system', 'T_read', 'mu_s_read', ...
+       'pnames_system', 'mu_s_name', ...
+       'xdim', 'pdim', ...
+       'tbp_read');
 
   % Initial zero-phase point of the periodic orbit
   gamma_0 = gamma_read(1, :)';
   % Initial perpendicular vector
   wn_0    = wn_read(1, :)';
-
-  % Time data
-  tbp = sol.tbp;
-
-  % Parameters
-  p_read      = sol.p;
-  pnames_read = data.pnames;
-
-  % System parameters
-  p_system      = p_read(1:pdim);
-  pnames_system = {};
-  for i = 1 : pdim
-    pnames_system{i} = pnames_read{i};
-  end
-
-  % Stable eigenvalue
-  mu_s_read = p_read(end-2);
-  mu_s_name = pnames_read{end-2};
-
-  % Period of segment
-  T_read    = p_read(end);
 
   %---------------------------%
   %     Singularity Point     %
@@ -55,16 +25,31 @@ function data_out = calc_PR_initial_conditions(run_in, label_in)
   % Calculate "positive" non-trivial stationary point
   [x_pos, ~] = non_trivial_ss(p_system);
 
-  %--------------------------------------------------------%
-  %     Set Direction Vector Towards Equilibrium Point     %
-  %--------------------------------------------------------%
-  % % Find direction vector between xpos and gamma_0
-  % dvec = gamma_0 - x_pos;
-  % dvec = dvec / norm(dvec);
-  % 
-  % % Find z component
-  % phi_temp = acos(dvec(3));
-  % theta_temp = asin(dvec(2) / sin(phi_temp));
+  %----------------------------%
+  %     Initial Parameters     %
+  %----------------------------%
+  % Period of segment
+  T             = T_read;
+  % Integer for period
+  k             = k_in;
+  % \theta_old (where perturbation starts)
+  theta_old     = 1.0;
+  % \theta_new (where segment comes back to \Gamma)
+  theta_new     = 1.0;
+  % Stable Floquet eigenvalue (should be = 1)
+  mu_s          = mu_s_read;
+  % Distance from perturbed segment to \Gamma
+  eta           = 0.0;
+  % Size of perturbation
+  A_perturb     = 0.0;
+  % Angle at which perturbation is applied?
+  theta_perturb = theta_perturb_in;
+  % Azimuthal angle at which perturbation is applied
+  phi_perturb   = phi_perturb_in;
+  % % Perturbation vector components
+  % d_x           = 0.0;
+  % d_y           = 0.0;
+  % d_z           = 0.0;
 
   %---------------------------%
   %     Parameter Indices     %
@@ -75,49 +60,36 @@ function data_out = calc_PR_initial_conditions(run_in, label_in)
   % Save the index mapping of each parameter
   p_maps.T             = pdim + 1;
   p_maps.k             = pdim + 2;
-  p_maps.mu_s          = pdim + 3;
-  p_maps.eta           = pdim + 4; 
-  p_maps.theta_old     = pdim + 5;
-  p_maps.theta_new     = pdim + 6;
-  p_maps.theta_perturb = pdim + 7;
-  p_maps.phi_perturb   = pdim + 8;
-  p_maps.A_perturb     = pdim + 9;
+  p_maps.theta_old     = pdim + 3;
+  p_maps.theta_new     = pdim + 4;
+  p_maps.mu_s          = pdim + 5;
+  p_maps.eta           = pdim + 6;
+  p_maps.A_perturb     = pdim + 7;
+  p_maps.theta_perturb = pdim + 8;
+  p_maps.phi_perturb   = pdim + 9;
+  % p_maps.d_x           = pdim + 10;
+  % p_maps.d_y           = pdim + 11;
+  % p_maps.d_z           = pdim + 12;
 
-  %----------------------------%
-  %     Initial Parameters     %
-  %----------------------------%
-  % Period of segment
-  T             = T_read;
-  % Integer for period
-  k             = 25;
-  % Stable Floquet eigenvalue (should be = 1)
-  mu_s          = mu_s_read;
-  % Distance from perturbed segment to \Gamma
-  eta           = 0.0;
-  % \theta_old (where perturbation starts)
-  theta_old     = 1.0;
-  % \theta_new (where segment comes back to \Gamma)
-  theta_new     = 1.0;
-  % Angle at which perturbation is applied?
-  theta_perturb = 0.5 * pi;
-  % Azimuthal angle at which perturbation is applied
-  phi_perturb   = 0.0;
-  % Size of perturbation
-  A_perturb     = 0.0;
-
+  %------------------------%
+  %     Set Parameters     %
+  %------------------------%
   % Initial parameter array
-  p0_out = zeros(pdim+9, 1);
+  p0_out = zeros(pdim+length(p_maps), 1);
   % Put parameters in order
   p0_out(1:pdim)               = p_system;
   p0_out(p_maps.T)             = T;
   p0_out(p_maps.k)             = k;
-  p0_out(p_maps.mu_s)          = mu_s;
-  p0_out(p_maps.eta)           = eta;
   p0_out(p_maps.theta_old)     = theta_old;
   p0_out(p_maps.theta_new)     = theta_new;
+  p0_out(p_maps.mu_s)          = mu_s;
+  p0_out(p_maps.eta)           = eta;
+  p0_out(p_maps.A_perturb)     = A_perturb;
   p0_out(p_maps.theta_perturb) = theta_perturb;
   p0_out(p_maps.phi_perturb)   = phi_perturb;
-  p0_out(p_maps.A_perturb)     = A_perturb;
+  % p0_out(p_maps.d_x)           = d_x;
+  % p0_out(p_maps.d_y)           = d_y;
+  % p0_out(p_maps.d_z)           = d_z;
 
   %-------------------------%
   %     Parameter Names     %
@@ -127,16 +99,40 @@ function data_out = calc_PR_initial_conditions(run_in, label_in)
   % Integer for period
   pnames_PR{p_maps.T}             = 'T';
   pnames_PR{p_maps.k}             = 'k';
-  pnames_PR{p_maps.mu_s}          = mu_s_name;
-  pnames_PR{p_maps.eta}           = 'eta';
   pnames_PR{p_maps.theta_old}     = 'theta_old';
   pnames_PR{p_maps.theta_new}     = 'theta_new';
+  pnames_PR{p_maps.mu_s}          = mu_s_name;
+  pnames_PR{p_maps.eta}           = 'eta';
+  pnames_PR{p_maps.A_perturb}     = 'A_perturb';
   pnames_PR{p_maps.theta_perturb} = 'theta_perturb';
   pnames_PR{p_maps.phi_perturb}   = 'phi_perturb';
-  pnames_PR{p_maps.A_perturb}     = 'A_perturb';
   % pnames_PR{p_maps.d_x}           = 'd_x';
   % pnames_PR{p_maps.d_y}           = 'd_y';
   % pnames_PR{p_maps.d_z}           = 'd_z';
+
+  % %----------------------------------------------%
+  % %     Segment Initial Conditions: Periodic     %
+  % %----------------------------------------------%
+  % % Segment 4
+  % % If only one period, i.e., k = 1, then the
+  % % input solutions remain unchanged
+  % t_seg4 = tbp_read;
+  % x_seg4 = gamma_read;
+
+  % % Otherwise, keep appending periodic solutions
+  % if k > 1
+  %   % Cycle through k integers
+  %   for j = 1 : k-1
+  %     % Append another period of time data
+  %     t_seg4 = [tbp_read    ; max(tbp_read) + t_seg4(2:end)];
+
+  %     x_seg4 = [gamma_read; x_seg4(2:end, :)];
+
+  %   end
+  %   % Normalise time data by integer
+  %   t_seg4 = t_seg4 / k;
+
+  % end
 
   %----------------------------------------------%
   %     Segment Initial Conditions: Periodic     %
@@ -144,56 +140,56 @@ function data_out = calc_PR_initial_conditions(run_in, label_in)
   % Segment 4
   % If only one period, i.e., k = 1, then the
   % input solutions remain unchanged
-  t_seg4 = tbp;
+  t_seg4 = tbp_read;
   x_seg4 = gamma_read;
+  t_max  = t_seg4(end);
 
-  % Otherwise, keep appending periodic solutions
-  if k > 1
-    % Cycle through k integers
-    for j = 1 : k-1
-      % Append another period of time data
-      % t_seg4 = [tbp    ; T + t_seg4(2:end)];
-      t_seg4 = [tbp    ; max(tbp) + t_seg4(2:end)];
+  for i = 1 : k-1
+    % Append x_PO
+    x_seg4 = [x_seg4; gamma_read(2:end, :)];
 
-      x_seg4 = [gamma_read; x_seg4(2:end, :)];
-    end
-    % Normalise time data by integer
-    t_seg4 = t_seg4 / k;
+    % Append t_PO
+    t_seg4 = [t_seg4; t_max + tbp_read(2:end)];
+
+    t_max = t_seg4(end);
   end
+
+  % Normalise by k
+  t_seg4 = t_seg4 / k;
 
   %-----------------------------------------------%
   %     Segment Initial Conditions: Easy Mode     %
   %-----------------------------------------------%
-  % % Segment 1
-  % t_seg1 = tbp;
-  % x_seg1 = [gamma_read, wn_read];
-  % 
-  % % Segment 2
-  % t_seg2 = [0.0; max(tbp)];
-  % x_seg2 = [[gamma_0'; gamma_0'], [wn_0'; wn_0']];
-  % 
-  % % Segment 3
-  % t_seg3 = [0.0; max(tbp)];
-  % x_seg3 = [gamma_0'; gamma_0'];
+  % Segment 1
+  t_seg1 = tbp_read;
+  x_seg1 = [gamma_read, wn_read];
+  
+  % Segment 2
+  t_seg2 = [0.0; max(tbp_read)];
+  x_seg2 = [[gamma_0'; gamma_0'], [wn_0'; wn_0']];
+  
+  % Segment 3
+  t_seg3 = [0.0; max(tbp_read)];
+  x_seg3 = [gamma_0'; gamma_0'];
 
   %-------------------------------------------------%
   %     Segment Initial Conditions: Interpolate     %
   %-------------------------------------------------%
-  % Ones array
-  ones_mat = ones(length(t_seg4), xdim);
+  % % Ones array
+  % ones_mat = ones(length(t_seg4), xdim);
 
-  % Segment 1
-  t_seg1 = t_seg4;
-  x_seg1 = [interp1(tbp, gamma_read, t_seg4), ...
-            interp1(tbp, wn_read, t_seg4)];
+  % % Segment 1
+  % t_seg1 = t_seg4;
+  % x_seg1 = [interp1(tbp_read, gamma_read, t_seg4), ...
+  %           interp1(tbp_read, wn_read, t_seg4)];
 
-  % Segment 2
-  t_seg2 = t_seg4;
-  x_seg2 = [gamma_0' .* ones_mat, wn_0' .* ones_mat];
+  % % Segment 2
+  % t_seg2 = t_seg4;
+  % x_seg2 = [gamma_0' .* ones_mat, wn_0' .* ones_mat];
 
-  % Segment 3
-  t_seg3 = t_seg4;
-  x_seg3 = gamma_0' .* ones_mat;
+  % % Segment 3
+  % t_seg3 = t_seg4;
+  % x_seg3 = gamma_0' .* ones_mat;
 
   %----------------%
   %     Output     %

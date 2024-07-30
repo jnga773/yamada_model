@@ -1,4 +1,4 @@
-function plot_phase_reset_phase_space(run_in, label_in, fig_num_in, save_figure, plot_3d)
+function plot_phase_reset_phase_space(run_in, label_in, fig_num_in)
   % plot_phase_reset_PO(run_in, label_in)
   %
   % Plots the phase resetting periodic orbit from all four segments.
@@ -52,8 +52,8 @@ function plot_phase_reset_phase_space(run_in, label_in, fig_num_in, save_figure,
   %---------------------%
   %     Axis Limits     %
   %---------------------%
-  ax.XAxis.Limits = [0.0, 10.0];
-  ax.YAxis.Limits = [0.0, 8.0];
+  ax.XAxis.Limits = [0.0, 5.0];
+  ax.YAxis.Limits = [0.0, 4.0];
   ax.ZAxis.Limits = [0.0, 21.0];
 
   %---------------------%

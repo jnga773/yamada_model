@@ -10,7 +10,7 @@ function plot_initial_periodic_orbit_COLL()
   %     Read Data     %
   %-------------------%
   % Load data matrix
-  load('./data/initial_PO.mat');
+  load('./data_mat/initial_PO.mat');
 
   %--------------------------------------%
   %     Plot Initial Periodic Orbits     %

@@ -26,7 +26,6 @@ function y_out = func_seg3(x_in, p_in)
   pdim = 4;
   % Original vector field function
   field      = @yamada;
-  field_DFDX = @yamada_DFDX;
 
   %--------------------------%
   %     Input Parameters     %
@@ -42,20 +41,20 @@ function y_out = func_seg3(x_in, p_in)
   T             = p_in(pdim+1, :);
   % Integer for period
   % k             = p_in(pdim+2, :);
-  % Stable Floquet eigenvalue
-  % mu_s          = p_in(pdim+3, :);
-  % Distance from pertured segment to \Gamma
-  % eta           = p_in(pdim+4, :);
   % Phase where perturbation starts
-  theta_old     = p_in(pdim+5, :);
+  theta_old     = p_in(pdim+3, :);
   % Phase where segment comes back to \Gamma
-  % theta_new     = p_in(pdim+6, :);
-  % Angle of perturbation
-  % theta_perturb = p_in(pdim+7, :);
-  % Azimuthal angle of perturbation
-  % phi_perturb   = p_in(pdim+8, :);
+  % theta_new     = p_in(pdim+4, :);
+  % Stable Floquet eigenvalue
+  % mu_s          = p_in(pdim+5, :);
+  % Distance from pertured segment to \Gamma
+  % eta           = p_in(pdim+6, :);
   % Size of perturbation
-  % A_perturb     = p_in(pdim+9, :);
+  % A_perturb     = p_in(pdim+7, :);
+  % Angle of perturbation
+  % theta_perturb = p_in(pdim+8, :);
+  % Azimuthal angle of perturbation
+  % phi_perturb   = p_in(pdim+9, :);
 
   %--------------------------%
   %     Calculate Things     %
@@ -64,7 +63,6 @@ function y_out = func_seg3(x_in, p_in)
   vec_field = field(x_vec, p_system);
   
   % Save to array
-  % vec_eqn = (1 - theta_old) .* vec_field;
   vec_eqn = T .* (1 - theta_old) .* vec_field;
 
   %----------------%

@@ -47,9 +47,13 @@ function [data_in, y_out] = bcs_seg4(prob_in, data_in, u_in)
   % Parameter maps
   p_maps = data_in.p_maps;
 
-  %---------------%
-  %     Input     %
-  %---------------%
+  %============================================================================%
+  %                              INPUT PARAMETERS                              %
+  %============================================================================%
+
+  %--------------------------------%
+  %     Input: Initial Vectors     %
+  %--------------------------------%
   % Segment 2 - x(0)
   x0_seg2    = u_in(1 : xdim);
   % Segment 2 - w(0)
@@ -58,6 +62,10 @@ function [data_in, y_out] = bcs_seg4(prob_in, data_in, u_in)
   x0_seg3    = u_in(2*xdim+1 : 3*xdim);
   % Segment 4 - x(0)
   x0_seg4    = u_in(3*xdim+1 : 4*xdim);
+
+  %------------------------------%
+  %     Input: Final Vectors     %
+  %------------------------------%
   % Segment 4 - x(1)
   x1_seg4    = u_in(4*xdim+1 : 5*xdim);
 
@@ -75,24 +83,24 @@ function [data_in, y_out] = bcs_seg4(prob_in, data_in, u_in)
   % T             = parameters(p_maps.T);
   % Integer for period
   % k             = parameters(p_maps.k);
-  % Stable Floquet eigenvalue
-  % mu_s          = parameters(p_maps.mu_s);
-  % Distance from pertured segment to \Gamma
-  eta           = parameters(p_maps.eta);
   % Phase where perturbation starts
   % theta_old     = parameters(p_maps.theta_old);
   % Phase where segment comes back to \Gamma
   % theta_new     = parameters(p_maps.theta_new);
-  % Angle of perturbation
-  theta_perturb = parameters(p_maps.theta_perturb);
-  % Azimuthal angle of perturbation
-  phi_perturb   = parameters(p_maps.phi_perturb);
+  % Stable Floquet eigenvalue
+  % mu_s          = parameters(p_maps.mu_s);
+  % Distance from pertured segment to \Gamma
+  eta           = parameters(p_maps.eta);
   % Size of perturbation
   A_perturb     = parameters(p_maps.A_perturb);
+  % Angle of perturbation
+  theta_perturb = parameters(p_maps.theta_perturb);
+  % % Azimuthal angle of perturbation
+  % % phi_perturb = parameters(p_maps.phi_perturb);
 
-  %--------------------------%
-  %     Calculate Things     %
-  %--------------------------%
+  %============================================================================%
+  %                         BOUNDARY CONDITION ENCODING                        %
+  %============================================================================%
   % Displacement vector
   % d_vec = [cos(theta_perturb) * sin(phi_perturb);
   %          sin(theta_perturb) * sin(phi_perturb);
@@ -107,9 +115,9 @@ function [data_in, y_out] = bcs_seg4(prob_in, data_in, u_in)
   % bcs_seg4_3 = norm(x1_seg4 - x0_seg2) - eta;
   bcs_seg4_3 = (norm(x1_seg4 - x0_seg2) ^ 2) - eta;
 
-  %----------------%
-  %     Output     %
-  %----------------%
+  %============================================================================%
+  %                                   OUTPUT                                   %
+  %============================================================================%
   y_out = [bcs_seg4_1;
            bcs_seg4_2;
            bcs_seg4_3];

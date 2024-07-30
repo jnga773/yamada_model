@@ -45,21 +45,20 @@ function y_out = func_seg2(x_in, p_in)
   T             = p_in(pdim+1, :);
   % Integer for period
   % k             = p_in(pdim+2, :);
-  k             = 1;
-  % Stable Floquet eigenvalue
-  % mu_s          = p_in(pdim+3, :);
-  % Distance from pertured segment to \Gamma
-  % eta           = p_in(pdim+4, :);
   % Phase where perturbation starts
-  % theta_old     = p_in(pdim+5, :);
+  % theta_old     = p_in(pdim+3, :);
   % Phase where segment comes back to \Gamma
-  theta_new     = p_in(pdim+6, :);
-  % Angle of perturbation
-  % theta_perturb = p_in(pdim+7, :);
-  % Azimuthal angle of perturbation
-  % phi_perturb   = p_in(pdim+8, :);
+  theta_new     = p_in(pdim+4, :);
+  % Stable Floquet eigenvalue
+  % mu_s          = p_in(pdim+5, :);
+  % Distance from pertured segment to \Gamma
+  % eta           = p_in(pdim+6, :);
   % Size of perturbation
-  % A_perturb     = p_in(pdim+9, :);
+  % A_perturb     = p_in(pdim+7, :);
+  % Angle of perturbation
+  % theta_perturb = p_in(pdim+8, :);
+  % Azimuthal angle of perturbation
+  % phi_perturb   = p_in(pdim+9, :);
 
   %--------------------------%
   %     Calculate Things     %
@@ -68,7 +67,6 @@ function y_out = func_seg2(x_in, p_in)
   vec_field = field(x_vec, p_system);
 
   % Save to array
-  % vec_eqn = k .* (1 - theta_new) .* vec_field;
   vec_eqn = k .* T .* (1 - theta_new) .* vec_field;
 
   % Calculate adjoint equations
@@ -85,7 +83,6 @@ function y_out = func_seg2(x_in, p_in)
     temp(:, :, i) = -(1 - theta_new(i)) * J_transpose(:, :, i);
 
     % Save to array
-    % adj_eqn(:, :, i) = temp(:, :, i) * w_vec(:, i); 
     adj_eqn(:, :, i) = T(i) * temp(:, :, i) * w_vec(:, i);    
   end
 
@@ -94,8 +91,6 @@ function y_out = func_seg2(x_in, p_in)
   %----------------%
   % Vector field
   y_out(1:xdim, :) = vec_eqn(:, :);
-
-
   % Adjoint equation
   y_out(xdim+1:2*xdim, :) = adj_eqn(:, :);
 

@@ -6,7 +6,7 @@ function save_initial_PO_data(run_in, label_in)
   % saves the data to './data/initial_PO.mat'.
 
   % Data matrix filename
-  filename_out = './data/initial_PO.mat';
+  filename_out = './data_mat/initial_PO.mat';
 
   %-------------------%
   %     Read Data     %
@@ -25,6 +25,8 @@ function save_initial_PO_data(run_in, label_in)
   x_neg = sol_neg.x;
   x_0   = sol_0.x;
 
+  tbp_PO = sol_PO.tbp;
+
   %-----------------------------------%
   %     Calculate Stable Manifold     %
   %-----------------------------------%
@@ -33,6 +35,6 @@ function save_initial_PO_data(run_in, label_in)
   %-------------------%
   %     Save Data     %
   %-------------------%
-  save(filename_out, 'x_pos', 'x_neg', 'x_0', 'xbp_PO', 'p_PO', 'W_q_stable');
+  save(filename_out, 'x_pos', 'x_neg', 'x_0', 'xbp_PO', 'p_PO', 'W_q_stable', 'tbp_PO');
 
 end

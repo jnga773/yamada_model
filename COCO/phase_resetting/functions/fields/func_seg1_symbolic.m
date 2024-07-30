@@ -23,12 +23,12 @@ function F_coco_out = func_seg1_symbolic()
   p_sys = [gam; A; B; a];
 
   % Phase resetting parameters
-  syms T k mu_s eta
-  syms theta_old theta_new
-  syms theta_perturb phi_perturb A_perturb
-  p_PR = [T; k; mu_s; eta;
-          theta_old; theta_new;
-          theta_perturb; phi_perturb; A_perturb];
+  syms T k theta_old theta_new
+  syms mu_s eta
+  syms A_perturb theta_perturb phi_perturb
+  p_PR = [T; k; theta_old; theta_new;
+          mu_s; eta;
+          A_perturb; theta_perturb; phi_perturb];
 
   % Total vectors
   uvec = [xvec; wvec];

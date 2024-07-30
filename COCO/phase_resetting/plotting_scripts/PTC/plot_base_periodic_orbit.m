@@ -5,7 +5,7 @@ function plot_base_periodic_orbit(ax_in)
   %     Read Data     %
   %-------------------%
   % Load data matrix
-  load('./data/initial_PO.mat');
+  load('./data_mat/initial_PO.mat');
 
   %--------------%
   %     Plot     %

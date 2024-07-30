@@ -33,55 +33,51 @@ function bcs_coco_out = bcs_seg1_seg2_symbolic()
   % State-space dimension
   xdim = 3;
 
-  %---------------%
-  %     Input     %
-  %---------------%
+  %============================================================================%
+  %                              INPUT PARAMETERS                              %
+  %============================================================================%
+  %--------------------------------%
+  %     Input: Initial Vectors     %
+  %--------------------------------%
   % Segment 1 - x(0)
   x0_seg1 = sym('x0_seg1', [xdim, 1]);
-
   % Segment 1 - w(0)
   w0_seg1 = sym('w0_seg1', [xdim, 1]);
-
   % Segment 2 - x(0)
   x0_seg2 = sym('x0_seg2', [xdim, 1]);
-
   % Segment 2 - w(0)
   w0_seg2 = sym('w0_seg2', [xdim, 1]);
 
+  %------------------------------%
+  %     Input: Final Vectors     %
+  %------------------------------%
   % Segment 1 - x(1)
   x1_seg1 = sym('x1_seg1', [xdim, 1]);
-
   % Segment 1 - w(1)
   w1_seg1 = sym('w1_seg1', [xdim, 1]);
-
   % Segment 2 - x(1)
   x1_seg2 = sym('x1_seg2', [xdim, 1]);
-
   % Segment 2 - w(1)
   w1_seg2 = sym('w1_seg2', [xdim, 1]);
 
+  %---------------------------%
+  %     Input: Parameters     %
+  %---------------------------%
   % System parameters
   syms gam A B a
   p_sys = [gam; A; B; a];
 
   % Phase resetting parameters
-  syms T k mu_s eta
-  syms theta_old theta_new
-  syms theta_perturb phi_perturb A_perturb
-  p_PR = [T; k; mu_s; eta;
-          theta_old; theta_new;
-          theta_perturb; phi_perturb; A_perturb];
+  syms T k theta_old theta_new
+  syms mu_s eta
+  syms A_perturb theta_perturb phi_perturb
+  p_PR = [T; k; theta_old; theta_new;
+          mu_s; eta;
+          A_perturb; theta_perturb; phi_perturb];
 
-  % Combined vector
-  uvec = [x0_seg1; w0_seg1;
-          x0_seg2; w0_seg2;
-          x1_seg1; w1_seg1;
-          x1_seg2; w1_seg2;
-          p_sys; p_PR];
-
-  %--------------------------%
-  %     Calculate Things     %
-  %--------------------------%
+  %============================================================================%
+  %                         BOUNDARY CONDITION ENCODING                        %
+  %============================================================================%
   % Vector field
   F_vec = yamada_symbolic_field(x0_seg1, p_sys);
 
@@ -99,9 +95,19 @@ function bcs_coco_out = bcs_seg1_seg2_symbolic()
   bcs = [bcs_seg12_1; bcs_seg12_2; bcs_seg12_3;
          a_bcs_seg12_1; a_bcs_seg12_2; a_bcs_seg12_3];
 
+  %============================================================================%
+  %                                   OUTPUT                                   %
+  %============================================================================%
   %-----------------%
   %     SymCOCO     %
   %-----------------%
+  % Combined vector
+  uvec = [x0_seg1; w0_seg1;
+          x0_seg2; w0_seg2;
+          x1_seg1; w1_seg1;
+          x1_seg2; w1_seg2;
+          p_sys; p_PR];
+
   % Filename for output functions
   filename_out = './functions/symcoco/F_bcs_seg1_seg2';
 

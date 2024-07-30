@@ -82,20 +82,20 @@ function [data_in, y_out] = bcs_seg1_seg2(prob_in, data_in, u_in)
   % T             = parameters(p_maps.T);
   % Integer for period
   % k             = parameters(p_maps.k);
-  % Stable Floquet eigenvalue
-  mu_s          = parameters(p_maps.mu_s);
-  % Distance from pertured segment to \Gamma
-  % eta           = parameters(p_maps.eta);
   % Phase where perturbation starts
   % theta_old     = parameters(p_maps.theta_old);
   % Phase where segment comes back to \Gamma
   % theta_new     = parameters(p_maps.theta_new);
-  % Angle of perturbation
-  % theta_perturb = parameters(p_maps.theta_perturb);
-  % % Angle of perturbation
-  % theta_perturb = parameters(p_maps.theta_perturb);
+  % Stable Floquet eigenvalue
+  mu_s          = parameters(p_maps.mu_s);
+  % Distance from pertured segment to \Gamma
+  % eta           = parameters(p_maps.eta);
   % Size of perturbation
   % A_perturb     = parameters(p_maps.A_perturb);
+  % Angle of perturbation
+  % theta_perturb = parameters(p_maps.theta_perturb);
+  % % Azimuthal angle of perturbation
+  % % phi_perturb = parameters(p_maps.phi_perturb);
 
   %--------------------------%
   %     Calculate Things     %

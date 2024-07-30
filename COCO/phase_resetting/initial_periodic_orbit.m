@@ -533,6 +533,14 @@ prob = coco_add_event(prob, 'NORM1', 'w_norm', 1.0);
 % Run COCO continuation
 coco(prob, run_names.compute_floquet_2, [], 1, {'w_norm', 'mu_s', 'T'}, [0.0, 1.1]);
 
+%-------------------%
+%     Save Data     %
+%-------------------%
+label_plot = coco_bd_labs(coco_bd_read(run_names.compute_floquet_2), 'NORM1');
+
+% Save solution to .mat to be read in 'yamada_PTC.m'
+save_floquet_data(run_names.compute_floquet_2, label_plot);
+
 %=========================================================================%
 %                               END OF FILE                               %
 %=========================================================================%

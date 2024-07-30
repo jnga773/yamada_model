@@ -49,12 +49,12 @@ function bcs_coco_out = bcs_seg4_symbolic()
   p_sys = [gam; A; B; a];
 
   % Phase resetting parameters
-  syms T k mu_s eta
-  syms theta_old theta_new
-  syms theta_perturb phi_perturb A_perturb
-  p_PR = [T; k; mu_s; eta;
-          theta_old; theta_new;
-          theta_perturb; phi_perturb; A_perturb];
+  syms T k theta_old theta_new
+  syms mu_s eta
+  syms A_perturb theta_perturb phi_perturb
+  p_PR = [T; k; theta_old; theta_new;
+          mu_s; eta;
+          A_perturb; theta_perturb; phi_perturb];
 
   % Combined vector
   uvec = [x0_seg2; w0_seg2;
@@ -66,9 +66,9 @@ function bcs_coco_out = bcs_seg4_symbolic()
   %     Calculate Things     %
   %--------------------------%
   % Displacement vector
-%   d_vec = [sin(phi_perturb) * cos(theta_perturb);
-%            sin(phi_perturb) * sin(theta_perturb);
-%            cos(phi_perturb)];
+  %   d_vec = [sin(phi_perturb) * cos(theta_perturb);
+  %            sin(phi_perturb) * sin(theta_perturb);
+  %            cos(phi_perturb)];
   d_vec = [cos(theta_perturb);
            0.0;
            sin(theta_perturb)];
