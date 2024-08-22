@@ -55,16 +55,14 @@ function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
   %----------------------------------------%
   %     Glue Trajectory Segment Things     %
   %----------------------------------------%
-  % Glue parameters and periods and what not together
-  prob = coco_add_glue(prob, 'shared_seg1_seg2', ...
-                       uidx1([maps1.T_idx; maps1.p_idx]), ...
-                       uidx2([maps2.T_idx; maps2.p_idx]));
-  prob = coco_add_glue(prob, 'shared_seg1_seg4', ...
-                       uidx1([maps1.T_idx; maps1.p_idx]), ...
-                       uidx4([maps4.T_idx; maps4.p_idx]));
-  prob = coco_add_glue(prob, 'shared_seg1_seg3', ...
-                       uidx1([maps1.T_idx; maps1.p_idx]), ...
-                       uidx3([maps3.T_idx; maps3.p_idx]));
+  % "Glue" segment periods together
+  prob = coco_add_glue(prob, 'glue_T', ...
+                       [uidx1(maps1.T_idx); uidx1(maps1.T_idx); uidx1(maps1.T_idx)], ...
+                       [uidx2(maps2.T_idx); uidx3(maps3.T_idx); uidx4(maps4.T_idx)]);
+  % "Glue" segment parameters together
+  prob = coco_add_glue(prob, 'glue_pars', ...
+                       [uidx1(maps1.p_idx); uidx1(maps1.p_idx); uidx1(maps1.p_idx)], ...
+                       [uidx2(maps2.p_idx); uidx3(maps3.p_idx); uidx4(maps4.p_idx)]);
 
   %---------------------------------%
   %     Add Boundary Conditions     %
@@ -88,34 +86,6 @@ function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
                         uidx3(maps3.x1_idx);
                         uidx4(maps4.x1_idx);
                         uidx1(maps1.p_idx)]);
-
-  %-------------------------------------------------%
-  %     Boundary Conditions: Separate Functions     %
-  %-------------------------------------------------%
-  % bcs_seg1_seg2 = bcs_funcs_in.bcs_seg1_seg2;
-  % bcs_seg3      = bcs_funcs_in.bcs_seg3;
-  % bcs_seg4      = bcs_funcs_in.bcs_seg4;
-
-  % % Add boundary conditions for segments 1 and 2
-  % prob = coco_add_func(prob, 'bcs_PR_seg1_seg2', bcs_seg1_seg2{:}, dim_data, 'zero', 'uidx', ...
-  %                      [uidx1(maps1.x0_idx);
-  %                       uidx2(maps2.x0_idx);
-  %                       uidx1(maps1.x1_idx);
-  %                       uidx2(maps2.x1_idx);
-  %                       uidx1(maps1.p_idx)]);
-  % 
-  % % Add boundary conditions for segment 3
-  % prob = coco_add_func(prob, 'bcs_PR_seg3', bcs_seg3{:}, dim_data, 'zero', 'uidx', ...
-  %                      [uidx1(maps1.x0_idx(1:xdim));
-  %                       uidx3(maps3.x1_idx)]);
-  % 
-  % % Add boundary conditions for segment 4
-  % prob = coco_add_func(prob, 'bcs_PR_seg4', bcs_seg4{:}, dim_data, 'zero', 'uidx', ...
-  %                      [uidx2(maps2.x0_idx);
-  %                       uidx3(maps3.x0_idx);
-  %                       uidx4(maps4.x0_idx);
-  %                       uidx4(maps4.x1_idx);
-  %                       uidx1(maps1.p_idx)]);
                         
   %------------------------%
   %     Add Parameters     %

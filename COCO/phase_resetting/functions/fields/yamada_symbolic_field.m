@@ -1,5 +1,5 @@
 function F_out = yamada_symbolic_field(x_in, p_in)
-  % F_out = yamada_symbolic_field()
+  % F_out = yamada_symbolic_field(x_in, p_in)
   %
   % Symbolic notation of the Yamada vector field in the transformed axes.
   

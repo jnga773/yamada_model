@@ -65,18 +65,6 @@ bcs_funcs.bcs_T = bcs_T_symbolic();
 % bcs_funcs.bcs_segs = {@bcs_PR_segs};
 bcs_funcs.bcs_segs = bcs_PR_segs_symbolic();
 
-% % Boundary conditions: Segments 1 and 2
-% % bcs_funcs.bcs_seg1_seg2 = {@bcs_seg1_seg2};
-% bcs_funcs.bcs_seg1_seg2 = bcs_seg1_seg2_symbolic();
-% 
-% % Boundary conditions: Segment 3
-% % bcs_funcs.bcs_seg3 = {@bcs_seg3};
-% bcs_funcs.bcs_seg3 = bcs_seg3_symbolic();
-% 
-% % Boundary conditions: Segment 4
-% % bcs_funcs.bcs_seg4 = {@bcs_seg4};
-% bcs_funcs.bcs_seg4 = bcs_seg4_symbolic();
-
 %-------------------------------------------------------------------------%
 %%                   Increasing Pertubation Amplitude                    %%
 %-------------------------------------------------------------------------%
@@ -123,7 +111,7 @@ PtMX = 1000;
 prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
 
 % Set number of stored solutions
-prob = coco_set(prob, 'cont', 'NPR', 100);
+prob = coco_set(prob, 'cont', 'NPR', 10);
 
 % Turn off MXCL
 prob = coco_set(prob, 'coll', 'MXCL', 'off');
@@ -191,7 +179,7 @@ prob = apply_PR_boundary_conditions(prob, data_PR, bcs_funcs);
 %-------------------------%
 % Array of values for special event
 % SP_values = [linspace(0.0, 0.25, 21), linspace(0.30, 2.0, 21)];
-SP_values = [0.25, 0.4];
+SP_values = linspace(0.0, 1.6, 51);
 
 % When the parameter we want (from param) equals a value in A_vec
 prob = coco_add_event(prob, 'SP', 'A_perturb', SP_values);
@@ -308,44 +296,44 @@ plot_phase_transition_curve(run_new);
 %------------------%
 %     Run Name     %
 %------------------%
-% % Current run name
-% run_names.phase_transition_curve = 'run10_phase_reset_PTC_scan';
-% % Which run this continuation continues from
-% run_old = run_names.phase_reset_perturbation;
-% 
-% % Continuation point
-% label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
-% 
-% % Print to console
-% fprintf("~~~ Phase Reset: Second Run ~~~ \n");
-% fprintf('Calculate phase transition curve \n');
-% fprintf('Run name: %s \n', run_names.phase_transition_curve);
-% fprintf('Continuing from SP points in run: %s \n', run_old);
+% Current run name
+run_names.phase_transition_curve = 'run10_phase_reset_PTC_scan';
+% Which run this continuation continues from
+run_old = run_names.phase_reset_perturbation;
+
+% Continuation point
+label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
+
+% Print to console
+fprintf("~~~ Phase Reset: Second Run ~~~ \n");
+fprintf('Calculate phase transition curve \n');
+fprintf('Run name: %s \n', run_names.phase_transition_curve);
+fprintf('Continuing from SP points in run: %s \n', run_old);
 
 %---------------------------------%
 %     Cycle through SP labels     %
 %---------------------------------%
-% % Set number of threads
-% M = 0;
-% parfor (run = 1 : length(label_old), M)
-%   % Label for this run
-%   this_run_label = label_old(run);
-% 
-%   % Data directory for this run
-%   fprintf('\n Continuing from point %d in run: %s \n', this_run_label, run_old);
-% 
-%   this_run_name = {run_names.phase_transition_curve; sprintf('run_%02d', run)};
-% 
-%   % Run continuation
-%   PTC_scan_A_perturb(this_run_name, run_old, this_run_label, data_PR, bcs_funcs);
-% 
-% end
+% Set number of threads
+M = 0;
+parfor (run = 1 : length(label_old), M)
+  % Label for this run
+  this_run_label = label_old(run);
+
+  % Data directory for this run
+  fprintf('\n Continuing from point %d in run: %s \n', this_run_label, run_old);
+
+  this_run_name = {run_names.phase_transition_curve; sprintf('run_%02d', run)};
+
+  % Run continuation
+  PTC_scan_A_perturb(this_run_name, run_old, this_run_label, data_PR, bcs_funcs);
+
+end
 
 %--------------------%
 %     Test Plots     %
 %--------------------%
 % Plot PTC plane in A_perturb
-% plot_PTC_plane_A_perturb(run_new, save_figure);
+plot_PTC_plane_A_perturb(run_new, save_figure);
 
 %=========================================================================%
 %                               END OF FILE                               %

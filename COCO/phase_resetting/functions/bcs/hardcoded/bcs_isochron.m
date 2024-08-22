@@ -13,8 +13,7 @@ function [data_in, y_out] = bcs_isochron(prob_in, data_in, u_in)
   % u_in : array (floats?)
   %     Total u-vector of the continuation problem. This function
   %     only utilises the following (as imposed by coco_add_func):
-  %          * u_in(1) - theta_new
-  %          * u_in(2) - theta_old
+  %          * u_in(1:3) - x(0) of segment 4
   %
   % Output
   % ----------
@@ -25,34 +24,21 @@ function [data_in, y_out] = bcs_isochron(prob_in, data_in, u_in)
   %     space.
 
   % (defined in calc_PR_initial_conditions.m)
-  % Parameter maps
-  p_maps = data_in.p_maps;
+  % Original vector space dimensions
+  xdim   = data_in.xdim;
+  % pdim   = data_in.pdim;
+  % % Parameter maps
+  % p_maps = data_in.p_maps;
 
   %---------------%
   %     Input     %
   %---------------%
-  % System parameters
-  % p_system     = u_in(1 : pdim);
-
-  % Phase resetting u_in
-  % Integer for period
-  % k             = u_in(p_maps.k);
-  % Stable Floquet eigenvalue
-  % mu_s          = u_in(p_maps.mu_s);
-  % Distance from pertured segment to \Gamma
-  % eta           = u_in(p_maps.eta);
-  % Phase where perturbation starts
-  theta_old     = u_in(p_maps.theta_old);
-  % Phase where segment comes back to \Gamma
-  theta_new     = u_in(p_maps.theta_new);
-  % Angle of perturbation
-  % theta_perturb = u_in(p_maps.theta_perturb);
-  % Size of perturbation
-  % A             = u_in(p_maps.A);
+  % Segment 4 - x(0)
+  x0_seg4 = u_in(1 : xdim);
 
   %----------------%
   %     Output     %
   %----------------%
-  y_out = [theta_new - theta_old];
+  y_out = x0_seg4;
 
 end

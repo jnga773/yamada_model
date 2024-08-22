@@ -67,7 +67,7 @@ function y_out = func_seg2(x_in, p_in)
   vec_field = field(x_vec, p_system);
 
   % Save to array
-  vec_eqn = k .* T .* (1 - theta_new) .* vec_field;
+  vec_eqn = T .* (1 - theta_new) .* vec_field;
 
   % Calculate adjoint equations
   % Jacobian at the zero-phase point
