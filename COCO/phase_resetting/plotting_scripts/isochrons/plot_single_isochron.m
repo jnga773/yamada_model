@@ -1,4 +1,4 @@
-function plot_single_isochron(run_in, save_figure)
+function plot_single_isochron(run_in)
   % plot_single_isochron(run_in, save_figure)
   %
   % Plots a single isochron from the isochron_test.m run.
@@ -37,7 +37,7 @@ function plot_single_isochron(run_in, save_figure)
   hold(ax, 'on');
 
   % Plot single isochron
-  plot3(ax, iso1, iso2, iso3, Color=colours(1, :), LineStyle='-', ...
+  plot3(ax, iso1, iso2, iso3, Color='k', LineStyle='-', ...
         DisplayName='Isochron');
 
   % Plot unperturbed periodic orbit
