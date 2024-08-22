@@ -602,9 +602,11 @@ def save_PTC_scan(run_str_in):
     #-------------------#
     # Create dictionary for all saved stuff
     mat_out = {'A': param['A'], 'gamma': param['gamma'], 'B': param['B'], 'a': param['a'],
-               'theta_perturb': param['theta_perturb'], 'A_perturb': A_perturb_read,
-               'data_hole_gt1': data_hole_gt1_pad, 'data_hole_lt1': data_hole_lt1_pad,
-               'data_before_hole': data_before_hole_pad, 'data_after_hole': data_after_hole_pad}
+               'theta_perturb': param['theta_perturb'], 'A_perturb': A_perturb_read}
+    mat_out['data_hole_gt1']    = data_hole_gt1_pad
+    mat_out['data_hole_lt1']    = data_hole_lt1_pad
+    mat_out['data_before_hole'] = data_before_hole_pad
+    mat_out['data_after_hole']  = data_after_hole_pad
 
     # Save data
     savemat('./data_mat/PTC_scan.mat', mat_out)
@@ -612,7 +614,7 @@ def save_PTC_scan(run_str_in):
 #=============================================================================#
 # %%
 #=============================================================================#
-run_str = 'run09_PTC_scan_G'
+run_str = 'run09_PTC_scan'
 
 #-------------------#
 #     Read Data     #
@@ -651,12 +653,12 @@ data_hole_gt1_merge, data_hole_lt1_merge = fill_surface_gaps(data_hole_gt1, data
 #     Pad Data     #
 #------------------#
 # Inside hole: theta_old > 1
-# data_hole_gt1_pad = pad_arrays(data_hole_gt1)
-data_hole_gt1_pad = pad_arrays(data_hole_gt1_merge)
+data_hole_gt1_pad = pad_arrays(data_hole_gt1)
+# data_hole_gt1_pad = pad_arrays(data_hole_gt1_merge)
 
 # Inside hole: theta_old < 1
-# data_hole_lt1_pad = pad_arrays(data_hole_lt1)
-data_hole_lt1_pad = pad_arrays(data_hole_lt1_merge)
+data_hole_lt1_pad = pad_arrays(data_hole_lt1)
+# data_hole_lt1_pad = pad_arrays(data_hole_lt1_merge)
 
 # Before hole
 data_before_hole_pad = pad_arrays(data_before_hole)
@@ -669,9 +671,12 @@ data_after_hole_pad = pad_arrays(data_after_hole)
 #     Save Data     #
 #-------------------#
 mat_out = {'A': param['A'], 'gamma': param['gamma'], 'B': param['B'], 'a': param['a'],
-           'theta_perturb': param['theta_perturb'], 'A_perturb': A_perturb_read,
-           'data_hole_gt1': data_hole_gt1_pad, 'data_hole_lt1': data_hole_lt1_pad,
-           'data_before_hole': data_before_hole_pad, 'data_after_hole': data_after_hole_pad}
+           'theta_perturb': param['theta_perturb'], 'A_perturb': A_perturb_read}
+mat_out['data_hole_gt1']    = data_hole_gt1_pad
+mat_out['data_hole_lt1']    = data_hole_lt1_pad
+mat_out['data_before_hole'] = data_before_hole_pad
+mat_out['data_after_hole']  = data_after_hole_pad
+
 
 # Save data
 from scipy.io import savemat

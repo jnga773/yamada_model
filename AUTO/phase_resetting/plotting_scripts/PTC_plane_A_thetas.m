@@ -7,9 +7,22 @@ clear all;
 %-------------------%
 %     Read Data     %
 %-------------------%
-mat_file = '../data_mat/PTC_scan_G.mat';
+mat_file = '../data_mat/PTC_scan.mat';
+% mat_file = '../data_mat/PTC_scan_G.mat';
+% mat_file = '../data_mat/PTC_scan_I.mat';
 % Load data from .mat
 load(mat_file);
+
+%--------------------------------%
+%     Coordinates for 'Hole'     %
+%--------------------------------%
+% G-direction
+% intersection.theta_old = 0.3176;
+% intersection.A_perturb = 0.5576;
+
+% I-Direction
+intersection.theta_old = 0.4981;
+intersection.A_perturb = 4.0371;
 
 %-------------------------------------------------------------------------%
 %%                             Plot Data                                 %%
@@ -26,6 +39,14 @@ ax = nexttile;
 ax.FontSize = 11;
 
 hold(ax, 'on');
+
+%-------------------------------------------------%
+%     Plot: Stable Manifold Intersection Pole     %
+%-------------------------------------------------%
+plot3(ax, [intersection.theta_old, intersection.theta_old], ...
+     [intersection.A_perturb, intersection.A_perturb], ...
+     [-5, 5], ...
+     Color='k', LineWidth=5.0, LineStyle='-');
 
 %-----------------------%
 %     Plot: 3D Plot     %

@@ -547,9 +547,9 @@ SUBROUTINE PR_SEGS(NDIM, U, PAR, F_out)
   ! Integer number of perioids
   k         = PAR(pdim+2)
   ! Phase where the perturbation is applied
-  theta_old = PAR(pdim+5)
+  theta_old = PAR(pdim+3)
   ! Phase where segments comes back to \Gamma
-  theta_new = PAR(pdim+6)
+  theta_new = PAR(pdim+4)
 
   !============================================================================!
   !                            VECTOR FIELD ENCODING                           !
@@ -691,9 +691,9 @@ SUBROUTINE PR_SEGS_DFDX(NDIM, U, PAR, J_out)
   ! Integer number of perioids
   k         = PAR(pdim+2)
   ! Phase where the perturbation is applied
-  theta_old = PAR(pdim+5)
+  theta_old = PAR(pdim+3)
   ! Phase where segments comes back to \Gamma
-  theta_new = PAR(pdim+6)
+  theta_new = PAR(pdim+4)
 
   !============================================================================!
   !                        CHEATY MATLAB CONSTANT THINGS                       !
@@ -891,9 +891,9 @@ SUBROUTINE PR_SEGS_DFDP(NDIM, U, PAR, J_out)
   ! Integer number of perioids
   k         = PAR(pdim+2)
   ! Phase where the perturbation is applied
-  theta_old = PAR(pdim+5)
+  theta_old = PAR(pdim+3)
   ! Phase where segments comes back to \Gamma
-  theta_new = PAR(pdim+6)
+  theta_new = PAR(pdim+4)
   
   !============================================================================!
   !                        CHEATY MATLAB CONSTANT THINGS                       !
@@ -904,32 +904,32 @@ SUBROUTINE PR_SEGS_DFDP(NDIM, U, PAR, J_out)
   t5 = x2_vec(1) * x2_vec(3)
   t6 = x3_vec(1) * x3_vec(3)
   t7 = x4_vec(1) * x4_vec(3)
-  t8 = x1_vec(3) + 1.0D0
-  t9 = x2_vec(3) + 1.0D0
+  t8 = x1_vec(3) + 1.0d0
+  t9 = x2_vec(3) + 1.0d0
   t10 = T * gamma * k
   t11 = T * gamma * theta_new
   t12 = -A_pump
   t13 = -B
   t14 = T * w1_vec(3) * x1_vec(3)
   t15 = T * w2_vec(3) * x2_vec(3)
+  t16 = t2 * x1_vec(2)
+  t17 = t3 * x2_vec(2)
   t18 = a * x3_vec(2) * x3_vec(3)
   t19 = a * x4_vec(2) * x4_vec(3)
   t20 = theta_new * w1_vec(3) * x1_vec(3)
-  t21 = theta_old - 1.0D0
-  t22 = theta_new - 1.0D0
+  t21 = theta_old - 1.0d0
+  t22 = theta_new - 1.0d0
   t23 = -x1_vec(1)
   t24 = -x2_vec(1)
   t25 = -x3_vec(1)
   t26 = -x4_vec(1)
-  t16 = t2 * x1_vec(2)
-  t17 = t3 * x2_vec(2)
-  t27 = t2 + 1.0D0
-  t28 = t3 + 1.0D0
+  t27 = t2 + 1.0d0
+  t28 = t3 + 1.0d0
   t29 = t22 * w2_vec(3) * x2_vec(3)
-  t30 = t23 + x1_vec(2) + 1.0D0
-  t31 = t24 + x2_vec(2) + 1.0D0
-  t32 = t25 + x3_vec(2) + 1.0D0
-  t33 = t26 + x4_vec(2) + 1.0D0
+  t30 = t23 + x1_vec(2) + 1.0d0
+  t31 = t24 + x2_vec(2) + 1.0d0
+  t32 = t25 + x3_vec(2) + 1.0d0
+  t33 = t26 + x4_vec(2) + 1.0d0
   t34 = T * gamma * t21
   t35 = T * gamma * t22
   t36 = t4 + t12 + x1_vec(1)
@@ -949,104 +949,102 @@ SUBROUTINE PR_SEGS_DFDP(NDIM, U, PAR, J_out)
   !-------------------!
   !     Segment 1     !
   !-------------------!
-  J_out(1, 1)   = -T * t36 * theta_new
-  J_out(1, 2)   = t11
-  J_out(1, 5)   = -gamma * t36 * theta_new
-  J_out(1, 10)  = -T * gamma * t36
-  J_out(2, 1)   = -T * t42 * theta_new
-  J_out(2, 3)   = t11
-  J_out(2, 4)   = -t11 * x1_vec(2) * x1_vec(3)
-  J_out(2, 5)   = -gamma * t42 * theta_new
-  J_out(2, 10)  = -T * gamma * t42
-  J_out(3, 5)   = -t30 * theta_new * x1_vec(3)
-  J_out(3, 10)  = -T * t30 * x1_vec(3)
-
-  J_out(4, 1)   = T * t8 * theta_new * w1_vec(1)
-  J_out(4, 5)   = -t20 + &
-                & gamma * t8 * theta_new * w1_vec(1)
-  J_out(4, 10)  = -t14 + &
-                & T * gamma * t8 * w1_vec(1)
-  J_out(5, 1)   = T * t27 * theta_new * w1_vec(2)
-  J_out(5, 4)   = t11 * w1_vec(2) * x1_vec(3)
-  J_out(5, 5)   = t20 + &
-                & gamma * t27 * theta_new * w1_vec(2)
-  J_out(5, 10)  = t14 + &
-                & T * gamma * t27 * w1_vec(2)
-  J_out(6, 1)   = T * theta_new * w1_vec(1) * x1_vec(1) + &
-                & T * a * theta_new * w1_vec(2) * x1_vec(2)
-  J_out(6, 4)   = t11 * w1_vec(2) * x1_vec(2)
-  J_out(6, 5)   = t30 * theta_new * w1_vec(3) + &
-                & gamma * theta_new * w1_vec(1) * x1_vec(1) + &
-                & a * gamma * theta_new * w1_vec(2) * x1_vec(2)
-  J_out(6, 10)  = T * t30 * w1_vec(3) + &
-                & T * gamma * w1_vec(1) * x1_vec(1) + &
-                & T * a * gamma * w1_vec(2) * x1_vec(2)
+  J_out(1, 1)  = -T * t36 * theta_new
+  J_out(1, 2)  = t11
+  J_out(1, 5)  = -gamma * t36 * theta_new
+  J_out(1, 8)  = -T * gamma * t36
+  J_out(2, 1)  = -T * t42 * theta_new
+  J_out(2, 3)  = t11
+  J_out(2, 4)  = -t11 * x1_vec(2) * x1_vec(3)
+  J_out(2, 5)  = -gamma * t42 * theta_new
+  J_out(2, 8)  = -T * gamma * t42
+  J_out(3, 5)  = -t30 * theta_new * x1_vec(3)
+  J_out(3, 8)  = -T * t30 * x1_vec(3)
+  J_out(4, 1)  = T * t8 * theta_new * w1_vec(1)
+  J_out(4, 5)  = -t20 + &
+               & gamma * t8 * theta_new * w1_vec(1)
+  J_out(4, 8)  = -t14 + &
+               & T * gamma * t8 * w1_vec(1)
+  J_out(5, 1)  = T * t27 * theta_new * w1_vec(2)
+  J_out(5, 4)  = t11 * w1_vec(2) * x1_vec(3)
+  J_out(5, 5)  = t20 + &
+               & gamma * t27 * theta_new * w1_vec(2)
+  J_out(5, 8)  = t14 + &
+               & T * gamma * t27 * w1_vec(2)
+  J_out(6, 1)  = T * theta_new * w1_vec(1) * x1_vec(1) + &
+               & T * a * theta_new * w1_vec(2) * x1_vec(2)
+  J_out(6, 4)  = t11 * w1_vec(2) * x1_vec(2)
+  J_out(6, 5)  = t30 * theta_new * w1_vec(3) + &
+               & gamma * theta_new * w1_vec(1) * x1_vec(1) + &
+               & a * gamma * theta_new * w1_vec(2) * x1_vec(2)
+  J_out(6, 8)  = T * t30 * w1_vec(3) + &
+               & T * gamma * w1_vec(1) * x1_vec(1) + &
+               & T * a * gamma * w1_vec(2) * x1_vec(2)
 
   !-------------------!
   !     Segment 2     !
   !-------------------!
-  J_out(7, 1)   = T * t22 * t37
-  J_out(7, 2)   = t41
-  J_out(7, 5)   = gamma * t22 * t37
-  J_out(7, 10)  = T * gamma * t37
-  J_out(8, 1)   = T * t22 * t43
-  J_out(8, 3)   = t41
-  J_out(8, 4)   = t35 * x2_vec(2) * x2_vec(3)
-  J_out(8, 5)   = gamma * t22 * t43
-  J_out(8, 10)  = T * gamma * t43
-  J_out(9, 5)   = t22 * t31 * x2_vec(3)
-  J_out(9, 10)  = T * t31 * x2_vec(3)
-
-  J_out(10, 1)  = -T * t9 * t22 * w2_vec(1)
-  J_out(10, 5)  = t29 - &
-                & gamma * t9 * t22 * w2_vec(1)
-  J_out(10, 10) = t15 - &
-                & T * gamma * t9 * w2_vec(1)
-  J_out(11, 1)  = -T * t22 * t28 * w2_vec(2)
-  J_out(11, 4)  = t41 * w2_vec(2) * x2_vec(3)
-  J_out(11, 5)  = -t29 - &
-                & gamma * t22 * t28 * w2_vec(2)
-  J_out(11, 10) = -t15 - &
-                & T * gamma * t28 * w2_vec(2)
-  J_out(12, 1)  = T * t22 * t24 * w2_vec(1) - &
-                & T * a * t22 * w2_vec(2) * x2_vec(2)
-  J_out(12, 4)  = t41 * w2_vec(2) * x2_vec(2)
-  J_out(12, 5)  = -t22 * t31 * w2_vec(3) + &
-                & gamma * t22 * t24 * w2_vec(1) - &
-                &  a * gamma * t22 * w2_vec(2) * x2_vec(2)
-  J_out(12, 10) = -T * t31 * w2_vec(3) + &
-                & T * gamma * t24 * w2_vec(1) - &
-                & T * a * gamma * w2_vec(2) * x2_vec(2)
+  J_out(7, 1)  = T * t22 * t37
+  J_out(7, 2)  = t41
+  J_out(7, 5)  = gamma * t22 * t37
+  J_out(7, 8)  = T * gamma * t37
+  J_out(8, 1)  = T * t22 * t43
+  J_out(8, 3)  = t41
+  J_out(8, 4)  = t35 * x2_vec(2) * x2_vec(3)
+  J_out(8, 5)  = gamma * t22 * t43
+  J_out(8, 8)  = T * gamma * t43
+  J_out(9, 5)  = t22 * t31 * x2_vec(3)
+  J_out(9, 8)  = T * t31 * x2_vec(3)
+  J_out(10, 1) = -T * t9 * t22 * w2_vec(1)
+  J_out(10, 5) = t29 - &
+               & gamma * t9 * t22 * w2_vec(1)
+  J_out(10, 8) = t15 - &
+               & T * gamma * t9 * w2_vec(1)
+  J_out(11, 1) = -T * t22 * t28 * w2_vec(2)
+  J_out(11, 4) = t41 * w2_vec(2) * x2_vec(3)
+  J_out(11, 5) = -t29 - &
+               & gamma * t22 * t28 * w2_vec(2)
+  J_out(11, 8) = -t15 - &
+               & T * gamma * t28 * w2_vec(2)
+  J_out(12, 1) = T * t22 * t24 * w2_vec(1) - &
+               & T * a * t22 * w2_vec(2) * x2_vec(2)
+  J_out(12, 4) = t41 * w2_vec(2) * x2_vec(2)
+  J_out(12, 5) = -t22 * t31 * w2_vec(3) + &
+               & gamma * t22 * t24 * w2_vec(1) - &
+               & a * gamma * t22 * w2_vec(2) * x2_vec(2)
+  J_out(12, 8) = -T * t31 * w2_vec(3) + &
+               & T * gamma * t24 * w2_vec(1) - &
+               & T * a * gamma * w2_vec(2) * x2_vec(2)
   
   !-------------------!
   !     Segment 3     !
   !-------------------!
-  J_out(13, 1)  = T * t21 * t38
-  J_out(13, 2)  = t40
-  J_out(13, 5)  = gamma * t21 * t38
-  J_out(13, 9)  = T * gamma * t38
-  J_out(14, 1)  = T * t21 * t44
-  J_out(14, 3)  = t40
-  J_out(14, 4)  = t34 * x3_vec(2) * x3_vec(3)
-  J_out(14, 5)  = gamma * t21 * t44
-  J_out(14, 9)  = T * gamma * t44
-  J_out(15, 5)  = t21 * t32 * x3_vec(3)
-  J_out(15, 9)  = T * t32 * x3_vec(3)
+  J_out(13, 1) = T * t21 * t38
+  J_out(13, 2) = t40
+  J_out(13, 5) = gamma * t21 * t38
+  J_out(13, 7) = T * gamma * t38
+  J_out(14, 1) = T * t21 * t44
+  J_out(14, 3) = t40
+  J_out(14, 4) = t34 * x3_vec(2) * x3_vec(3)
+  J_out(14, 5) = gamma * t21 * t44
+  J_out(14, 7) = T * gamma * t44
+  J_out(15, 5) = t21 * t32 * x3_vec(3)
+  J_out(15, 7) = T * t32 * x3_vec(3)
 
   !-------------------!
   !     Segment 4     !
   !-------------------!
-  J_out(16, 1)  = -T * k * t39
-  J_out(16, 2)  = t10
-  J_out(16, 5)  = -gamma * k * t39
-  J_out(16, 6)  = -T * gamma * t39
-  J_out(17, 1)  = -T * k * t45
-  J_out(17, 3)  = t10
-  J_out(17, 4)  = -t10 * x4_vec(2) * x4_vec(3)
-  J_out(17, 5)  = -gamma * k * t45
-  J_out(17, 6)  = -T * gamma * t45
-  J_out(18, 5)  = -k * t33 * x4_vec(3)
-  J_out(18, 6)  = -T * t33 * x4_vec(3)
+  J_out(16, 1) = -T * k * t39
+  J_out(16, 2) = t10
+  J_out(16, 5) = -gamma * k * t39
+  J_out(16, 6) = -T * gamma * t39
+  J_out(17, 1) = -T * k * t45
+  J_out(17, 3) = t10
+  J_out(17, 4) = -t10 * x4_vec(2) * x4_vec(3)
+  J_out(17, 5) = -gamma * k * t45
+  J_out(17, 6) = -T * gamma * t45
+  J_out(18, 5) = -k * t33 * x4_vec(3)
+  J_out(18, 6) = -T * t33 * x4_vec(3)
 
 END SUBROUTINE PR_SEGS_DFDP
 
@@ -1268,9 +1266,9 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
   a             = PAR(4)
 
   ! Stable Floquet eigenvalue
-  mu_s          = PAR(pdim+3)
+  mu_s          = PAR(pdim+5)
   ! Distance from perturbed segment to \Gamma
-  eta           = PAR(pdim+4)
+  eta           = PAR(pdim+6)
   ! Perturbation amplitude
   A_perturb     = PAR(pdim+7)
   ! Angle at which perturbation is applied
@@ -1295,9 +1293,12 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
   BCS_out(7)     = gamma * (A_pump - x0_seg1(1) - (x0_seg1(1) * x0_seg1(3)))
 
   ! Adjoint Boundary Conditions - Segments 1 and 2
-  BCS_out(8:10)  = w0_seg1 - w1_seg2
-  BCS_out(11:13) = (mu_s * w0_seg2) - w1_seg1
-  BCS_out(14)    = NORM2(w0_seg2) - 1.0d0
+  ! BCS_out(8:10)  = w0_seg1 - w1_seg2
+  ! BCS_out(11:13) = (mu_s * w0_seg2) - w1_seg1
+  ! BCS_out(14)    = NORM2(w0_seg2) - 1.0d0
+  BCS_out(8:10)  = w1_seg1 - w0_seg2
+  BCS_out(11:13) = (mu_s * w0_seg1) - w1_seg2
+  BCS_out(14)    = NORM2(w1_seg2) - 1.0d0
 
   !-------------------!
   !     Segment 3     !
@@ -1391,7 +1392,6 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
   ! Cheaty MATLAB things
   REAL(KIND=8)                :: t2, t3, t4, t5, t6, t7, t8, t9
   REAL(KIND=8)                :: t10, t11, t12, t13, t14, t15
-  REAL(KIND=8)                :: t16, t17, t18, t19, t20, t21
 
   !============================================================================!
   !                              INPUT PARAMETERS                              !
@@ -1440,9 +1440,9 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
   a             = PAR(4)
 
   ! Stable Floquet eigenvalue
-  mu_s          = PAR(pdim+3)
+  mu_s          = PAR(pdim+5)
   ! Distance from perturbed segment to \Gamma
-  eta           = PAR(pdim+4)
+  eta           = PAR(pdim+6)
   ! Perturbation amplitude
   A_perturb     = PAR(pdim+7)
   ! Angle at which perturbation is applied
@@ -1454,115 +1454,99 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
   !                        CHEATY MATLAB CONSTANT THINGS                       !
   !============================================================================!
   ! Initial vectors
-  t2  = ABS(w0_seg2(1))
-  t3  = ABS(w0_seg2(2))
-  t4  = ABS(w0_seg2(3))
-  t5  = t2 ** 2.0d0
-  t6  = t3 ** 2.0d0
-  t7  = t4 ** 2.0d0
-  t8  = -x1_seg4(1)
-  t9  = -x1_seg4(2)
-  t10 = -x1_seg4(3)
-  t11 = t8 + x0_seg2(1)
-  t12 = t9 + x0_seg2(2)
-  t13 = t10 + x0_seg2(3)
-  t14 = t5 + t6 + t7
+  t2 = ABS(w1_seg2(1))
+  t3 = ABS(w1_seg2(2))
+  t4 = ABS(w1_seg2(3))
+  t5 = x0_seg2(1) * 2.0d0
+  t6 = x0_seg2(2) * 2.0d0
+  t7 = x0_seg2(3) * 2.0d0
+  t8 = x1_seg4(1) * 2.0d0
+  t9 = x1_seg4(2) * 2.0d0
+  t10 = x1_seg4(3) * 2.0d0
+  t11 = t2 ** 2
+  t12 = t3 ** 2
+  t13 = t4 ** 2
+  t14 = t11 + t12 + t13
   t15 = 1.0d0 / SQRT(t14)
-
-  ! Final vectors
-  t16 = -x1_seg4(1)
-  t17 = -x1_seg4(2)
-  t18 = -x1_seg4(3)
-  t19 = t16 + x0_seg2(1)
-  t20 = t17 + x0_seg2(2)
-  t21 = t18 + x0_seg2(3)
 
   !============================================================================!
   !                             JACOBIAN ENCODING                              !
   !============================================================================!
-  !----------------------------------------!
-  !     Segments 1 and 2: State-Vector     !
-  !----------------------------------------!
-  ! Initial vectors
+  !------------------------------------------!
+  !     Segments 1 and 2: State - Vector     !
+  !------------------------------------------!
+  ! dBCS / dU0 - Initial vectors
   J_out(1, 1)   = 1.0d0
+  J_out(1, 25)  = -1.0d0
   J_out(2, 2)   = 1.0d0
+  J_out(2, 26)  = -1.0d0
   J_out(3, 3)   = 1.0d0
+  J_out(3, 27)  = -1.0d0
+
   J_out(4, 7)   = -1.0d0
+  J_out(4, 19)  = 1.0d0
   J_out(5, 8)   = -1.0d0
+  J_out(5, 20)  = 1.0d0
   J_out(6, 9)   = -1.0d0
+  J_out(6, 21)  = 1.0d0
+
   J_out(7, 1)   = -gamma * (x0_seg1(3) + 1.0d0)
   J_out(7, 3)   = -gamma * x0_seg1(1)
 
-  ! Final vectors
-  J_out(1, 25)   = -1.0d0
-  J_out(2, 26)   = -1.0d0
-  J_out(3, 27)   = -1.0d0
-  J_out(4, 19)   = 1.0d0
-  J_out(5, 20)   = 1.0d0
-  J_out(6, 21)   = 1.0d0
+  J_out(8, 10)  = -1.0d0
+  J_out(8, 22)  = 1.0d0
+  J_out(9, 11)  = -1.0d0
+  J_out(9, 23)  = 1.0d0
+  J_out(10, 12) = -1.0d0
+  J_out(10, 24) = 1.0d0
 
-  !------------------------------------------!
-  !     Segments 1 and 2: Adjoint Vector     !
-  !------------------------------------------!
-  ! Initial vectors
-  J_out(8, 4)   = 1.0d0
-  J_out(9, 5)   = 1.0d0
-  J_out(10, 6)  = 1.0d0
-  J_out(11, 10) = mu_s
-  J_out(12, 11) = mu_s
-  J_out(13, 12) = mu_s
-  J_out(14, 10) = t2 * t15 * ((w0_seg2(1) / ABS(w0_seg2(1))))
-  J_out(14, 11) = t3 * t15 * ((w0_seg2(2) / ABS(w0_seg2(2))))
-  J_out(14, 12) = t4 * t15 * ((w0_seg2(3) / ABS(w0_seg2(3))))
+  J_out(11, 4)  = mu_s
+  J_out(11, 28) = -1.0d0
+  J_out(12, 5)  = mu_s
+  J_out(12, 29) = -1.0d0
+  J_out(13, 6)  = mu_s
+  J_out(13, 30) = -1.0d0
 
-  ! Final vectors
-  J_out(8, 28)  = -1.0d0
-  J_out(9, 29)  = -1.0d0
-  J_out(10, 30) = -1.0d0
-  J_out(11, 22)  = -1.0d0
-  J_out(12, 23)  = -1.0d0
-  J_out(13, 24)  = -1.0d0
+  J_out(14, 28) = t2 * t15 * ((w1_seg2(1) / ABS(w1_seg2(1))))
+  J_out(14, 29) = t3 * t15 * ((w1_seg2(2) / ABS(w1_seg2(2))))
+  J_out(14, 30) = t4 * t15 * ((w1_seg2(3) / ABS(w1_seg2(3))))
 
   !-------------------!
   !     Segment 3     !
   !-------------------!
-  ! Initial vectors
   J_out(15, 1)  = -1.0d0
-  J_out(16, 2)  = -1.0d0
-  J_out(17, 3)  = -1.0d0
-
-  ! Final vectors
   J_out(15, 31) = 1.0d0
+  J_out(16, 2)  = -1.0d0
   J_out(16, 32) = 1.0d0
+  J_out(17, 3)  = -1.0d0
   J_out(17, 33) = 1.0d0
 
   !-------------------!
   !     Segment 4     !
   !-------------------!
-  ! Initial vectors
   J_out(18, 13) = -1.0d0
   J_out(18, 16) = 1.0d0
   J_out(19, 14) = -1.0d0
   J_out(19, 17) = 1.0d0
   J_out(20, 15) = -1.0d0
   J_out(20, 18) = 1.0d0
+
   J_out(21, 7)  = -w0_seg2(1)
   J_out(21, 8)  = -w0_seg2(2)
   J_out(21, 9)  = -w0_seg2(3)
   J_out(21, 10) = -x0_seg2(1) + x1_seg4(1)
   J_out(21, 11) = -x0_seg2(2) + x1_seg4(2)
   J_out(21, 12) = -x0_seg2(3) + x1_seg4(3)
-  J_out(22, 7)  = 2.0d0 * t11
-  J_out(22, 8)  = 2.0d0 * t12
-  J_out(22, 9)  = 2.0d0 * t13
-
-  ! Final vectors
   J_out(21, 34) = w0_seg2(1)
   J_out(21, 35) = w0_seg2(2)
   J_out(21, 36) = w0_seg2(3)
-  J_out(22, 34) = -2.0d0 * t19
-  J_out(22, 35) = -2.0d0 * t20
-  J_out(22, 36) = -2.0d0 * t21
+  
+  J_out(22, 7)  = t5 - t8
+  J_out(22, 8)  = t6 - t9
+  J_out(22, 9)  = t7 - t10
+  J_out(22, 34) = -t5 + t8
+  J_out(22, 35) = -t6 + t9
+  J_out(22, 36) = -t7 + t10
 
 END SUBROUTINE BCS_SEGS_DFDU
 
@@ -1685,9 +1669,9 @@ SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
   a             = PAR(4)
 
   ! Stable Floquet eigenvalue
-  mu_s          = PAR(pdim+3)
+  mu_s          = PAR(pdim+5)
   ! Distance from perturbed segment to \Gamma
-  eta           = PAR(pdim+4)
+  eta           = PAR(pdim+6)
   ! Perturbation amplitude
   A_perturb     = PAR(pdim+7)
   ! Angle at which perturbation is applied
@@ -1700,20 +1684,14 @@ SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
   !============================================================================!
   J_out(7, 1)   = A_pump - x0_seg1(1) - (x0_seg1(1) * x0_seg1(3))
   J_out(7, 2)   = gamma
-
-  J_out(11, 7)  = w0_seg2(1)
-
-  J_out(12, 7)  = w0_seg2(2)
-
-  J_out(13, 7)  = w0_seg2(3)
-
+  J_out(11, 9)  = w0_seg1(1)
+  J_out(12, 9)  = w0_seg1(2)
+  J_out(13, 9)  = w0_seg1(3)
   J_out(18, 11) = -COS(theta_perturb)
   J_out(18, 12) = A_perturb * SIN(theta_perturb)
-
   J_out(20, 11) = -SIN(theta_perturb)
   J_out(20, 12) = -A_perturb * COS(theta_perturb)
-
-  J_out(22, 8)  = -1.0d0
+  J_out(22, 10) = -1.0d0
 
 END SUBROUTINE BCS_SEGS_DFDP
 

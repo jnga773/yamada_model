@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-# Plot single isochron against the periodic orbit in phase space
+# Plot single phase transition curve (PTC)
 def plot_single_PTC(run_in):
     """
     Plots a single PTC from the continuation run "run08_PTC_single"
@@ -29,7 +29,7 @@ def plot_single_PTC(run_in):
     sol_read = run_in(1)
 
     # Perturbation amplitude
-    A_perturb     =  sol_read['A_perturb']
+    A_perturb     = sol_read['A_perturb']
     # Perturbation direction angle
     theta_perturb = sol_read['theta_perturb']
     # Perturbation vector
@@ -127,7 +127,7 @@ def sort_data_folders(run_str_in):
 
 #------------------------------------------------------------------------------#
 def read_PTC_scan_data(run_str_in):
-    from python_files.write_data_functions import bd_read
+    from continuation_scripts.data_functions import bd_read
 
     # Get sorted data folders
     data_dir = sort_data_folders(run_str_in)
@@ -174,7 +174,7 @@ def save_PTC_scan_separate_runs(run_str_in):
         String label identifier for the current run.
     """
     from scipy.io import savemat
-    from python_files.write_data_functions import bd_read
+    from continuation_scripts.data_functions import bd_read
     from numpy import array
 
     #-------------------#
@@ -251,7 +251,7 @@ def save_PTC_scan(run_str_in):
         String label identifier for the current run.
     """
     from scipy.io import savemat
-    from python_files.write_data_functions import bd_read
+    from continuation_scripts.data_functions import bd_read
     from numpy import array
 
     #-------------------#
@@ -429,7 +429,7 @@ def plot_multi_PTC(run_str_in):
         String label identifier for the current run.
     """
     import matplotlib.pyplot as plt
-    from python_files.write_data_functions import bd_read
+    from continuation_scripts.data_functions import bd_read
     from numpy import arange, cos, sin
     
     # Add thesis style sheet
@@ -630,7 +630,7 @@ def plot_single_level_set(run_in):
 
 #------------------------------------------------------------------------------#
 def read_level_set_scan_data(run_str_in):
-    from python_files.write_data_functions import bd_read
+    from continuation_scripts.data_functions import bd_read
 
     # Get sorted data folders
     data_dir = sort_data_folders(run_str_in)
@@ -677,7 +677,7 @@ def save_level_set_scan(run_str_in):
         String label identifier for the current run.
     """
     from scipy.io import savemat
-    from python_files.write_data_functions import bd_read
+    from continuation_scripts.data_functions import bd_read
     from numpy import array
 
     #-------------------#
@@ -720,7 +720,7 @@ def plot_multi_level_set(run_str_in):
         String label identifier for the current run.
     """
     import matplotlib.pyplot as plt
-    from python_files.write_data_functions import bd_read
+    from python_files.data_functions import bd_read
     from numpy import arange, pi
     
     # Add thesis style sheet

@@ -1,0 +1,90 @@
+#==============================================================================#
+#                      STABLE FLOQUET VARIATIONAL PROBLEM                      #
+#==============================================================================#
+#-----------------------------#
+#     Initial Calculation     #
+#-----------------------------#
+# Equation file
+e = './functions/yamada_VAR'
+
+# Data file for initial solution
+dat = './data_mat/initial_solution_VAR'
+
+# Set initial solution number to 0
+IRS = 0
+# Problem type
+IPS = 4
+# Set branching switching (1=off, -1=branch switch, 2=LP or HB).
+ISW = 1
+
+# Set fold detection to 1
+ILP = 1
+ISP = 2
+
+#----------------------------#
+#     Parameter Settings     #
+#----------------------------#
+# Maximum number of parameters
+NPAR     = 7
+
+# Continuation parameters
+ICP      = ['mu_s', 'w_norm', 'A', 'gamma']
+
+# Set boundary for A parameter
+UZSTOP   = {'mu_s': [0.0, 1.1]}
+
+# Set defined stopping points for A and gamma
+UZR      = {'mu_s': 1.0}
+
+#------------------------------#
+#     State Space Settings     #
+#------------------------------#
+# State space variables
+unames   = {1:'x1', 2:'x2', 3:'x3',
+            4:'wn_1', 5:'wn_2', 6:'wn_3'}
+
+# State space dimesion
+NDIM     = 6
+
+#------------------------------------------#
+#     Jacobian and Boundary Conditions     #
+#------------------------------------------#
+# User defines derivatives: 0 = no, 1 = yes
+JAC = 0
+
+# Number of boundary conditions
+NBC = 8
+
+# Number of integral conditions
+NINT = 0
+
+#-------------------------------#
+#     Continuation Settings     #
+#-------------------------------#
+# Number of steps
+NMX = 100
+# Number of saved steps
+NPR = 10
+
+# NTST
+NTST = 50
+
+# Step sizes
+DSMIN = 5e-4
+DS    = 5e-3
+DSMAX = 1e-2
+
+# # Number of collocation points?
+# NCOL = 4
+# # Set adaptive mesh interval
+# IAD = 0
+
+# #----------------------------#
+# #     Tolerance Settings     #
+# #----------------------------#
+# # Maximum number of iterations for locating special solutions/points
+# ITMX = 8
+# # Maximum number of correction steps
+# ITNW = 7
+# # Corrector uses full newton for [NWTN] number of steps
+# NWTN = 3
