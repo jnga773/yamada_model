@@ -33,22 +33,50 @@ function save_initial_PO_data(run_in, label_in)
   % Period
   T_s   = sol_s.T;
 
+  %--------------------------------------%
+  %     Periodic Orbit Floquet Stuff     %
+  %--------------------------------------%
+  % End point of periodic orbits
+  xbp_end_s = xbp_PO_s(end, :);
+
+  % Monodromy matrix
+  chart = coco_read_solution('PO_stable.coll.var', run_in, label_in, 'chart');
+  data  = coco_read_solution('PO_stable.coll', run_in, label_in, 'data');
+
+  % Create monodrony matrix
+  M1 = chart.x(data.coll_var.v1_idx);
+
+  % Get eigenvalues and eigenvectors of the Monodromy matrix
+  [floquet_vec, floquet_eig] = eig(M1);
+
+  % Find index for stable eigenvector? < 1
+  [lam_s, min_idx] = min(abs(diag(floquet_eig)));
+
+  % Stable eigenvector
+  vec_s = floquet_vec(:, min_idx);
+  % Stable eigenvalue (Floquet thingie)
+  % lam_s = floquet_eig(min_idx, min_idx);
+
   %----------------%
   %     Output     %
   %----------------%
-  data_out.xbp    = xbp_PO_s;
-  data_out.tbp    = tbp_s;
-  data_out.T      = T_s;
+  data_out.xbp     = xbp_PO_s;
+  data_out.tbp     = tbp_s;
+  data_out.T       = T_s;
 
-  data_out.x0     = x_0;
-  data_out.xpos   = x_pos;
-  data_out.xneg   = x_neg;
+  data_out.x0      = x_0;
+  data_out.xpos    = x_pos;
+  data_out.xneg    = x_neg;
+  
+  data_out.xbp_end = xbp_end_s;
+  data_out.vec_s   = vec_s;
+  data_out.lam_s   = lam_s;
 
-  data_out.p      = p;
-  data_out.pnames = pnames;
+  data_out.p       = p;
+  data_out.pnames  = pnames;
 
-  data_out.xdim   = length(x_0);
-  data_out.pdim   = length(p); 
+  data_out.xdim    = length(x_0);
+  data_out.pdim    = length(p); 
 
   %-------------------%
   %     Save Data     %

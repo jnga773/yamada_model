@@ -1,5 +1,5 @@
 %=========================================================================%
-%                YAMADA MODEL (STABLE AND UNSTABLE ORBITS)                %
+%                YAMADA MODEL (ATTRACTING PERIODIC ORBIT)                 %
 %=========================================================================%
 % We compute stable and unstable periodic orbits in region 8 of the
 % two-parameter bifurcation diagram of the Yamada model:
@@ -33,7 +33,7 @@ addpath('./functions/symcoco/');
 addpath('./continuation_scripts/initial_PO/');
 
 % Add plotting scripts
-addpath('./plotting_scripts/');
+addpath('./plotting_scripts/initial_PO/');
 
 %--------------------%
 %     Parameters     %
@@ -419,29 +419,37 @@ plot_initial_periodic_orbit_COLL(run_new, label_plot);
 % Save solution
 save_initial_PO_data(run_new, label_plot);
 
-%--------------------------%
-%     Monodromy Matrix     %
-%--------------------------%
-label_plot = coco_bd_labs(coco_bd_read(run_new), 'PO_PT');
-
-[sol, ~] = coll_read_solution('PO_stable', run_new, label_plot);
-xbp_PO = sol.xbp;
-fprintf('Head-point = (%.3f, %.3f, %.3f)\n', xbp_PO(1, :));
-
-% Monodromy matrix
-chart = coco_read_solution('PO_stable.coll.var', run_new, label_plot, 'chart');
-data  = coco_read_solution('PO_stable.coll', run_new, label_plot, 'data');
-
-% Create monodrony matrix
-M1 = chart.x(data.coll_var.v1_idx);
-
-fprintf('~~~ Monodromy Matrix ~~~\n');
-fprintf('(%.7f, %.7f, %.7f)\n', M1(1, :));
-fprintf('(%.7f, %.7f, %.7f)\n', M1(2, :));
-fprintf('(%.7f, %.7f, %.7f)\n\n', M1(3, :));
-
-% Get eigenvalues and eigenvectors of the Monodromy matrix
-[vec_floquet, eig_floquet] = eig(M1);
+% %--------------------------%
+% %     Monodromy Matrix     %
+% %--------------------------%
+% label_plot = coco_bd_labs(coco_bd_read(run_new), 'PO_PT');
+% 
+% [sol, ~] = coll_read_solution('PO_stable', run_new, label_plot);
+% xbp_PO = sol.xbp;
+% fprintf('Head-point = (%.3f, %.3f, %.3f)\n', xbp_PO(1, :));
+% 
+% % Monodromy matrix
+% chart = coco_read_solution('PO_stable.coll.var', run_new, label_plot, 'chart');
+% data  = coco_read_solution('PO_stable.coll', run_new, label_plot, 'data');
+% 
+% % Create monodrony matrix
+% M1 = chart.x(data.coll_var.v1_idx);
+% 
+% % fprintf('~~~ Monodromy Matrix ~~~\n');
+% % fprintf('(%.7f, %.7f, %.7f)\n', M1(1, :));
+% % fprintf('(%.7f, %.7f, %.7f)\n', M1(2, :));
+% % fprintf('(%.7f, %.7f, %.7f)\n\n', M1(3, :));
+% 
+% % Get eigenvalues and eigenvectors of the Monodromy matrix
+% [floquet_vec, floquet_eig] = eig(M1);
+% 
+% % Find strong eigenvalue
+% ind = find(abs(diag(floquet_eig)) < 0.99 & abs(diag(floquet_eig)) > 0.1);
+% 
+% % Strong stable eigenvalue
+% lam_s = floquet_eig(ind, ind);
+% % Strong stable eigenvector
+% vec_s = floquet_vec(:, ind);
 
 %=========================================================================%
 %                               END OF FILE                               %

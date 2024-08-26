@@ -1,5 +1,5 @@
-function [data_in, y_out] = bcs_Wq_initial(prob_in, data_in, u_in)
-  % [data_in, y_out] = bcs_Wq_initial(prob_in, data_in, u_in)
+function [data_in, y_out] = bcs_W_PO_initial(prob_in, data_in, u_in)
+  % [data_in, y_out] = bcs_W_PO_initial(prob_in, data_in, u_in)
   %
   % COCO compatible encoding for the "final" boundary conditions of the two
   % trajectory segments of the stable manifold of x_pos. Each segment
@@ -33,17 +33,17 @@ function [data_in, y_out] = bcs_Wq_initial(prob_in, data_in, u_in)
   %     Input Parameters     %
   %--------------------------%
   % Initial vector of segment 1
-  x0_seg1 = u_in(1:3);
+  x0_seg1 = u_in(1 : xdim);
   % Initial vector of segment 2
-  x0_seg2 = u_in(4:6);
+  x0_seg2 = u_in(xdim+1 : 2*xdim);
 
   %------------------------------------%
   %     Read Points from "data_in"     %
   %------------------------------------%
   % "End" point for segment 1
-  bcs_seg1 = -5.0;
+  bcs_seg1 = -4.0;
   % "End" point for segment 2
-  bcs_seg2 = 30.0;
+  bcs_seg2 = 35.0;
 
   %----------------%
   %     Output     %
