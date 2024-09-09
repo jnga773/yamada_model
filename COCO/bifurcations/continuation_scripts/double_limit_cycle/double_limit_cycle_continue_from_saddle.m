@@ -37,6 +37,9 @@ prob = ode_SN2SN(prob, '', run_old, label_old);
 % Set step sizes
 prob = coco_set(prob, 'cont', 'h_min', 2.5e0, 'h0', 2.5e0, 'h_max', 2.5e0);
 
+% Set norm
+prob = coco_set(prob, 'cont', 'norm', inf);
+
 % Set upper bound of continuation steps in each direction along solution
 PtMX =  5000;
 prob = coco_set(prob, 'cont', 'PtMX', PtMX);

@@ -1,4 +1,4 @@
-function prob_out = glue_lingap_conditions(prob_in, data_in)
+function prob_out = glue_lingap_conditions(prob_in, data_in, bcs_funcs_in)
   % prob_out = glue_lin_conditions(prob_in, data_in)
   %
   % Applies the Lin gap and Lin phase boundary conditions to the COCO problem.
@@ -10,6 +10,8 @@ function prob_out = glue_lingap_conditions(prob_in, data_in)
   %     Continuation problem structure.
   % data_in : structure
   %     Problem data structure containing boundary condition information.
+  % bcs_funcs_in : cell (functions)
+  %     Cell of the boundary condition functions.
   %
   % Output
   % ----------
@@ -18,6 +20,9 @@ function prob_out = glue_lingap_conditions(prob_in, data_in)
 
   % Set the COCO problem
   prob = prob_in;
+
+  % Lin gap boundary functions
+  bcs_lingap = bcs_funcs_in.bcs_lingap;
 
   %-------------------------------%
   %     Read the Segment Data     %
@@ -45,7 +50,7 @@ function prob_out = glue_lingap_conditions(prob_in, data_in)
   data_bcs = data_in;
   data_bcs.xdim = data_u.xdim;
 
-  prob = coco_add_func(prob, 'bcs_lingap', @bcs_lingap, data_bcs, ...
+  prob = coco_add_func(prob, 'bcs_lingap', bcs_lingap{:}, data_bcs, ...
                        'zero', 'uidx', ...
                        [uidx_u(maps_u.x1_idx); uidx_s(maps_s.x0_idx)], ...
                        'u0', [data_in.lingap]);

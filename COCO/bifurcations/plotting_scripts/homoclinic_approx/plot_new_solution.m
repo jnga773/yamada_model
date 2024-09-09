@@ -1,4 +1,4 @@
-function plot_new_solution(run_old_in, run_new_in, save_figure)
+function plot_new_solution(run_old_in, run_new_in)
   %-------------------%
   %     Read Data     %
   %-------------------%
@@ -15,7 +15,7 @@ function plot_new_solution(run_old_in, run_new_in, save_figure)
   %-----------------------------------------------------------------------%
   %                        Plot: New Solution (2D)                        %
   %-----------------------------------------------------------------------%
-  fig = figure(9); clf;
+  fig = figure(6); clf;
   fig.Name = 'New Solution Periodic Orbit (2D)';
   fig.Units = 'inches';
   fig.Position = [3, 3, 8, 6];
@@ -99,8 +99,8 @@ function plot_new_solution(run_old_in, run_new_in, save_figure)
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    exportgraphics(fig, './images/new_solution.pdf', ContentType='vector');
-  end
+%   if save_figure == true
+%     exportgraphics(fig, './images/new_solution.pdf', ContentType='vector');
+%   end
 
 end

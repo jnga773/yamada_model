@@ -1,4 +1,4 @@
-function plot_increasing_period_2D(run_in, save_figure)
+function plot_increasing_period_2D(run_in)
   %-------------------%
   %     Read Data     %
   %-------------------%
@@ -11,7 +11,7 @@ function plot_increasing_period_2D(run_in, save_figure)
   %-----------------------------------------------------------------------%
   %                    Plot: Increasing Period PO (2D)                    %
   %-----------------------------------------------------------------------%
-  fig = figure(6); clf;
+  fig = figure(4); clf;
   fig.Name = 'Sample-Periodic Orbits (2D)';
   fig.Units = 'inches';
   fig.Position = [3, 3, 8, 6];
@@ -84,8 +84,8 @@ function plot_increasing_period_2D(run_in, save_figure)
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    exportgraphics(fig, './images/2D_increasing_period.pdf', ContentType='vector');
-  end
+  % if save_figure == true
+  %   exportgraphics(fig, './images/2D_increasing_period.pdf', ContentType='vector');
+  % end
 
 end

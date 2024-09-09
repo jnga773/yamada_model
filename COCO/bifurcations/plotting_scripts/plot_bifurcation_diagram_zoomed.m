@@ -1,10 +1,6 @@
 % Clear plots
 % close all;
-function plot_bifurcation_diagram_zoomed(p0_in, run_names_in, save_figure)
-  % Grab B and a values
-  B = p0_in(3);
-  a = p0_in(4);
-
+function plot_bifurcation_diagram_zoomed(run_names_in)
   % Run names
   H_run = run_names_in.hopf_bifurcations;
   S_run = run_names_in.saddle_nodes;
@@ -47,6 +43,13 @@ function plot_bifurcation_diagram_zoomed(p0_in, run_names_in, save_figure)
   % Approximate double limit cycle line
   A_D = coco_bd_col(bd_D, 'A');
   gamma_D = coco_bd_col(bd_D, 'gamma');
+
+  %-------------------------%
+  %     Read Parameters     %
+  %-------------------------%
+  % Read B and a parameters
+  B = coco_bd_val(bd_H, 1, 'B');
+  a = coco_bd_val(bd_H, 1, 'a');
 
   %-----------------------------------------------------------------------%
   %                         Plot: Zoomed Picture                          %
@@ -115,7 +118,7 @@ function plot_bifurcation_diagram_zoomed(p0_in, run_names_in, save_figure)
   % Plot approximate homoclinic from run8
   plot(ax, A_L, gamma_L, LineStyle='-', DisplayName='L');
 
-  % Plot double limit cycle line from run11
+  % % Plot double limit cycle line from run11
   plot(ax, A_D, gamma_D, LineStyle='-', DisplayName='D');
 
   % Legend
@@ -166,8 +169,6 @@ function plot_bifurcation_diagram_zoomed(p0_in, run_names_in, save_figure)
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    exportgraphics(fig, './images/Region_II_bifurcations_zoomed.pdf', ContentType='vector');
-  end
+  exportgraphics(fig, './images/yamada_bifurcations_zoomed.pdf', ContentType='vector');
 
 end

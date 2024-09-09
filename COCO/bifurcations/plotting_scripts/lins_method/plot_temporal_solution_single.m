@@ -1,4 +1,4 @@
-function plot_temporal_solution_single(run_in, label_in, fig_num_in, save_figure)
+function plot_temporal_solution_single(run_in, label_in)
   % PLOT_TEMPORAL_SOLUTIONS: Plot the temporal solutions for all COCO
   % solutions for the two-parameter continuation. Will probably do in a
   % waterfall plot or something to see what's happening.
@@ -24,7 +24,7 @@ function plot_temporal_solution_single(run_in, label_in, fig_num_in, save_figure
   %-----------------------------------------------------------------------%
   %                  Plot: Temporal Solutions (Split Up)                  %
   %-----------------------------------------------------------------------%
-  fig = figure(fig_num_in); clf;
+  fig = figure(9); clf;
   fig.Name = 'Temporal Solutions';
   fig.Units = 'inches'; fig.Position = [3, 3, 24, 8]; fig.PaperSize = [24, 8];
 
@@ -121,10 +121,10 @@ function plot_temporal_solution_single(run_in, label_in, fig_num_in, save_figure
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    % Filename
-    figname = sprintf('homoclinic_time_series_scan_%s_%d', run_in(1:5), label_in);
-    exportgraphics(fig, ['./images/', figname, '.pdf'], ContentType='vector');
-  end
+%   if save_figure == true
+%     % Filename
+%     figname = sprintf('homoclinic_time_series_scan_%s_%d', run_in(1:5), label_in);
+%     exportgraphics(fig, ['./images/', figname, '.pdf'], ContentType='vector');
+%   end
 
 end

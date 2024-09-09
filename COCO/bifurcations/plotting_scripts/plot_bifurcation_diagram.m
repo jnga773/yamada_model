@@ -1,10 +1,6 @@
 % Clear plots
 % close all;
-function plot_bifurcation_diagram(p0_in, run_names_in, save_figure)
-  % Grab B and a values
-  B = p0_in(3);
-  a = p0_in(4);
-
+function plot_bifurcation_diagram(run_names_in)
   % Run names
   H_run = run_names_in.hopf_bifurcations;
   S_run = run_names_in.saddle_nodes;
@@ -48,6 +44,13 @@ function plot_bifurcation_diagram(p0_in, run_names_in, save_figure)
   A_D = coco_bd_col(bd_D, 'A');
   gamma_D = coco_bd_col(bd_D, 'gamma');
 
+  %-------------------------%
+  %     Read Parameters     %
+  %-------------------------%
+  % Read B and a parameters
+  B = coco_bd_val(bd_H, 1, 'B');
+  a = coco_bd_val(bd_H, 1, 'a');
+
   %-----------------------------------------------------------------------%
   %                          Plot: Big Picture                            %
   %-----------------------------------------------------------------------%
@@ -72,31 +75,6 @@ function plot_bifurcation_diagram(p0_in, run_names_in, save_figure)
 
   % Turn on axis hold
   hold(ax, 'on');
-
-  %-----------------------------%
-  %     Plot: COCO Plotting     %
-  %-----------------------------%
-  % Plot equilibrium points from run2
-  % thm = struct('special', {{'SN', 'HB'}});
-  % coco_plot_bd(thm, run2, 'A', 'gamma')
-  
-  % Plot Hopf birfurcations from run3
-  % % thm = struct('special', {{'EP', 'FP', 'BTP'}});
-  % thm = struct('special', {{'BTP'}});
-  % coco_plot_bd(thm, run3, 'A', 'gamma')
-  
-  % Plot saddle-node bifurcations from run4
-  % % thm = struct('special', {{'EP', 'FP'}});
-  % thm = struct('special', {{}});
-  % coco_plot_bd(thm, run4, 'A', 'gamma')
-  
-  % Plot transcritical bifurcations from run5
-  % thm = struct('special', {{}});
-  % coco_plot_bd(thm, run5, 'A', 'gamma')
-  
-  % Plot approximate homoclinic from run8
-  % thm = struct('ustab', '');
-  % coco_plot_bd(thm, run8, 'A', 'gamma');
 
   %-------------------------------%
   %     Plot: MATLAB Plotting     %
@@ -166,8 +144,6 @@ function plot_bifurcation_diagram(p0_in, run_names_in, save_figure)
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    exportgraphics(fig, './images/Region_II_bifurcations.pdf', ContentType='vector');
-  end
+  exportgraphics(fig, './images/yamada_bifurcations.pdf', ContentType='vector');
 
 end

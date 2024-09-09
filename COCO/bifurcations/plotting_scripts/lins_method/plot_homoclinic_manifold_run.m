@@ -1,4 +1,4 @@
-function plot_homoclinic_manifold_run(run_in, label_in, data_in, fig_num_in, save_figure)
+function plot_homoclinic_manifold_run(run_in, label_in, data_in, fig_num_in)
   % PLOT_HOMOCLINIC_MANIFOLD_RUN: Plots the solution calculating in
   % run [run_in] for label [label_in].
 
@@ -16,7 +16,7 @@ function plot_homoclinic_manifold_run(run_in, label_in, data_in, fig_num_in, sav
   %-----------------------------------------------------------------------%
   %                    Plot: Homoclinic Manifold (3D)                     %
   %-----------------------------------------------------------------------%
-  fig = figure(fig_num_in); clf;
+  fig = figure(8); clf;
   fig.Name = 'Homoclinic Manifolds (3D)';
   fig.Units = 'inches';
   fig.Position = [2, 2, 12, 8];
@@ -33,7 +33,6 @@ function plot_homoclinic_manifold_run(run_in, label_in, data_in, fig_num_in, sav
   hold(ax, 'on');
 
   % Plot COCO solution
-  % coco_plot_sol(run_in, label_in, 'yamada', 1:2, 'x', 'x', 'x');
   plot3(ax, x_sol1(:, 1), x_sol1(:, 2), x_sol1(:, 3), LineStyle='-', ...
         Marker='.', MarkerSize=15, DisplayName='Unstable Manifold');
   plot3(ax, x_sol2(:, 1), x_sol2(:, 2), x_sol2(:, 3), LineStyle='-', ...
@@ -79,10 +78,10 @@ function plot_homoclinic_manifold_run(run_in, label_in, data_in, fig_num_in, sav
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    % Filename
-    figname = sprintf('homoclinic_trajectory_%s', run_in(1:5));
-    exportgraphics(fig, ['./images/', figname, '.pdf'], ContentType='vector');
-  end
+  % if save_figure == true
+  %   % Filename
+  %   figname = sprintf('homoclinic_trajectory_%s', run_in(1:5));
+  %   exportgraphics(fig, ['./images/', figname, '.pdf'], ContentType='vector');
+  % end
 
 end

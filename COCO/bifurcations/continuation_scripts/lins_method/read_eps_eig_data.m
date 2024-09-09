@@ -59,9 +59,15 @@ function data_out = read_eps_eig_data(run_in, label_in)
   data_out.pt0     = pt0;
   % Epsilon things
   data_out.epsilon = epsilon;
+
   % Eigenvectors
-  data_out.eigvecs = {vu; vs1; vs2};
+  data_out.vu      = vu;
+  data_out.vs1     = vs1;
+  data_out.vs2     = vs2;
+
   % Eigenvalues
-  data_out.eigvals = {lu; ls1; ls2};
+  data_out.lu      = lu;
+  data_out.ls1     = ls1;
+  data_out.ls2     = ls2;
 
 end

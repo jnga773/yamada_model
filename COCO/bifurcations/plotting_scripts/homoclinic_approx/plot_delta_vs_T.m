@@ -1,4 +1,4 @@
-function plot_delta_vs_T(run_in, save_figure)
+function plot_delta_vs_T(run_in)
   %-------------------%
   %     Read Data     %
   %-------------------%
@@ -11,6 +11,8 @@ function plot_delta_vs_T(run_in, save_figure)
   % Read period from run6
   % T_data = coco_bd_col(bd6, 'po.period')';
   T_data = [];
+
+  addpath('./functions/field/hardcoded/');
 
   % Cycle through each run in bd6, read the x0 data, and calculate the
   % minimum part
@@ -42,7 +44,7 @@ function plot_delta_vs_T(run_in, save_figure)
   %-----------------------------------------------------------------------%
   %                       Plot delta vs. T from run6                      %
   %-----------------------------------------------------------------------%
-  fig = figure(4); clf;
+  fig = figure(2); clf;
   fig.Name = 'Period vs. Min Difference from Equilibrium Point';
   fig.Units = 'inches';
   fig.Position = [3, 3, 8, 6];
@@ -86,8 +88,8 @@ function plot_delta_vs_T(run_in, save_figure)
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    exportgraphics(fig, './images/delta_vs_T.pdf', ContentType='vector');
-  end
+  % if save_figure == true
+  %   exportgraphics(fig, './images/delta_vs_T.pdf', ContentType='vector');
+  % end
 
 end

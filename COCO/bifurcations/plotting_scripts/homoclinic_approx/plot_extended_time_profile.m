@@ -1,4 +1,4 @@
-function plot_extended_time_profile(run_in, label_in, save_figure)
+function plot_extended_time_profile(run_in, label_in)
   %-------------------%
   %     Read Data     %
   %-------------------%
@@ -19,7 +19,7 @@ function plot_extended_time_profile(run_in, label_in, save_figure)
   %-----------------------------------------------------------------------%
   %                      Plot: Extended Time Profile                      %
   %-----------------------------------------------------------------------%
-  fig = figure(8); clf;
+  fig = figure(5); clf;
   fig.Name = 'Extended Time Profile';
   fig.Units = 'inches';
   fig.Position = [3, 3, 8, 6];
@@ -63,8 +63,8 @@ function plot_extended_time_profile(run_in, label_in, save_figure)
   %---------------------%
   %     Save Figure     %
   %---------------------%
-  if save_figure == true
-    exportgraphics(fig, './images/extended_time_profile.pdf', ContentType='vector');
-  end
+  % if save_figure == true
+  %   exportgraphics(fig, './images/extended_time_profile.pdf', ContentType='vector');
+  % end
 
 end
