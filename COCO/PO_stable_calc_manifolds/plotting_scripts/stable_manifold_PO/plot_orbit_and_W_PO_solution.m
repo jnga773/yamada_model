@@ -7,7 +7,7 @@ function plot_orbit_and_W_PO_solution(run_in, label_in)
   %     Read Data     %
   %-------------------%
   % Stable periodic orbit
-  [sol_s, ~] = coll_read_solution('PO_stable', run_in, label_in);
+  [sol_s, ~] = coll_read_solution('initial_PO', run_in, label_in);
   xbp_PO_s = sol_s.xbp;
 
   % Equilibrium points

@@ -1,7 +1,35 @@
-function data_out = calc_PO_initial_solution(run_in, label_in)
-  % data_out = calc_PO_initial_solution(run_in, label_in)
+function data_out = calc_initial_solution_PO(run_in, label_in)
+  % data_out = calc_initial_solution_PO(run_in, label_in)
   %
-  % Calculates initial periodic solution using ode45
+  % Calculate the initial periodic solution using ode45.
+  %
+  % This function reads the previous solution data for the periodic orbit and equilibrium points,
+  % calculates the initial periodic solution, and shifts the solution to start at the maximum of
+  % the first component.
+  %
+  % Parameters
+  % ----------
+  % run_in : string
+  %     The run identifier for the continuation problem.
+  % label_in : int
+  %     The solution label for the continuation problem.
+  %
+  % Returns
+  % -------
+  % data_out : struct
+  %     Structure containing the initial periodic solution data.
+  %     Fields:
+  %         - p : Parameters of the solution.
+  %         - pnames : Names of the parameters.
+  %         - t : Time data of the solution.
+  %         - x : State space solution.
+  %         - x0 : Equilibrium point at x0.
+  %         - xpos : Equilibrium point at xpos.
+  %         - xneg : Equilibrium point at xneg.
+  %
+  % See Also
+  % --------
+  % coll_read_solution, ep_read_solution
 
   %----------------------------------%
   %     Read Data: Periodic Orbit    %

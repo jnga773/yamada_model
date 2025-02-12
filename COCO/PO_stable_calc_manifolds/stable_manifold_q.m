@@ -76,7 +76,7 @@ bcs_funcs.bcs_final = {@bcs_Wq_final};
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.stable_manifold1 = 'run01_stable_manifold_seg1';
+run_names.stable_manifold1 = 'run06_stable_manifold_seg1';
 run_new = run_names.stable_manifold1;
 
 % Print to console
@@ -88,7 +88,7 @@ fprintf('Run name: %s \n', run_new);
 %     Calculate Solution     %
 %----------------------------%
 % Calculate dem tings
-data_isol = calc_stable_Wq_initial_solution('./data_mat/initial_PO.mat');
+data_isol = calc_initial_solution_Wsq('./data_mat/initial_PO.mat');
 
 %----------------------------%
 %     Setup Continuation     %
@@ -115,15 +115,15 @@ prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 % Set frequency of saved solutions
 prob = coco_set(prob, 'cont', 'NPR', 10);
 
+% Continue periodic orbits
+prob = ode_isol2coll(prob, 'initial_PO', funcs.field{:}, ...
+                     data_isol.tbp_PO, data_isol.xbp_PO, data_isol.pnames, data_isol.p);
+
 % Add collocation trajectory segment for stable manifold
 prob = ode_isol2coll(prob, 'W1', funcs.field{:}, ...
-                     data_isol.t0, data_isol.x_init_1, data_isol.pnames, data_isol.p);
+                     data_isol.t0, data_isol.x_init_1, data_isol.p);
 prob = ode_isol2coll(prob, 'W2', funcs.field{:}, ...
                      data_isol.t0, data_isol.x_init_2, data_isol.p);
-
-% Continue periodic orbits
-prob = ode_isol2coll(prob, 'PO_stable', funcs.field{:}, ...
-                     data_isol.tbp, data_isol.xbp, data_isol.p);
 
 % Continue equilibrium points for non trivial steady states
 prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, ...
@@ -137,10 +137,10 @@ prob = ode_isol2ep(prob, 'x0', funcs.field{:}, ...
 %     Apply Boundary Conditions     %
 %-----------------------------------%
 % Glue parameters and apply boundary condition
-prob = apply_Wq_conditions(prob, bcs_funcs, data_isol.eps);
+prob = apply_boundary_conditions_Wsq(prob, bcs_funcs, data_isol.eps);
 
 %------------------------%
-%     Add CoCo Event     %
+%     Add COCO Event     %
 %------------------------%
 prob = coco_add_event(prob, 'Del1', 'W_seg1', 0);
 
@@ -170,7 +170,7 @@ plot_orbit_and_Wq_solution(run_new, label_plot);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.stable_manifold2 = 'run02_stable_manifold_seg2';
+run_names.stable_manifold2 = 'run07_stable_manifold_seg2';
 run_new = run_names.stable_manifold2;
 run_old = run_names.stable_manifold1;
 
@@ -213,7 +213,7 @@ prob = ode_coll2coll(prob, 'W1', run_old, label_old);
 prob = ode_coll2coll(prob, 'W2', run_old, label_old);
 
 % Continue periodic orbits
-prob = ode_coll2coll(prob, 'PO_stable', run_old, label_old);
+prob = ode_coll2coll(prob, 'initial_PO', run_old, label_old);
 
 % Continue equilibrium points for non trivial steady states
 prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
@@ -228,10 +228,10 @@ prob = ode_ep2ep(prob, 'x0', run_old, label_old);
 eps = chart.x(data.eps_idx);
 
 % Glue parameters and apply boundary condition
-prob = apply_Wq_conditions(prob, bcs_funcs, eps);
+prob = apply_boundary_conditions_Wsq(prob, bcs_funcs, eps);
 
 %------------------------%
-%     Add CoCo Event     %
+%     Add COCO Event     %
 %------------------------%
 prob = coco_add_event(prob, 'Del2', 'W_seg2', 0);
 
@@ -261,7 +261,7 @@ plot_orbit_and_Wq_solution(run_new, label_plot);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.close_eps = 'run03_stable_manifold_close_eps';
+run_names.close_eps = 'run08_stable_manifold_close_eps';
 run_new = run_names.close_eps;
 run_old = run_names.stable_manifold2;
 
@@ -304,7 +304,7 @@ prob = ode_coll2coll(prob, 'W1', run_old, label_old);
 prob = ode_coll2coll(prob, 'W2', run_old, label_old);
 
 % Continue periodic orbits
-prob = ode_coll2coll(prob, 'PO_stable', run_old, label_old);
+prob = ode_coll2coll(prob, 'initial_PO', run_old, label_old);
 
 % Continue equilibrium points for non trivial steady states
 prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
@@ -319,10 +319,10 @@ prob = ode_ep2ep(prob, 'x0', run_old, label_old);
 eps = chart.x(data.eps_idx);
 
 % Glue parameters and apply boundary condition
-prob = apply_Wq_conditions(prob, bcs_funcs, eps);
+prob = apply_boundary_conditions_Wsq(prob, bcs_funcs, eps);
 
 %------------------------%
-%     Add CoCo Event     %
+%     Add COCO Event     %
 %------------------------%
 prob = coco_add_event(prob, 'EPS0', 'eps', [1e-8, 1e-9, 4.5e-10]);
 
@@ -339,12 +339,17 @@ coco(prob, run_new, [], 1, {'eps', 'T1', 'T2'}, prange);
 % Solution label to plot
 % label_plot = coco_bd_labs(coco_bd_read(run_new), '');
 % label_plot = max(label_plot) - 1;
+label_plot = coco_bd_labs(coco_bd_read(run_new), 'EP');
+label_plot = max(label_plot);
 
 % Plot solution
 plot_orbit_and_Wq_solution(run_new, label_plot);
 
+%-------------------%
+%     Save Data     %
+%-------------------%
 % Save solution
-save_stable_q_data(run_new, label_plot);
+save_data_Wsq(run_new, label_plot, './data_mat/stable_manifold_q.mat');
 
 %=========================================================================%
 %                               END OF FILE                               %

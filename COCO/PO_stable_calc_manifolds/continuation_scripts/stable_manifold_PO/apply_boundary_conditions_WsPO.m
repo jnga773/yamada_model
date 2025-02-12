@@ -1,12 +1,36 @@
-function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_floquet_in, lam_floquet_in)
-  % prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, vec_floquet_in, lam_floquet_in)
+function prob_out = apply_boundary_conditions_WsPO(prob_in, bcs_funcs_in, eps_in, vec_floquet_in, lam_floquet_in)
+  % prob_out = apply_boundary_conditions_WsPO(prob_in, bcs_funcs_in, eps_in, vec_floquet_in, lam_floquet_in)
   %
-  % Apply the boundary conditions for the stable-manifold calculations
+  % This function reads index data for the stable periodic orbit segment and equilibrium points,
+  % glues the COLL and EP parameters together, applies periodic orbit boundary conditions,
+  % and adds variational problem matrix parameters.
+  %
+  % Parameters
+  % ----------
+  % prob_in : COCO problem structure
+  %     Input continuation problem structure.
+  % bcs_funcs_in : List of functions
+  %     Structure containing boundary condition functions.
+  % eps_in : double
+  %     Epsilon parameter for boundary conditions.
+  % vec_floquet_in : array
+  %     Strong stable Floquet vector.
+  % lam_floquet_in : float
+  %     Strong stable Floquet mulitplier.
+  %
+  % Returns
+  % -------
+  % prob_out : COCO problem structure
+  %     Output continuation problem structure with applied boundary conditions.
+  %
+  % See Also
+  % --------
+  % coco_get_func_data, coco_add_glue, coco_add_func, coco_add_pars
 
   % Set the COCO problem
   prob = prob_in;
 
-  % Boundary condition function list\\
+  % Boundary condition function list
   bcs_PO      = bcs_funcs_in.bcs_PO;
   bcs_eig     = bcs_funcs_in.bcs_eig;
   bcs_initial = bcs_funcs_in.bcs_initial;
@@ -23,12 +47,12 @@ function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_flo
   maps1 = data1.coll_seg.maps;
   maps2 = data2.coll_seg.maps;
 
-  % Read index data for the periodic orbit segment
-  [data_s, uidx_s] = coco_get_func_data(prob, 'PO_stable.coll', 'data', 'uidx');
-  [data_s_var, uidx_s_var] = coco_get_func_data(prob, 'PO_stable.coll.var', 'data', 'uidx');
+  % Read index data for the stable periodic orbit segment
+  [data_PO, uidx_PO] = coco_get_func_data(prob, 'initial_PO.coll', 'data', 'uidx');
+  [data_PO_var, uidx_PO_var] = coco_get_func_data(prob, 'initial_PO.coll.var', 'data', 'uidx');
   % Index mapping
-  maps_s     = data_s.coll_seg.maps;
-  maps_s_var = data_s_var.coll_var;
+  maps_s     = data_PO.coll_seg.maps;
+  maps_s_var = data_PO_var.coll_var;
 
   % Read index data for equilibrium points
   [data_pos, uidx_pos] = coco_get_func_data(prob, 'xpos.ep', 'data', 'uidx');
@@ -45,11 +69,11 @@ function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_flo
   % All segments have the same system parameters, so "glue" them together,
   % i.e., let COCO know that they are the same thing.
   prob = coco_add_glue(prob, 'pars_stationary_points', ...
-                       [uidx_s(maps_s.p_idx); uidx_s(maps_s.p_idx); uidx_s(maps_s.p_idx)], ...
+                       [uidx_PO(maps_s.p_idx); uidx_PO(maps_s.p_idx); uidx_PO(maps_s.p_idx)], ...
                        [uidx_0(maps_0.p_idx); uidx_pos(maps_pos.p_idx); uidx_neg(maps_neg.p_idx)]);
 
   prob = coco_add_glue(prob, 'pars_segs', ...
-                       [uidx_s(maps_s.p_idx); uidx_s(maps_s.p_idx)], ...
+                       [uidx_PO(maps_s.p_idx); uidx_PO(maps_s.p_idx)], ...
                        [uidx1(maps1.p_idx); uidx2(maps2.p_idx)]);
 
   %----------------------------------------%
@@ -59,9 +83,9 @@ function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_flo
   % monodromy matrix
   prob = coco_add_func(prob, 'bcs_eig', bcs_eig{:}, data1, ...
                        'zero', 'uidx', ...
-                       [uidx_s_var(maps_s_var.v1_idx(:, 1)); ...
-                        uidx_s_var(maps_s_var.v1_idx(:, 2)); ...
-                        uidx_s_var(maps_s_var.v1_idx(:, 3))], ...
+                       [uidx_PO_var(maps_s_var.v1_idx(:, 1)); ...
+                        uidx_PO_var(maps_s_var.v1_idx(:, 2)); ...
+                        uidx_PO_var(maps_s_var.v1_idx(:, 3))], ...
                        'u0', [vec_floquet_in; lam_floquet_in]);
 
   % Get u-vector indices from this coco_add_func call, including the extra
@@ -75,14 +99,14 @@ function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_flo
   % Save data
   prob = coco_add_slot(prob, 'bcs_eig', @coco_save_data, data_out, 'save_full');
 
-  %---------------------------------------------%
-  %     Boundary Conditions: Periodic Orbit     %
-  %---------------------------------------------%
+  %--------------------------------------------%
+  %     Periodic Orbit Boundary Conditions     %
+  %--------------------------------------------%
   % Apply periodic orbit boundary conditions and special phase condition
-  prob = coco_add_func(prob, 'bcs_PO', bcs_PO{:}, data_s, 'zero', 'uidx', ...
-                       uidx_s([maps_s.x0_idx; ...
-                               maps_s.x1_idx; ...
-                               maps_s.p_idx]));
+  prob = coco_add_func(prob, 'bcs_PO', bcs_PO{:}, data_PO, 'zero', 'uidx', ...
+                       uidx_PO([maps_s.x0_idx(1:data_PO.xdim); ...
+                               maps_s.x1_idx(1:data_PO.xdim); ...
+                               maps_s.p_idx(1:data_PO.pdim)]));
 
   %--------------------------------------%
   %     Boundary Conditions: Initial     %
@@ -103,7 +127,7 @@ function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_flo
   prob = coco_add_func(prob, 'bcs_final', bcs_final{:}, data1, 'zero', 'uidx', ...
                        [uidx1(maps1.x1_idx); ...
                         uidx2(maps2.x1_idx); ...
-                        uidx_s(maps_s.x1_idx); ...
+                        uidx_PO(maps_s.x1_idx); ...
                         uidx_eig(data_out.vec_floquet_idx)], ...
                        'u0', eps_in);
 
@@ -120,20 +144,22 @@ function prob_out = apply_W_PO_conditions(prob_in, bcs_funcs_in, eps_in, vec_flo
   %-----------------------------------%
   %     Define Problem Parameters     %
   %-----------------------------------%
-  % Add variational problem matrix parameters
-  prob = coco_add_pars(prob, 'pars_var_unstable', ...
-                       uidx_s_var(maps_s_var.v0_idx,:), ...
-                       {'var1', 'var2', 'var3', ...
-                        'var4', 'var5', 'var6', ...
-                        'var7', 'var8', 'var9'});
-
-  % Define epsilon parameters
-  prob = coco_add_pars(prob, 'pars_eps', uidx_eps(data_out.eps_idx), 'eps', 'inactive');
-
   % Define trajectory periods
   prob = coco_add_pars(prob, 'pars_T', ...
                        [uidx1(maps1.T_idx); uidx2(maps2.T_idx)], {'T1', 'T2'}, ...
                        'inactive');
+
+  % Define epsilon parameters
+  prob = coco_add_pars(prob, 'pars_eps', ...
+                       uidx_eps(data_out.eps_idx), 'eps', ...
+                       'inactive');
+
+  % Add variational problem matrix parameters
+  prob = coco_add_pars(prob, 'pars_var_unstable', ...
+                       uidx_PO_var(maps_s_var.v0_idx,:), ...
+                       {'var1', 'var2', 'var3', ...
+                        'var4', 'var5', 'var6', ...
+                        'var7', 'var8', 'var9'});
 
   %----------------%
   %     Output     %

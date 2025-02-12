@@ -86,7 +86,7 @@ fprintf('Run name: %s \n', run_new);
 %     Calculate Solution     %
 %----------------------------%
 % Calculate dem tings
-data_isol = calc_stable_W_PO_initial_solution('./data_mat/initial_PO.mat');
+data_isol = calc_initial_solution_WsPO('./data_mat/initial_PO.mat');
 
 %----------------------------%
 %     Setup Continuation     %
@@ -107,7 +107,7 @@ prob = coco_set(prob, 'coll', 'MXCL', false);
 % prob = coco_set(prob, 'cont', 'h_min', 1, 'h', 5, 'h_max', 1e1);
 
 % Set PtMX steps
-PtMX = 200;
+PtMX = 400;
 prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set frequency of saved solutions
@@ -117,8 +117,8 @@ prob = coco_set(prob, 'cont', 'NPR', 10);
 prob = coco_set(prob, 'cont', 'norm', inf);
 
 % Continue periodic orbits
-prob = ode_isol2coll(prob, 'PO_stable', funcs.field{:}, ...
-                     data_isol.tbp, data_isol.xbp, data_isol.pnames, data_isol.p, ...
+prob = ode_isol2coll(prob, 'initial_PO', funcs.field{:}, ...
+                     data_isol.tbp_PO, data_isol.xbp_PO, data_isol.pnames, data_isol.p, ...
                      '-var', eye(3));
 
 % Add collocation trajectory segment for stable manifold
@@ -139,7 +139,7 @@ prob = ode_isol2ep(prob, 'x0', funcs.field{:}, ...
 %     Apply Boundary Conditions     %
 %-----------------------------------%
 % Glue parameters and apply boundary condition
-prob = apply_W_PO_conditions(prob, bcs_funcs, data_isol.eps, data_isol.vec_s, data_isol.lam_s);
+prob = apply_boundary_conditions_WsPO(prob, bcs_funcs, data_isol.eps, data_isol.vec_s, data_isol.lam_s);
 
 %------------------------%
 %     Add CoCo Event     %
@@ -150,7 +150,7 @@ prob = coco_add_event(prob, 'Del1', 'W_seg1', 0);
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-prange = {[0, 10.0], [0.0, 1e4], []};
+prange = {[0, 20], [0.0, 1e4], []};
 coco(prob, run_new, [], 1, {'W_seg1', 'T1', 'W_seg2'}, prange);
 
 %----------------------%
@@ -158,7 +158,6 @@ coco(prob, run_new, [], 1, {'W_seg1', 'T1', 'W_seg2'}, prange);
 %----------------------%
 % Solution label to plot
 label_plot = coco_bd_labs(coco_bd_read(run_new), 'Del1');
-% label_plot = 8;
 
 % Plot solution
 plot_orbit_and_W_PO_solution(run_new, label_plot);
@@ -208,14 +207,14 @@ prob = coco_set(prob, 'coll', 'MXCL', false);
 % prob = coco_set(prob, 'cont', 'h_min', 5e-1, 'h', 1e0, 'h_max', 1e1);
 
 % Set PtMX steps
-PtMX = 200;
+PtMX = 300;
 prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set frequency of saved solutions
-prob = coco_set(prob, 'cont', 'NPR', 10);
+prob = coco_set(prob, 'cont', 'NPR', 25);
 
 % Continue periodic orbits
-prob = ode_coll2coll(prob, 'PO_stable', run_old, label_old, ...
+prob = ode_coll2coll(prob, 'initial_PO', run_old, label_old, ...
                      '-var', eye(3));
 
 % Add collocation trajectory segment for stable manifold
@@ -240,7 +239,7 @@ vec_s = chart.x(data.vec_floquet_idx);
 lam_s = chart.x(data.lam_floquet_idx);
 
 % Glue parameters and apply boundary condition
-prob = apply_W_PO_conditions(prob, bcs_funcs, eps, vec_s, lam_s);
+prob = apply_boundary_conditions_WsPO(prob, bcs_funcs, eps, vec_s, lam_s);
 
 %------------------------%
 %     Add CoCo Event     %
@@ -293,10 +292,10 @@ fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 prob = coco_prob();
 
 % Set NTST mesh 
-prob = coco_set(prob, 'coll', 'NTST', 150);
+prob = coco_set(prob, 'coll', 'NTST', 70);
 
 % Set NAdpat
-% prob = coco_set(prob, 'cont', 'NAdapt', 5);
+% prob = coco_set(prob, 'cont', 'NAdapt', 20);
 
 % Turn off MXCL
 prob = coco_set(prob, 'coll', 'MXCL', false);
@@ -305,17 +304,17 @@ prob = coco_set(prob, 'coll', 'MXCL', false);
 % prob = coco_set(prob, 'cont', 'h_min', 1e-2, 'h', 5e-2, 'h_max', 1e-1);
 
 % Set PtMX steps
-PtMX = 800;
+PtMX = 2000;
 prob = coco_set(prob, 'cont', 'PtMX', [PtMX, 0]);
 
 % Set frequency of saved solutions
-prob = coco_set(prob, 'cont', 'NPR', 10);
+prob = coco_set(prob, 'cont', 'NPR', 100);
 
 % Set norm
-prob = coco_set(prob, 'cont', 'norm', inf);
+% prob = coco_set(prob, 'cont', 'norm', inf);
 
 % Continue periodic orbits
-prob = ode_coll2coll(prob, 'PO_stable', run_old, label_old, ...
+prob = ode_coll2coll(prob, 'initial_PO', run_old, label_old, ...
                      '-var', eye(3));
 
 % Add collocation trajectory segment for stable manifold
@@ -340,7 +339,7 @@ vec_s = chart.x(data.vec_floquet_idx);
 lam_s = chart.x(data.lam_floquet_idx);
 
 % Glue parameters and apply boundary condition
-prob = apply_W_PO_conditions(prob, bcs_funcs, eps, vec_s, lam_s);
+prob = apply_boundary_conditions_WsPO(prob, bcs_funcs, eps, vec_s, lam_s);
 
 %------------------%
 %     Run COCO     %
@@ -362,5 +361,12 @@ plot_orbit_and_W_PO_solution(run_new, label_plot);
 % Plot solution scan
 plot_solutions_scan(run_new)
 
+%-------------------%
+%     Save Data     %
+%-------------------%
 % Save solutions
-save_stable_W_PO_data(run_new);
+save_data_WsPO(run_new, './data_mat/stable_manifold_PO.mat');
+
+%=========================================================================%
+%                               END OF FILE                               %
+%=========================================================================%

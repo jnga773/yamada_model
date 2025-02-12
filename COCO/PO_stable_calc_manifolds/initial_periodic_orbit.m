@@ -68,7 +68,6 @@ p_range = {A_range, gamma_range};
 pdim = length(p0);
 xdim = length(x0);
 
-
 %-------------------------%
 %     Functions Lists     %
 %-------------------------%
@@ -83,15 +82,6 @@ bcs_funcs.bcs_T = bcs_T_symbolic();
 % Boundary conditions: Periodic orbit
 % bcs_funcs.bcs_PO = {@bcs_PO};
 bcs_funcs.bcs_PO = bcs_PO_symbolic();
-
-% Boundary conditions: Eigenvalues and eigenvectors
-bcs_funcs.bcs_eig = {@bcs_eig};
-
-% Boundary conditions: Initial condition
-bcs_funcs.bcs_initial = {@bcs_initial};
-
-% Boundary conditions: Final condition
-bcs_funcs.bcs_final = {@bcs_final};
 
 %=========================================================================%
 %                    CALCULATE INITIAL PERIODIC ORBIT                     %
@@ -248,7 +238,7 @@ coco(prob, run_new, [], 1, {'A', 'gamma'}, A_range);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.hopf_to_PO = 'run05_hopf_to_PO';
+run_names.hopf_to_PO = 'run04_hopf_to_PO';
 run_new = run_names.hopf_to_PO;
 % Which run this continuation continues from
 run_old = run_names.move_hopf;
@@ -278,7 +268,7 @@ sol = ep_read_solution('', run_old, label_old);
 prob = coco_prob();
 
 % Set NTST mesh 
-prob = coco_set(prob, 'coll', 'NTST', 25);
+prob = coco_set(prob, 'coll', 'NTST', 50);
 
 % Set NAdpat
 prob = coco_set(prob, 'cont', 'NAdapt', 1);
@@ -287,7 +277,7 @@ prob = coco_set(prob, 'cont', 'NAdapt', 1);
 prob = coco_set(prob, 'coll', 'MXCL', false);
 
 % Set PtMX steps
-PtMX = 200;
+PtMX = 400;
 prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
 
 % % Set step sizes
@@ -308,9 +298,15 @@ prob = ode_isol2ep(prob, 'xneg', funcs.field{:}, ...
 prob = ode_isol2ep(prob, 'x0',   funcs.field{:}, ...
                    x0,   sol.p);
 
+%-------------------------%
+%     Glue Parameters     %
+%-------------------------%
 % Glue parameters (defined in './continuation_scripts/glue_parameters.m')
 prob = glue_parameters_PO(prob);
 
+%------------------------%
+%     Add COCO Event     %
+%------------------------%
 % Saved point for solution for gamma = 3.54e-2
 prob = coco_add_event(prob, 'PO_PT', 'gamma', 3.54e-2);
 
@@ -318,7 +314,7 @@ prob = coco_add_event(prob, 'PO_PT', 'gamma', 3.54e-2);
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-bd = coco(prob, run_new, [], 1, {'gamma', 'A'}, gamma_range);
+coco(prob, run_new, [], 1, {'gamma', 'A'}, gamma_range);
 
 %----------------------%
 %    Testing Plots     %
@@ -339,7 +335,7 @@ plot_hopf_to_PO_solution(run_new, label_plot);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.initial_PO = 'run06_initial_periodic_orbit';
+run_names.initial_PO = 'run05_initial_periodic_orbit';
 run_new = run_names.initial_PO;
 % Which run this continuation continues from
 run_old = run_names.hopf_to_PO;
@@ -357,7 +353,7 @@ fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 %     Calculate Solution     %
 %----------------------------%
 % Calculate dem tings
-data_stable = calc_PO_initial_solution(run_old, label_old);
+data_stable = calc_initial_solution_PO(run_old, label_old);
 
 %----------------------------%
 %     Setup Continuation     %
@@ -375,27 +371,24 @@ prob = coco_set(prob, 'coll', 'NTST', 50);
 prob = coco_set(prob, 'coll', 'MXCL', false);
 
 % Set PtMX steps
-PtMX = 20;
+PtMX = 100;
 prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set frequency of saved solutions
 prob = coco_set(prob, 'cont', 'NPR', 10);
 
 % Stable periodic orbit
-prob = ode_isol2coll(prob, 'PO_stable', funcs.field{:}, ...
+prob = ode_isol2coll(prob, 'initial_PO', funcs.field{:}, ...
                      data_stable.t, data_stable.x, data_stable.pnames, data_stable.p, ...
                      '-var', eye(3));
 
 % Add equilibrium points for non trivial steady states
-prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, ...
-                   data_stable.xpos, data_stable.p);
-prob = ode_isol2ep(prob, 'xneg', funcs.field{:}, ...
-                   data_stable.xneg, data_stable.p);
-prob = ode_isol2ep(prob, 'x0', funcs.field{:}, ...
-                   data_stable.x0, data_stable.p);
+prob = ode_ep2ep(prob, 'x0', run_old, label_old);
+prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
+prob = ode_ep2ep(prob, 'xneg', run_old, label_old);
 
 % Glue parameters and apply boundary condition
-prob = apply_PO_boundary_conditions(prob, bcs_funcs.bcs_PO);
+prob = apply_boundary_conditions_PO(prob, bcs_funcs.bcs_PO);
 
 % Event for A = 7.5
 prob = coco_add_event(prob, 'PO_PT', 'A', data_stable.p(2));
@@ -416,40 +409,11 @@ label_plot = label_plot(1);
 % Plot solution
 plot_initial_periodic_orbit_COLL(run_new, label_plot);
 
+%-------------------%
+%     Save Data     %
+%-------------------%
 % Save solution
-save_initial_PO_data(run_new, label_plot);
-
-% %--------------------------%
-% %     Monodromy Matrix     %
-% %--------------------------%
-% label_plot = coco_bd_labs(coco_bd_read(run_new), 'PO_PT');
-% 
-% [sol, ~] = coll_read_solution('PO_stable', run_new, label_plot);
-% xbp_PO = sol.xbp;
-% fprintf('Head-point = (%.3f, %.3f, %.3f)\n', xbp_PO(1, :));
-% 
-% % Monodromy matrix
-% chart = coco_read_solution('PO_stable.coll.var', run_new, label_plot, 'chart');
-% data  = coco_read_solution('PO_stable.coll', run_new, label_plot, 'data');
-% 
-% % Create monodrony matrix
-% M1 = chart.x(data.coll_var.v1_idx);
-% 
-% % fprintf('~~~ Monodromy Matrix ~~~\n');
-% % fprintf('(%.7f, %.7f, %.7f)\n', M1(1, :));
-% % fprintf('(%.7f, %.7f, %.7f)\n', M1(2, :));
-% % fprintf('(%.7f, %.7f, %.7f)\n\n', M1(3, :));
-% 
-% % Get eigenvalues and eigenvectors of the Monodromy matrix
-% [floquet_vec, floquet_eig] = eig(M1);
-% 
-% % Find strong eigenvalue
-% ind = find(abs(diag(floquet_eig)) < 0.99 & abs(diag(floquet_eig)) > 0.1);
-% 
-% % Strong stable eigenvalue
-% lam_s = floquet_eig(ind, ind);
-% % Strong stable eigenvector
-% vec_s = floquet_vec(:, ind);
+save_data_PO(run_new, label_plot, './data_mat/initial_PO.mat');
 
 %=========================================================================%
 %                               END OF FILE                               %

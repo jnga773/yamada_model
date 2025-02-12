@@ -1,7 +1,27 @@
-function prob_out = apply_Wq_conditions(prob_in, bcs_funcs_in, eps_in)
-  % prob_out = apply_Wq_conditions(prob_in, bcs_funcs_in, eps_in)
+function prob_out = apply_boundary_conditions_Wsq(prob_in, bcs_funcs_in, eps_in)
+  % prob_out = apply_boundary_conditions_Wsq(prob_in, bcs_funcs_in, eps_in)
   %
-  % Apply the boundary conditions for the stable-manifold calculations
+  % This function reads index data for the stable periodic orbit segment and equilibrium points,
+  % glues the COLL and EP parameters together, applies periodic orbit boundary conditions,
+  % and adds variational problem matrix parameters.
+  %
+  % Parameters
+  % ----------
+  % prob_in : COCO problem structure
+  %     Input continuation problem structure.
+  % bcs_funcs_in : List of functions
+  %     Structure containing boundary condition functions.
+  % eps_in : double
+  %     Epsilon parameter for boundary conditions.
+  %
+  % Returns
+  % -------
+  % prob_out : COCO problem structure
+  %     Output continuation problem structure with applied boundary conditions.
+  %
+  % See Also
+  % --------
+  % coco_get_func_data, coco_add_glue, coco_add_func, coco_add_pars
 
   % Set the COCO problem
   prob = prob_in;
@@ -24,18 +44,9 @@ function prob_out = apply_Wq_conditions(prob_in, bcs_funcs_in, eps_in)
   maps2 = data2.coll_seg.maps;
 
   % Read index data for the stable periodic orbit segment
-  [data_s, uidx_s] = coco_get_func_data(prob, 'PO_stable.coll', 'data', 'uidx');
-  % [data_s_var, uidx_s_var] = coco_get_func_data(prob, 'PO_stable.coll.var', 'data', 'uidx');
+  [data_PO, uidx_PO] = coco_get_func_data(prob, 'initial_PO.coll', 'data', 'uidx');
   % Index mapping
-  maps_s     = data_s.coll_seg.maps;
-  % maps_s_var = data_s_var.coll_var;
-
-  % Read index data for the unstable periodic orbit segment
-  [data_u, uidx_u] = coco_get_func_data(prob, 'PO_unstable.coll', 'data', 'uidx');
-  % [data_u_var, uidx_u_var] = coco_get_func_data(prob, 'PO_unstable.coll.var', 'data', 'uidx');
-  % Index mapping
-  maps_u     = data_u.coll_seg.maps;
-  % maps_u_var = data_u_var.coll_var;
+  maps_s     = data_PO.coll_seg.maps;
 
   % Read index data for equilibrium points
   [data_pos, uidx_pos] = coco_get_func_data(prob, 'xpos.ep', 'data', 'uidx');
@@ -52,10 +63,10 @@ function prob_out = apply_Wq_conditions(prob_in, bcs_funcs_in, eps_in)
   % All segments have the same system parameters, so "glue" them together,
   % i.e., let COCO know that they are the same thing.
   prob = coco_add_glue(prob, 'pars_glue', ...
-                       [uidx_s(maps_s.p_idx); uidx_s(maps_s.p_idx); ...
-                        uidx_s(maps_s.p_idx); uidx_s(maps_s.p_idx); ...
-                        uidx_s(maps_s.p_idx); uidx_s(maps_s.p_idx)], ...
-                       [uidx_u(maps_u.p_idx); uidx_0(maps_0.p_idx); ...
+                       [uidx_PO(maps_s.p_idx); ...
+                        uidx_PO(maps_s.p_idx); uidx_PO(maps_s.p_idx); ...
+                        uidx_PO(maps_s.p_idx); uidx_PO(maps_s.p_idx)], ...
+                       [uidx_0(maps_0.p_idx); ...
                         uidx_pos(maps_pos.p_idx); uidx_neg(maps_neg.p_idx); ...
                         uidx1(maps1.p_idx); uidx2(maps2.p_idx)]);
 
@@ -63,14 +74,10 @@ function prob_out = apply_Wq_conditions(prob_in, bcs_funcs_in, eps_in)
   %     Periodic Orbit Boundary Conditions     %
   %--------------------------------------------%
   % Apply periodic orbit boundary conditions and special phase condition
-  prob = coco_add_func(prob, 'bcs_PO_stable', bcs_PO{:}, data_s, 'zero', 'uidx', ...
-                       uidx_s([maps_s.x0_idx(1:data_s.xdim); ...
-                               maps_s.x1_idx(1:data_s.xdim); ...
-                               maps_s.p_idx(1:data_s.pdim)]));
-  prob = coco_add_func(prob, 'bcs_PO_unstable', bcs_PO{:}, data_u, 'zero', 'uidx', ...
-                       uidx_u([maps_u.x0_idx(1:data_u.xdim); ...
-                               maps_u.x1_idx(1:data_u.xdim); ...
-                               maps_u.p_idx(1:data_u.pdim)]));
+  prob = coco_add_func(prob, 'bcs_PO', bcs_PO{:}, data_PO, 'zero', 'uidx', ...
+                       uidx_PO([maps_s.x0_idx(1:data_PO.xdim); ...
+                               maps_s.x1_idx(1:data_PO.xdim); ...
+                               maps_s.p_idx(1:data_PO.pdim)]));
 
   %-------------------------------------%
   %     Initial Boundary Conditions     %

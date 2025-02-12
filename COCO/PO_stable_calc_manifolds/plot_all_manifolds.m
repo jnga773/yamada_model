@@ -25,10 +25,10 @@ clc;
 load('./data_mat/initial_PO.mat');
 
 % Load stable manifold of q
-load('./data_mat/stable_manifold_q.mat', 'Wq_s');
+load('./data_mat/stable_manifold_q.mat', 'Wsq');
 
 % Load stable manifold of attracting periodic orbit
-load('./data_mat/stable_manifold_PO.mat', 'W1', 'W2');
+load('./data_mat/stable_manifold_PO.mat', 'WsPO_1', 'WsPO_2');
 
 %-------------------%
 %     Save Data     %
@@ -39,17 +39,17 @@ data_out.pdim   = pdim;
 data_out.p      = p;
 data_out.pnames = pnames;
 
-data_out.xbp_PO = xbp;
-data_out.tbp_PO = tbp;
+data_out.xbp_PO = xbp_PO;
+data_out.tbp_PO = tbp_PO;
 data_out.T_PO   = T;
 
 data_out.x0     = x0;
 data_out.xpos   = xpos;
 data_out.xneg   = xneg;
 
-data_out.Ws_q   = Wq_s;
-data_out.Ws_PO1 = W1;
-data_out.Ws_PO2 = W2;
+data_out.Wsq    = Wsq;
+data_out.WsPO_1 = WsPO_1;
+data_out.WsPO_2 = WsPO_2;
 
 % Save data to MATLAB .mat file
 save('./data_mat/PO_and_manifolds.mat', '-struct', 'data_out');
@@ -73,7 +73,7 @@ ax = nexttile;
 hold(ax, 'on');
 
 % Plot stable periodic orbit
-plot3(ax, xbp(:, 1), xbp(:, 2), xbp(:, 3), ...
+plot3(ax, xbp_PO(:, 1), xbp_PO(:, 2), xbp_PO(:, 3), ...
       LineStyle='-', Color=colours(3, :), ...
       DisplayName='$\Gamma$');
 
@@ -98,16 +98,16 @@ plot3(ax, x0(1), x0(2), x0(3), ...
 %------------------------------------%
 %     Plot: Stable Manifold of q     %
 %------------------------------------%
-plot3(ax, Wq_s(:, 1), Wq_s(:, 2), Wq_s(:, 3), Color=colours(1, :), ...
+plot3(ax, Wsq(:, 1), Wsq(:, 2), Wsq(:, 3), Color=colours(1, :), ...
         DisplayName='$W^{s}(q)$');
 
 %-------------------------------------%
 %     Plot: Stable Manifold of PO     %
 %-------------------------------------%
 % Plot Surf plot (woah!)
-  surf(ax, W1{1}, W1{2}, W1{3}, FaceColor=colours(1, :), FaceAlpha=0.25, ...
+  surf(ax, WsPO_1{1}, WsPO_1{2}, WsPO_1{3}, FaceColor=colours(1, :), FaceAlpha=0.25, ...
        MeshStyle='column', LineStyle='none', DisplayName='$W^{ss}(\Gamma)$');
-  surf(ax, W2{1}, W2{2}, W2{3}, FaceColor=colours(1, :), FaceAlpha=0.25, ...
+  surf(ax, WsPO_2{1}, WsPO_2{2}, WsPO_2{3}, FaceColor=colours(1, :), FaceAlpha=0.25, ...
        MeshStyle='column', LineStyle='none', HandleVisibility='off');
 
 %----------------%
@@ -121,9 +121,9 @@ hold(ax, 'off');
 %---------------------%
 %     Axis Limits     %
 %---------------------%
-ax.XAxis.Limits = [-4.0, 10.0];
+ax.XAxis.Limits = [-2.0, 8.0];
 ax.YAxis.Limits = [-4.0, 8.0];
-ax.ZAxis.Limits = [0.0, 20.0];
+ax.ZAxis.Limits = [0.0, 35.0];
 
 %---------------------%
 %     Axis Labels     %

@@ -41,9 +41,9 @@ function [data_in, y_out] = bcs_W_PO_initial(prob_in, data_in, u_in)
   %     Read Points from "data_in"     %
   %------------------------------------%
   % "End" point for segment 1
-  bcs_seg1 = -4.0;
+  bcs_seg1 = -10.0;
   % "End" point for segment 2
-  bcs_seg2 = 35.0;
+  bcs_seg2 = 40.0;
 
   %----------------%
   %     Output     %

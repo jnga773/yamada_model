@@ -1,20 +1,38 @@
-function data_out = calc_stable_Wq_initial_solution(filename_in)
-  % data_out = calc_stable_Wq_initial_solution(filename_in)
+function data_out = calc_initial_solution_Wsq(filename_in)
+  % data_out = calc_initial_solution_Wsq(filename_in)
   %
   % Calculate the stable manifold of the equilibrium point in the middle of
   % the periodic orbit.
+  %
+  % Parameters
+  % ----------
+  % filename_in : string
+  %     Matlab .mat data file to read initial solutions from.
+  %
+  % Returns
+  % -------
+  % data_out : struct
+  %     Structure containing the stable manifold data.
+  %     Fields:
+  %         - x_init_1 : Initial state vector for the stable manifold (positive direction).
+  %         - x_init_2 : Initial state vector for the stable manifold (negative direction).
+  %         - t0 : Initial time.
+  %         - ls : Stable eigenvalue.
+  %         - vs : Stable eigenvector.
+  %         - eps : Initial distance from the equilibrium.
+  %         - p : Parameters of the solution.
 
   %-------------------%
   %     Read Data     %
   %-------------------%
-  % Read initial solution stuff from filename_in
-  load(filename_in);
+  % Load data
+  data_out = load(filename_in);
 
   %------------------------------------------------%
   %     Calculate Eigenvectors and Eigenvalues     %
   %------------------------------------------------%
-  % Calculate non-trivial steady states
-  J = yamada_DFDX(xpos, p);
+  % Calculate Jacobian of the equilibrium point
+  J = yamada_DFDX(data_out.xpos, data_out.p);
 
   % Calculate eigenvalues and eigenvectors
   [eigval, eigvec] = eig(J);
@@ -35,18 +53,13 @@ function data_out = calc_stable_Wq_initial_solution(filename_in)
   t0 = 0;
 
   % Initial state vector
-  x_init_1 = xpos + (eps * vs);
-  x_init_2 = xpos - (eps + vs);
+  x_init_1 = data_out.xpos + (eps * vs);
+  x_init_2 = data_out.xpos - (eps + vs);
 
   %----------------%
   %     Output     %
   %----------------%
-  % Read periodic orbit solution
-  data_out = load(filename_in);
-
-  data_out.xdim     = length(xpos);
-  data_out.pdim     = length(pnames);
-
+  % Load PO solution data
   data_out.x_init_1 = x_init_1';
   data_out.x_init_2 = x_init_2';
   data_out.t0       = t0;
