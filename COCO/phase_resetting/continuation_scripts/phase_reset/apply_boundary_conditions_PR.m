@@ -1,5 +1,5 @@
-function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
-  % prob_out = apply_PR_boundary_conditions(prob_in)
+function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in, options)
+  % prob_out = apply_boundary_conditions_PR(prob_in)
   %
   % Applies the various boundary conditions, adds monitor functions
   % for the singularity point, glue parameters and other things
@@ -13,13 +13,28 @@ function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
   % data_in : structure
   %     Problem data structure containing initialisation information
   %     for the segments.
-  % bcs_funcs_in : structure
-  %     List of all of the boundary condition functions and (if )
+  % bcs_funcs_in : list of functions
+  %     List of all of the boundary condition functions for each
+  %     phase resetting segment.
+  % isochron : boolean
+  %     Flag to determine if the isochron is being calculated.
   %
   % Output
   % ----------
   % prob_out : COCO problem structure
   %     Continuation problem structure.
+
+  %-----------------------%
+  %     Default Input     %
+  %-----------------------%
+  arguments
+    prob_in
+    data_in
+    bcs_funcs_in
+
+    % Optional arguments
+    options.isochron         = false;
+  end
 
   %---------------%
   %     Input     %
@@ -27,7 +42,6 @@ function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
   % Set the COCO problem
   prob = prob_in;
 
-  % (defined in calc_PR_initial_conditions.m)
   % Original vector field dimensions
   xdim            = data_in.xdim;
   pdim            = data_in.pdim;
@@ -93,6 +107,13 @@ function prob_out = apply_PR_boundary_conditions(prob_in, data_in, bcs_funcs_in)
   % Parameter names
   prob = coco_add_pars(prob, 'pars_all', ...
                        uidx1(maps1.p_idx), data_in.pnames);
+
+  if options.isochron
+    % Add isochron parameters
+    prob = coco_add_pars(prob, 'pars_isochron', ...
+                         uidx4(maps4.x0_idx), {'iso1', 'iso2', 'iso3'}, ...
+                         'active');
+  end
 
   %----------------%
   %     Output     %

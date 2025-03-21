@@ -19,7 +19,7 @@ function plot_A_perturb_theta_new(run_in)
   phi_perturb   = coco_bd_val(bd, 1, 'phi_perturb');
 
   % Perturbation directional vector
-  d_vec = [cos(theta_perturb) * sin(phi_perturb);
+  d_vec = [cos(theta_perturb);
            0.0;
            sin(theta_perturb)];
 
@@ -53,7 +53,7 @@ function plot_A_perturb_theta_new(run_in)
   %     Plot     %
   %--------------%
   hold(ax, 'on');
-  plot(ax, A_perturb, theta_new);
+  plot(ax, A_perturb, theta_new, LineWidth=2.0);
   plot(ax, SP_A_perturb, SP_theta_new, LineStyle='none', Marker='o', MarkerSize=14, ...
        MarkerEdgecolor=colours(2, :), MarkerFaceColor=colours(2, :))
   hold(ax, 'off');

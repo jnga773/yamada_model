@@ -23,7 +23,10 @@ function isochron_scan(run_new_in, run_old_in, label_old_in, data_PR_in, bcs_fun
   prob = coco_set(prob, 'cont', 'NAdapt', 10);
 
   % Set number of steps
-  prob = coco_set(prob, 'cont', 'PtMX', 400);
+  prob = coco_set(prob, 'cont', 'PtMX', 500);
+
+  % Set fold point detection to parameter 'iso3'
+  prob = coco_set(prob, 'cont', 'fpar', 'iso3');
 
   %-------------------------------------------%
   %     Continue from Trajectory Segments     %
@@ -58,7 +61,7 @@ function isochron_scan(run_new_in, run_old_in, label_old_in, data_PR_in, bcs_fun
   %     Run COCO     %
   %------------------%
   % Run COCO continuation
-  prange = {[], [], [], [0.99, 1.01], []};
-  coco(prob, run_new_in, [], 1, {'d_x', 'd_z', 'eta', 'mu_s', 'T', 'A_perturb'}, prange);
+  prange = {[], [], [], [0.99, 1.01], [], [-4, 6], [-4, 6], []};
+  coco(prob, run_new_in, [], 1, {'d_x', 'd_z', 'eta', 'mu_s', 'T', 'iso1', 'iso2', 'iso3'}, prange);
 
 end

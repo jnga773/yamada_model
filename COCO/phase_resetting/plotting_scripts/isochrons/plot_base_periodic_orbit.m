@@ -1,23 +1,28 @@
-function plot_base_periodic_orbit(ax_in)
+function plot_base_periodic_orbit(ax_in, PO_manifold)
   % Plot the solution g
   
   %-------------------%
   %     Read Data     %
   %-------------------%
   % Load data matrix
-  load('./data_mat/initial_PO_manifold_q.mat', 'Wq_s', 'xbp', 'xpos', 'xneg', 'x0');
+  load('./data_mat/PO_and_manifolds.mat', 'xbp_PO', ...
+       'Ws_q', 'Ws_PO1', 'Ws_PO2', ...
+       'xpos', 'xneg', 'x0');
 
-  %--------------%
-  %     Plot     %
-  %--------------%
   % Plotting colours
   colours = colororder();
 
+  %------------------------------%
+  %     Plot: Periodic Orbit     %
+  %------------------------------%
   % Plot initial periodic orbit
-  plot3(ax_in, xbp(:, 1), xbp(:, 2), xbp(:, 3), ...
+  plot3(ax_in, xbp_PO(:, 1), xbp_PO(:, 2), xbp_PO(:, 3), ...
         LineStyle='-', Color=colours(3, :), ...
         DisplayName='$\Gamma$');
 
+  %---------------------------------%
+  %     Plot: Stationary Points     %
+  %---------------------------------%
   % Plot equilibrium points: x_{+}
   plot3(ax_in, xpos(1), xpos(2), xpos(3), ...
         LineStyle='none', ...
@@ -35,10 +40,20 @@ function plot_base_periodic_orbit(ax_in)
         LineStyle='none', ...
         Marker='o', MarkerFaceColor='r', MarkerSize=10, ...
         MarkerEdgeColor='r', DisplayName='$o$');
-  
-  % Plot stable manifold of q / x_{+}
-  plot3(ax_in, Wq_s(:, 1), Wq_s(:, 2), Wq_s(:, 3), ...
-        Color=colours(1, :), ...
-        DisplayName='$W^{s}(p)$');
 
+  %--------------------------------%
+  %     Plot: Stable Manifolds     %
+  %--------------------------------%
+  % Plot stable manifold of q / x_{+}
+  plot3(ax_in, Ws_q(:, 1), Ws_q(:, 2), Ws_q(:, 3), Color=colours(1, :), ...
+        DisplayName='$W^{s}(q)$');
+  
+  if PO_manifold == true
+    % Plot strong stable manifold of periodic orbit
+    surf(ax_in, Ws_PO1{1}, Ws_PO1{2}, Ws_PO1{3}, FaceColor=colours(1, :), FaceAlpha=0.25, ...
+         MeshStyle='column', LineStyle='none', DisplayName='$W^{ss}(\Gamma)$');
+    surf(ax_in, Ws_PO2{1}, Ws_PO2{2}, Ws_PO2{3}, FaceColor=colours(1, :), FaceAlpha=0.25, ...
+         MeshStyle='column', LineStyle='none', HandleVisibility='off');
+  end
+  
 end

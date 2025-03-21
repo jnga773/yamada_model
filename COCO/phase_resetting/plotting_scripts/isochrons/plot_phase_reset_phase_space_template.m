@@ -26,7 +26,7 @@ function plot_phase_reset_phase_space_template(ax_in, run_in, label_in)
   colours = colororder();
 
   % Plot base solution
-  plot_base_periodic_orbit(ax_in);
+  plot_base_periodic_orbit(ax_in, false);
 
   % Plot segment 1
   plot3(ax_in, x1(:, 1), x1(:, 2), x1(:, 3), Color=colours(1, :), ...

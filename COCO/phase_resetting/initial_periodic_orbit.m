@@ -45,6 +45,10 @@ a = 1.8;
 gamma = 0.10;
 A = 6.6;
 
+% Parameters for the periodic orbit
+gamma_PO = 3.5e-2;
+A_PO     = 7.4;
+
 %-----------------------%
 %     Problem Setup     %
 %-----------------------%
@@ -228,8 +232,8 @@ prob = ode_HB2HB(prob, '', run_old, label_old);
 %-------------------------%
 %     Add COCO Events     %
 %-------------------------%
-% Saved-point solution for A = 7.3757
-prob = coco_add_event(prob, 'H_PT', 'A', 7.3757);
+% Saved-point solution for A_PO
+prob = coco_add_event(prob, 'H_PT', 'A', A_PO);
 
 %------------------%
 %     Run COCO     %
@@ -247,7 +251,7 @@ coco(prob, run_new, [], 1, {'A', 'gamma'}, A_range);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.hopf_to_PO = 'run05_hopf_to_PO';
+run_names.hopf_to_PO = 'run04_hopf_to_PO';
 run_new = run_names.hopf_to_PO;
 % Which run this continuation continues from
 run_old = run_names.move_hopf;
@@ -286,12 +290,8 @@ prob = coco_set(prob, 'cont', 'NAdapt', 1);
 prob = coco_set(prob, 'coll', 'MXCL', false);
 
 % Set PtMX steps
-PtMX = 200;
+PtMX = 400;
 prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
-
-% % Set step sizes
-% h_size = 1e0;
-% prob = coco_set(prob, 'cont', 'h_min', h_size, 'h0', h_size, 'h_max', h_size);
 
 % Set frequency of saved solutions
 prob = coco_set(prob, 'cont', 'NPR', 50);
@@ -300,12 +300,9 @@ prob = coco_set(prob, 'cont', 'NPR', 50);
 prob = ode_HB2po(prob, '', run_old, label_old);
 
 % Follow non trivial solutions
-prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, ...
-                   xpos, sol.p);
-prob = ode_isol2ep(prob, 'xneg', funcs.field{:}, ...
-                   xneg, sol.p);
-prob = ode_isol2ep(prob, 'x0',   funcs.field{:}, ...
-                   x0,   sol.p);
+prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, xpos, sol.p);
+prob = ode_isol2ep(prob, 'xneg', funcs.field{:}, xneg, sol.p);
+prob = ode_isol2ep(prob, 'x0',   funcs.field{:}, x0,sol.p);
 
 %---------------------------------%
 %     Glue Segment Parameters     %
@@ -316,14 +313,14 @@ prob = glue_parameters_PO(prob);
 %-------------------------%
 %     Add COCO Events     %
 %-------------------------%
-% Saved point for solution for gamma = 2.54e-2
-prob = coco_add_event(prob, 'PO_PT', 'gamma', 3.54e-2);
+% Saved point for solution for gamma_PO
+prob = coco_add_event(prob, 'PO_PT', 'gamma', gamma_PO);
 
 %------------------%
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'gamma', 'A'}, gamma_range);
+coco(prob, run_new, [], 1, {'gamma', 'A', 'po.orb.NTST'}, gamma_range);
 
 %----------------------%
 %    Testing Plots     %
@@ -345,7 +342,7 @@ plot_hopf_to_PO_solution(run_new, label_plot);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.initial_PO = 'run06_initial_periodic_orbit';
+run_names.initial_PO = 'run05_initial_periodic_orbit';
 run_new = run_names.initial_PO;
 % Which run this continuation continues from
 run_old = run_names.hopf_to_PO;
@@ -353,9 +350,6 @@ run_old = run_names.hopf_to_PO;
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'PO_PT');
 label_old = label_old(1);
-
-% label_old = coco_bd_labs(coco_bd_read(run_old), 'EP');
-% label_old = max(label_old);
 
 % Print to console
 fprintf("~~~ Initial Periodic Orbit: Sixth Run ~~~ \n");
@@ -367,7 +361,7 @@ fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 %     Calculate Solution     %
 %----------------------------%
 % Calculate dem tings
-data_soln = calculate_periodic_orbit(run_old, label_old);
+data_soln = calc_initial_solution_PO(run_old, label_old);
 
 %----------------------------%
 %     Setup Continuation     %
@@ -404,7 +398,7 @@ prob = ode_ep2ep(prob, 'x0',   run_old, label_old);
 %     Apply Boundary Conditions and Settings     %
 %------------------------------------------------%
 % Glue parameters and apply boundary condition
-prob = apply_PO_boundary_conditions(prob, bcs_funcs.bcs_PO);
+prob = apply_boundary_conditions_PO(prob, bcs_funcs.bcs_PO);
 
 %-------------------------%
 %     Add COCO Events     %
@@ -427,14 +421,14 @@ label_plot = label_plot(1);
 
 % Calculate stable manifold of saddle point 'q' and save data to .mat in 
 % ./data_mat/ directory
-save_initial_PO_data(run_new, label_plot);
+save_data_PO(run_new, label_plot, './data_mat/initial_PO.mat');
 
 % Plot solution
 plot_initial_periodic_orbit_COLL();
 
-%-------------------------------------------------------------------------%
+%=========================================================================%
 %%            Compute Floquet Bundle at Zero Phase Point (mu)            %%
-%-------------------------------------------------------------------------%
+%=========================================================================%
 % We now add the adjoint function and Floquet boundary conditions to
 % compute the adjoint (left or right idk) eigenvectors and eigenvalues.
 % This will give us the perpendicular vector to the tangent of the periodic
@@ -446,7 +440,7 @@ plot_initial_periodic_orbit_COLL();
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.compute_floquet_1 = 'run07_compute_floquet_bundle_1_mu';
+run_names.compute_floquet_1 = 'run06_compute_floquet_bundle_1_mu';
 run_new = run_names.compute_floquet_1;
 % Which run this continuation continues from
 run_old = run_names.initial_PO;
@@ -463,7 +457,7 @@ fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 %--------------------------%
 %     Calculate Things     %
 %--------------------------%
-data_adjoint = calc_initial_solution_adjoint_problem(run_old, label_old);
+data_adjoint = calc_initial_solution_VAR(run_old, label_old);
 
 %------------------------------------%
 %     Setup Floquet Continuation     %
@@ -475,7 +469,7 @@ prob = coco_prob();
 prob = coco_set(prob, 'cont', 'h_min', 1e-2, 'h0', 1e-2, 'h_max', 1e-2);
 
 % Set PtMX
-PTMX = 100;
+PtMX = 100;
 prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
 
 % Set NTST
@@ -496,7 +490,7 @@ prob = ode_isol2coll(prob, 'adjoint', funcs.floquet{:}, ...
 %     Apply Boundary Conditions and Settings     %
 %------------------------------------------------%
 % Apply boundary conditions
-prob = apply_floquet_boundary_conditions(prob, bcs_funcs);
+prob = apply_boundary_conditions_VAR(prob, bcs_funcs);
 
 %-------------------------%
 %     Add COCO Events     %
@@ -522,7 +516,7 @@ coco(prob, run_new, [], 1, {'mu_s', 'w_norm', 'T'} , [0.0, 1.1]);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.compute_floquet_2 = 'run08_compute_floquet_bundle_2_w';
+run_names.compute_floquet_2 = 'run07_compute_floquet_bundle_2_w';
 run_new = run_names.compute_floquet_2;
 % Which run this continuation continues from
 run_old = run_names.compute_floquet_1;
@@ -544,7 +538,11 @@ fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 prob = coco_prob();
 
 % Set number of PtMX steps
-prob = coco_set(prob, 'cont', 'PtMX', 250);
+PtMX = 2000;
+prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
+
+% Set number of saved solutions
+prob = coco_set(prob, 'cont', 'NPR', 100);
 
 % Continue coll from previous branching point
 prob = ode_BP2coll(prob, 'adjoint', run_old, label_old);
@@ -553,7 +551,7 @@ prob = ode_BP2coll(prob, 'adjoint', run_old, label_old);
 %     Apply Boundary Conditions and Settings     %
 %------------------------------------------------%
 % Apply boundary conditions
-prob = apply_floquet_boundary_conditions(prob, bcs_funcs);
+prob = apply_boundary_conditions_VAR(prob, bcs_funcs);
 
 %-------------------------%
 %     Add COCO Events     %
@@ -565,7 +563,7 @@ prob = coco_add_event(prob, 'NORM1', 'w_norm', 1.0);
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'w_norm', 'mu_s', 'T'}, [0.0, 1.1]);
+coco(prob, run_new, [], 1, {'w_norm', 'mu_s', 'T'}, {[-1e-4, 1.1], [], []});
 
 %-------------------%
 %     Save Data     %
@@ -573,7 +571,7 @@ coco(prob, run_new, [], 1, {'w_norm', 'mu_s', 'T'}, [0.0, 1.1]);
 label_plot = coco_bd_labs(coco_bd_read(run_new), 'NORM1');
 
 % Save solution to .mat to be read in 'yamada_PTC.m'
-save_floquet_data(run_new, label_plot);
+save_data_VAR(run_new, label_plot, './data_mat/solution_VAR.mat');
 
 %=========================================================================%
 %                               END OF FILE                               %

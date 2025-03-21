@@ -20,21 +20,15 @@ clc;
 
 % Add equation/functions to path
 addpath('./functions/');
-
-% Add equation/functions to path
-addpath('./functions/');
 % Add field functions to path
-% addpath('./functions/fields/hardcoded/');
 addpath('./functions/fields/');
 % Add boundary condition functions to path
 addpath('./functions/bcs/');
-% addpath('./functions/bcs/hardcoded/');
 % Add SymCOCO files to path
 addpath('./functions/symcoco/');
 
 % Add continuation scripts
-addpath('./continuation_scripts/isochrons/');
-
+addpath('./continuation_scripts/phase_reset/');
 % Add plotting scripts
 addpath('./plotting_scripts/isochrons/');
 
@@ -62,11 +56,8 @@ funcs.seg4 = func_seg4_symbolic();
 bcs_funcs.bcs_T = bcs_T_symbolic();
 
 % Boundary conditions: Phase-resetting segments
-% bcs_funcs.bcs_segs = {@bcs_PR_segs};
+% bcs_funcs.bcs_segs = {@bcs_PR_segs_isochron};
 bcs_funcs.bcs_segs = bcs_PR_segs_isochron_symbolic();
-
-% % Boundary conditions: Isochrons
-% bcs_funcs.bcs_isochron = {@bcs_isochron};
 
 %-------------------------------------------------------------------------%
 %%            Move Along Periodic Orbit (theta_old, theta_new)           %%
@@ -87,10 +78,10 @@ fprintf('Run name: %s \n', run_new);
 %     Read Data     %
 %-------------------%
 % Set periodicity
-k = 25;
+k = 20;
 
 % Set initial conditions from previous solutions
-data_PR = calc_isochron_initial_conditions(k);
+data_PR = calc_initial_solution_PR('./data_mat/solution_VAR.mat', k, isochron=true);
 
 %----------------------------%
 %     Setup Continuation     %
@@ -120,8 +111,8 @@ prob = coco_set(prob, 'coll', 'MXCL', 'off');
 prob = coco_set(prob, 'cont', 'norm', inf);
 
 % Set MaxRes and al_max
-prob = coco_set(prob, 'cont', 'MaxRes', 10);
-prob = coco_set(prob, 'cont', 'al_max', 25);
+% prob = coco_set(prob, 'cont', 'MaxRes', 10);
+% prob = coco_set(prob, 'cont', 'al_max', 25);
 
 %------------------%
 %     Set NTST     %
@@ -139,6 +130,10 @@ prob = coco_set(prob, 'seg1.coll', 'NTST', NTST(1));
 prob = coco_set(prob, 'seg2.coll', 'NTST', NTST(2));
 prob = coco_set(prob, 'seg3.coll', 'NTST', NTST(3));
 prob = coco_set(prob, 'seg4.coll', 'NTST', NTST(4));
+
+% % Set min and max NTST for segment 4
+% prob = coco_set(prob, 'seg4.coll', 'NTSTMN', 10*k);
+% prob = coco_set(prob, 'seg4.coll', 'NTSTMX', 100*k);
 
 %------------------------------------%
 %     Create Trajectory Segments     %
@@ -172,14 +167,17 @@ prob = ode_isol2coll(prob, 'seg4', funcs.seg4{:}, ...
 % Apply all boundary conditions, glue parameters together, and
 % all that other good COCO stuff. Looking the function file
 % if you need to know more ;)
-prob = apply_isochron_boundary_conditions(prob, data_PR, bcs_funcs);
+prob = apply_boundary_conditions_PR(prob, data_PR, bcs_funcs, isochron=true);
 
 %-------------------------%
 %     Add COCO Events     %
 %-------------------------%
 % Array of values for special event
 % SP_values = [linspace(0.0, 0.25, 21), linspace(0.30, 2.0, 21)];
-SP_values = 0.0 : 0.05 : 1.0;
+% SP_values = 0.0 : 0.05 : 1.0;
+
+% Save solutions at zero-phase point, where I is max, and where I is min
+SP_values = [0.0, 0.1858, 0.6768];
 
 % When the parameter we want (from param) equals a value in A_vec
 prob = coco_add_event(prob, 'SP', 'theta_old', SP_values);
@@ -198,7 +196,7 @@ bdtest = coco(prob, run_new, [], 1, ...
 %--------------------%
 % Label of solution to plot
 label_plot = sort(coco_bd_labs(coco_bd_read(run_new), 'SP'));
-label_plot = label_plot(1);
+label_plot = label_plot(2);
 
 % Plot first SP solution
 plot_phase_reset_phase_space(run_new, label_plot(1), 1);
@@ -216,8 +214,9 @@ run_new = run_names.single_isochron_dy;
 run_old = run_names.isochron_initial;
 
 % Continuation point
-label_old = sort(coco_bd_labs(coco_bd_read(run_old), 'SP'));
-label_old = label_old(1);
+% label_old = sort(coco_bd_labs(coco_bd_read(run_old), 'SP'));
+% label_old = label_old(1);
+label_old = 1;
 
 % Print to console
 fprintf("~~~ Isochrons: Second Run ~~~ \n");
@@ -240,18 +239,18 @@ prob = coco_set(prob, 'cont', 'h0', 5e-1);
 prob = coco_set(prob, 'cont', 'h_max', 1e0);
 
 % Set adaptive meshR
-prob = coco_set(prob, 'cont', 'NAdapt', 10);
+% prob = coco_set(prob, 'cont', 'NAdapt', 10);
 
 % Set number of steps
 PtMX = 400;
-prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
+prob = coco_set(prob, 'cont', 'PtMX', [PtMX, 0]);
 
 % Set norm to int
 prob = coco_set(prob, 'cont', 'norm', inf);
 
 % Set MaxRes and al_max
-prob = coco_set(prob, 'cont', 'MaxRes', 10);
-prob = coco_set(prob, 'cont', 'al_max', 25);
+% prob = coco_set(prob, 'cont', 'MaxRes', 10);
+% prob = coco_set(prob, 'cont', 'al_max', 25);
 
 %-------------------------------------------%
 %     Continue from Trajectory Segments     %
@@ -277,24 +276,24 @@ prob = apply_isochron_boundary_conditions(prob, data_PR, bcs_funcs);
 %     Add COCO Events     %
 %-------------------------%
 % Array of values for special event
-SP_values = -4.0 : 0.25 : 0.0;
+SP_values = 0.0 : 0.2 : 4.0;
 
 % When the parameter we want (from param) equals a value in A_vec
-prob = coco_add_event(prob, 'SP', 'd_y', SP_values);
+prob = coco_add_event(prob, 'SP', 'iso2', SP_values);
 
 %------------------%
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-prange = {[], [], [], [0.99, 1.01], []};
+prange = {[], [], [], [0.99, 1.01], [], [-2, 8]};
 bdtest = coco(prob, run_new, [], 1, ...
-              {'d_x', 'd_y', 'eta', 'mu_s', 'T'}, prange);
+              {'d_x', 'd_y', 'eta', 'mu_s', 'T', 'iso2'}, prange);
 
 %--------------------%
 %     Test Plots     %
 %--------------------%
 % Plot phase transition curve (PTC)
-plot_single_isochron(run_new);
+plot_single_isochron(run_new, false);
 
 %-------------------------------------------------------------------------%
 %%                Calculate Isochrons in (d_x, d_z) Plane                %%
@@ -328,8 +327,8 @@ prob = coco_prob();
 % prob = coco_set(prob, 'corr', 'TOL', 5e-7);
 
 % Set step sizes
-prob = coco_set(prob, 'cont', 'h_min', 1e-2);
-prob = coco_set(prob, 'cont', 'h0', 5e-1);
+prob = coco_set(prob, 'cont', 'h_min', 5e-2);
+prob = coco_set(prob, 'cont', 'h0', 1e-2);
 prob = coco_set(prob, 'cont', 'h_max', 1e0);
 
 % Set adaptive meshR
@@ -337,7 +336,7 @@ prob = coco_set(prob, 'cont', 'NAdapt', 10);
 
 % Set number of steps
 PtMX = 400;
-prob = coco_set(prob, 'cont', 'PtMX', [PtMX, 0]);
+prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set norm to int
 prob = coco_set(prob, 'cont', 'norm', inf);
@@ -345,6 +344,9 @@ prob = coco_set(prob, 'cont', 'norm', inf);
 % Set MaxRes and al_max
 prob = coco_set(prob, 'cont', 'MaxRes', 10);
 prob = coco_set(prob, 'cont', 'al_max', 25);
+
+% Set fold point detection to parameter 'iso3'
+prob = coco_set(prob, 'cont', 'fpar', 'iso3');
 
 %-------------------------------------------%
 %     Continue from Trajectory Segments     %
@@ -379,15 +381,14 @@ prob = apply_isochron_boundary_conditions(prob, data_PR, bcs_funcs);
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-prange = {[], [], [], [0.99, 1.01], []};
-bdtest = coco(prob, run_new, [], 1, ...
-              {'d_x', 'd_z', 'eta', 'mu_s', 'T'}, prange);
+prange = {[], [], [], [0.99, 1.01], [], [-4, 6], [-4, 6], []};
+bdtest = coco(prob, run_new, [], 1, {'d_x', 'd_z', 'eta', 'mu_s', 'T', 'iso1', 'iso2', 'iso3'}, prange);
 
 %--------------------%
 %     Test Plots     %
 %--------------------%
 % Plot phase transition curve (PTC)
-plot_single_isochron(run_new);
+plot_single_isochron(run_new, false);
 
 %-------------------------------------------------------------------------%
 %%                       Isochron Scan - Multiple                        %%
@@ -404,7 +405,7 @@ run_old = run_names.single_isochron_dy;
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
 
-% Print to console\
+% Print to console
 fprintf("~~~ Isochron: Fourth Run ~~~ \n");
 fprintf('Calculate slices of the isochrons \n');
 fprintf('Run name: %s \n', run_new);
@@ -414,7 +415,7 @@ fprintf('Continuing from SP points in run: %s \n', run_old);
 %     Cycle through SP labels     %
 %---------------------------------%
 % Set number of threads
-M = 6;
+M = 7;
 parfor (run = 1 : length(label_old), M)
   % Label for this run
   this_run_label = label_old(run);
@@ -435,8 +436,11 @@ end
 % Plot isochron_scan
 plot_phase_reset_phase_space({run_new, 'run_08'}, 5, 1);
 
-plot_single_isochron({run_new, 'run_08'});
+plot_single_isochron({run_new, 'run_08'}, false);
 plot_isochron_scan(run_new);
+
+% Save isochron save data
+save_isochron_data(run_new, './data_mat/isochron_scan_data_COCO.mat');
 
 %=========================================================================%
 %                               END OF FILE                               %

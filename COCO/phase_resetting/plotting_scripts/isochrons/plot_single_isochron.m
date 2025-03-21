@@ -1,4 +1,4 @@
-function plot_single_isochron(run_in)
+function plot_single_isochron(run_in, PO_manifold)
   % plot_single_isochron(run_in, save_figure)
   %
   % Plots a single isochron from the isochron_test.m run.
@@ -15,7 +15,7 @@ function plot_single_isochron(run_in)
   iso3 = coco_bd_col(bd_read, 'iso3');
 
   % Read unperturbed periodic orbit data
-  load('./data_mat/initial_PO.mat');
+  load('./data_mat/PO_and_manifolds.mat', 'xbp_PO', 'Ws_q', 'Ws_PO1', 'Ws_PO2');
 
   %-------------------------------------------------------------------------%
   %%                         Plot: Single Isochron                         %%
@@ -36,19 +36,12 @@ function plot_single_isochron(run_in)
   %--------------%
   hold(ax, 'on');
 
+  % Plot base orbit and manifolds
+  plot_base_periodic_orbit(ax, PO_manifold);
+
   % Plot single isochron
   plot3(ax, iso1, iso2, iso3, Color='k', LineStyle='-', ...
         DisplayName='Isochron');
-
-  % Plot unperturbed periodic orbit
-  plot3(ax, xbp_PO(:, 1), xbp_PO(:, 2), xbp_PO(:, 3), ...
-        LineStyle='-', Color=colours(3, :), ...
-        DisplayName='$\Gamma$');
-
-  % Plot stable manifold of q / x_{+}
-  plot3(ax, W_q_stable(:, 1), W_q_stable(:, 2), W_q_stable(:, 3), ...
-        Color=colours(1, :), ...
-        DisplayName='$W^{s}(p)$');
 
   % Legend
   legend(ax, Interpreter='latex');
@@ -78,9 +71,9 @@ function plot_single_isochron(run_in)
   %---------------------%
   %     Axis Limits     %
   %---------------------%
-  % ax.XAxis.Limits = [0.0, 5.0];
-  % ax.YAxis.Limits = [0.0, 4.0];
-  % ax.ZAxis.Limits = [0.0, ceil(max(xbp_PO(:, 3)))];
+  % ax.XAxis.Limits = [-2.0, 6.0];
+  % ax.YAxis.Limits = [-2.0, 6.0];
+  % ax.ZAxis.Limits = [0.0, 50.0];
 
   %---------------------%
   %     Axis Labels     %

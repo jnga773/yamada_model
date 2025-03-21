@@ -1,9 +1,26 @@
-function prob_out = apply_floquet_boundary_conditions(prob_in, bcs_funcs_in)
-  % prob_out = apply_floquet_boundary_conditions(prob_in)
+function prob_out = apply_boundary_conditions_VAR(prob_in, bcs_funcs_in)
+  % prob_out = apply_boundary_conditions_VAR(prob_in)
   %
   % Applies the boundary conditions for the rotated periodic orbit
   % (with function @bcs_PO) and for the Floquet bundle adjoint equation
   % with function (bcs_floquet).
+  %
+  % Parameters
+  % ----------
+  % prob_in : COCO problem structure
+  %     Input continuation problem structure.
+  % bcs_funcs_in : List of functions
+  %     List of boundary conditions for the periodic orbit and variational
+  %     problem.
+  %
+  % Returns
+  % -------
+  % prob_out : COCO problem structure
+  %     Output continuation problem structure with applied boundary conditions.
+  %
+  % See Also
+  % --------
+  % coco_get_func_data, coco_add_func
 
   % Set the COCO problem
   prob = prob_in;

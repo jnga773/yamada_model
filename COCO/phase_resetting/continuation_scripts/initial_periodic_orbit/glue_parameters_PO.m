@@ -3,6 +3,22 @@ function prob_out = glue_parameters_PO(prob_in)
   %
   % Glue the parameters of the EP segments and PO segment together 
   % (as they're all the same anyway).
+  % This function reads index data for the periodic orbit segment and equilibrium points,
+  % and glues the parameters together.
+  %
+  % Parameters
+  % ----------
+  % prob_in : COCO problem structure
+  %     Input continuation problem structure.
+  %
+  % Returns
+  % -------
+  % prob_out : COCO problem structure
+  %     Output continuation problem structure with applied boundary conditions.
+  %
+  % See Also
+  % --------
+  % coco_get_func_data, coco_add_glue
 
   %---------------%
   %     Input     %

@@ -26,7 +26,7 @@ function plot_isochron_scan(isochron_run_in)
   for i = 1 : length(dir_sub_plot)
     % Sub folder name
     dir_read = {isochron_run_in, dir_sub_plot{i}};
-    fprintf('run_dir:  {%s, %s} \n', dir_read{1}, dir_read{2});
+    % fprintf('run_dir:  {%s, %s} \n', dir_read{1}, dir_read{2});
 
     % Bifurcation data
     bd_read = coco_bd_read(dir_read);
@@ -43,11 +43,19 @@ function plot_isochron_scan(isochron_run_in)
 
   end
 
+  % Read parameters
+  parameters.A         = coco_bd_val(bd_read, 1, 'A');
+  parameters.gamma     = coco_bd_val(bd_read, 1, 'gamma');
+  parameters.B         = coco_bd_val(bd_read, 1, 'B');
+  parameters.a         = coco_bd_val(bd_read, 1, 'a');
+  parameters.theta_old = coco_bd_val(bd_read, 1, 'theta_old');
+  parameters.theta_new = coco_bd_val(bd_read, 1, 'theta_new');
+
   %--------------------------------------%
   %     Read Data: Unperturbed Orbit     %
   %--------------------------------------%
   % Read unperturbed periodic orbit data
-  load('./data_mat/initial_PO.mat');
+  load('./data_mat/PO_and_manifolds.mat', 'xbp_PO', 'Ws_q', 'Ws_PO1', 'Ws_PO2');
 
   %-------------------------------------------------------------------------%
   %%                         Plot: Multi Isochrons                         %%
@@ -58,7 +66,7 @@ function plot_isochron_scan(isochron_run_in)
   fig = figure(1);
   fig.Name = 'Single (Test) Isochron';
   fig.Units = 'inches';
-  fig.Position = [3, 3, 8, 8]; fig.PaperSize = [8, 8];
+  fig.Position = [3, 3, 12, 8]; fig.PaperSize = [12, 8];
 
   tiles = tiledlayout(1, 1, Padding='compact', TileSpacing='compact');
   ax = nexttile;
@@ -68,15 +76,8 @@ function plot_isochron_scan(isochron_run_in)
   %--------------%
   hold(ax, 'on');
 
-  % Plot unperturbed periodic orbit
-  plot3(ax, xbp_PO(:, 1), xbp_PO(:, 2), xbp_PO(:, 3), ...
-        LineStyle='-', Color=colours(3, :), ...
-        DisplayName='$\Gamma$');
-
-  % Plot stable manifold of q / x_{+}
-  plot3(ax, W_q_stable(:, 1), W_q_stable(:, 2), W_q_stable(:, 3), ...
-        Color=colours(1, :), ...
-        DisplayName='$W^{s}(p)$');
+  % Plot base orbit and manifolds
+  plot_base_periodic_orbit(ax, true);
 
   % Cycle through data and plot
   for i = 1 : length(dir_sub_plot)
@@ -132,9 +133,9 @@ function plot_isochron_scan(isochron_run_in)
   %---------------------%
   %     Axis Limits     %
   %---------------------%
-  ax.XAxis.Limits = [0.0, 6.0];
-  ax.YAxis.Limits = [0.0, 6.0];
-  % ax.ZAxis.Limits = [0.0, ceil(max(xbp_PO(:, 3)))];
+  % ax.XAxis.Limits = [-4.0, 6.0];
+  % ax.YAxis.Limits = [-4.0, 6.0];
+  % ax.ZAxis.Limits = [0.0, 30.0];
 
   %---------------------%
   %     Axis Labels     %
@@ -146,7 +147,8 @@ function plot_isochron_scan(isochron_run_in)
   %--------------------%
   %     Axis Title     %
   %--------------------%
-  ax.Title.String = 'Initial Periodic Orbit';
+  title_str = sprintf('Isochrons of $\\gamma_{\\theta_{\\mathrm{old}}}$ with $\\theta_{\\mathrm{old}} =$ %.3f', parameters.theta_old);
+  ax.Title.String = title_str;
 
   %----------------------%
   %     Figure Stuff     %

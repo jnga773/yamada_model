@@ -52,9 +52,9 @@ function plot_phase_reset_phase_space(run_in, label_in, fig_num_in)
   %---------------------%
   %     Axis Limits     %
   %---------------------%
-  ax.XAxis.Limits = [0.0, 5.0];
-  ax.YAxis.Limits = [0.0, 4.0];
-  ax.ZAxis.Limits = [0.0, 21.0];
+  % ax.XAxis.Limits = [0.0, 5.0];
+  ax.YAxis.Limits = [0.0, 6.0];
+  % ax.ZAxis.Limits = [0.0, 21.0];
 
   %---------------------%
   %     Axis Labels     %

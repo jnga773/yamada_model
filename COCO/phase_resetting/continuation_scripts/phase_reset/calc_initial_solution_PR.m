@@ -1,29 +1,72 @@
-function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_perturb_in)
-  % data_out = calc_initial_conditions(k_in, theta_perturb_in, phi_perturb_in)
+function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in, phi_perturb_in, options)
+  % data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in, phi_perturb_in, options)
   %
   % Reads data from previous run solution and calculates the 
   % initial conditions for the various different trajectory segments.
+  %
+  % Parameters
+  % ----------
+  % filename_in : string
+  %     Filename for the Matlab .mat file with the solution to the adjoint
+  %     variational problem (probably './data_mat/solution_VAR.mat')
+  % k_in : integer
+  %     Integer for the periodicity.
+  % theta_perturb_in : float
+  %     Angle at which perturbation is applied.
+  % phi_perturb_in : float
+  %     Azimuthal angle at which perturbation is applied.
+  % isochron : boolean
+  %     Flag to determine if the isochron is being calculated.
+  %
+  % Returns
+  % -------
+  % data_out : struct
+  %     Structure containing the initial conditions for the trajectory segments.
+  %     Fields:
+  %         - xdim : Original dimension of state space.
+  %         - pdim : Original dimension of parameter space.
+  %         - p0 : Initial parameter array.
+  %         - pnames : Parameter names.
+  %         - p_maps : Index mapping of each parameter.
+  %         - t_seg1 : Initial time solutions for segment 1.
+  %         - t_seg2 : Initial time solutions for segment 2.
+  %         - t_seg3 : Initial time solutions for segment 3.
+  %         - t_seg4 : Initial time solutions for segment 4.
+  %         - x_seg1 : Initial state space solutions for segment 1.
+  %         - x_seg2 : Initial state space solutions for segment 2.
+  %         - x_seg3 : Initial state space solutions for segment 3.
+  %         - x_seg4 : Initial state space solutions for segment 4.
+  %
+  % See Also
+  % --------
+  % coll_read_solution
 
+  %-----------------------%
+  %     Default Input     %
+  %-----------------------%
+  arguments
+    filename_in      = './data_mat/solution_VAR.mat';
+    k_in             = 20;
+    theta_perturb_in = 0.0;
+    phi_perturb_in   = 0.0;
+
+    % Optional arguments
+    options.isochron         = false;
+  end
+
+  %-----------------------------------------------------------------------%
+  %                            Read Data                                  %
+  %-----------------------------------------------------------------------%
   %-------------------%
   %     Read Data     %
   %-------------------%
-  % Read from .mat
-  load('./data_mat/floquet_solution.mat', 'gamma_read', 'wn_read', ...
-       'p_system', 'T_read', 'mu_s_read', ...
-       'pnames_system', 'mu_s_name', ...
-       'xdim', 'pdim', ...
-       'tbp_read');
+  % Read solution from .mat file
+  load(filename_in);
 
   % Initial zero-phase point of the periodic orbit
   gamma_0 = gamma_read(1, :)';
   % Initial perpendicular vector
   wn_0    = wn_read(1, :)';
-
-  %---------------------------%
-  %     Singularity Point     %
-  %---------------------------%
-  % Calculate "positive" non-trivial stationary point
-  [x_pos, ~] = non_trivial_ss(p_system);
 
   %----------------------------%
   %     Initial Parameters     %
@@ -46,10 +89,10 @@ function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_pertu
   theta_perturb = theta_perturb_in;
   % Azimuthal angle at which perturbation is applied
   phi_perturb   = phi_perturb_in;
-  % % Perturbation vector components
-  % d_x           = 0.0;
-  % d_y           = 0.0;
-  % d_z           = 0.0;
+  % Perturbation vector components
+  d_x           = 0.0;
+  d_y           = 0.0;
+  d_z           = 0.0;
 
   %---------------------------%
   %     Parameter Indices     %
@@ -64,12 +107,15 @@ function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_pertu
   p_maps.theta_new     = pdim + 4;
   p_maps.mu_s          = pdim + 5;
   p_maps.eta           = pdim + 6;
-  p_maps.A_perturb     = pdim + 7;
-  p_maps.theta_perturb = pdim + 8;
-  p_maps.phi_perturb   = pdim + 9;
-  % p_maps.d_x           = pdim + 10;
-  % p_maps.d_y           = pdim + 11;
-  % p_maps.d_z           = pdim + 12;
+  if ~options.isochron
+    p_maps.A_perturb     = pdim + 7;
+    p_maps.theta_perturb = pdim + 8;
+    p_maps.phi_perturb   = pdim + 9;
+  else
+    p_maps.d_x           = pdim + 7;
+    p_maps.d_y           = pdim + 8;
+    p_maps.d_z           = pdim + 9;
+  end
 
   %------------------------%
   %     Set Parameters     %
@@ -84,12 +130,15 @@ function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_pertu
   p0_out(p_maps.theta_new)     = theta_new;
   p0_out(p_maps.mu_s)          = mu_s;
   p0_out(p_maps.eta)           = eta;
-  p0_out(p_maps.A_perturb)     = A_perturb;
-  p0_out(p_maps.theta_perturb) = theta_perturb;
-  p0_out(p_maps.phi_perturb)   = phi_perturb;
-  % p0_out(p_maps.d_x)           = d_x;
-  % p0_out(p_maps.d_y)           = d_y;
-  % p0_out(p_maps.d_z)           = d_z;
+  if ~options.isochron
+    p0_out(p_maps.A_perturb)     = A_perturb;
+    p0_out(p_maps.theta_perturb) = theta_perturb;
+    p0_out(p_maps.phi_perturb)   = phi_perturb;
+  else
+    p0_out(p_maps.d_x)           = d_x;
+    p0_out(p_maps.d_y)           = d_y;
+    p0_out(p_maps.d_z)           = d_z;
+  end
 
   %-------------------------%
   %     Parameter Names     %
@@ -103,36 +152,15 @@ function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_pertu
   pnames_PR{p_maps.theta_new}     = 'theta_new';
   pnames_PR{p_maps.mu_s}          = mu_s_name;
   pnames_PR{p_maps.eta}           = 'eta';
-  pnames_PR{p_maps.A_perturb}     = 'A_perturb';
-  pnames_PR{p_maps.theta_perturb} = 'theta_perturb';
-  pnames_PR{p_maps.phi_perturb}   = 'phi_perturb';
-  % pnames_PR{p_maps.d_x}           = 'd_x';
-  % pnames_PR{p_maps.d_y}           = 'd_y';
-  % pnames_PR{p_maps.d_z}           = 'd_z';
-
-  % %----------------------------------------------%
-  % %     Segment Initial Conditions: Periodic     %
-  % %----------------------------------------------%
-  % % Segment 4
-  % % If only one period, i.e., k = 1, then the
-  % % input solutions remain unchanged
-  % t_seg4 = tbp_read;
-  % x_seg4 = gamma_read;
-
-  % % Otherwise, keep appending periodic solutions
-  % if k > 1
-  %   % Cycle through k integers
-  %   for j = 1 : k-1
-  %     % Append another period of time data
-  %     t_seg4 = [tbp_read    ; max(tbp_read) + t_seg4(2:end)];
-
-  %     x_seg4 = [gamma_read; x_seg4(2:end, :)];
-
-  %   end
-  %   % Normalise time data by integer
-  %   t_seg4 = t_seg4 / k;
-
-  % end
+  if ~options.isochron
+    pnames_PR{p_maps.A_perturb}     = 'A_perturb';
+    pnames_PR{p_maps.theta_perturb} = 'theta_perturb';
+    pnames_PR{p_maps.phi_perturb}   = 'phi_perturb';
+  else
+    pnames_PR{p_maps.d_x}           = 'd_x';
+    pnames_PR{p_maps.d_y}           = 'd_y';
+    pnames_PR{p_maps.d_z}           = 'd_z';
+  end
 
   %----------------------------------------------%
   %     Segment Initial Conditions: Periodic     %
@@ -172,25 +200,6 @@ function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_pertu
   t_seg3 = [0.0; max(tbp_read)];
   x_seg3 = [gamma_0'; gamma_0'];
 
-  %-------------------------------------------------%
-  %     Segment Initial Conditions: Interpolate     %
-  %-------------------------------------------------%
-  % % Ones array
-  % ones_mat = ones(length(t_seg4), xdim);
-
-  % % Segment 1
-  % t_seg1 = t_seg4;
-  % x_seg1 = [interp1(tbp_read, gamma_read, t_seg4), ...
-  %           interp1(tbp_read, wn_read, t_seg4)];
-
-  % % Segment 2
-  % t_seg2 = t_seg4;
-  % x_seg2 = [gamma_0' .* ones_mat, wn_0' .* ones_mat];
-
-  % % Segment 3
-  % t_seg3 = t_seg4;
-  % x_seg3 = gamma_0' .* ones_mat;
-
   %----------------%
   %     Output     %
   %----------------%
@@ -214,8 +223,5 @@ function data_out = calc_PR_initial_conditions(k_in, theta_perturb_in, phi_pertu
   data_out.x_seg2     = x_seg2;
   data_out.x_seg3     = x_seg3;
   data_out.x_seg4     = x_seg4;
-
-  % Equilibrium point
-  data_out.xpos       = x_pos;
 
 end
