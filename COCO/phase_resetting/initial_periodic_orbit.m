@@ -86,12 +86,12 @@ bcs_funcs.bcs_PO = bcs_PO_symbolic();
 bcs_funcs.bcs_T = bcs_T_symbolic();
 
 % Adjoint equations: Functions (for floquet_mu and floquet_wnorm)
-% funcs.floquet = {@floquet_adjoint};
-funcs.floquet = floquet_symbolic();
+% funcs.floquet = {@yamada_VAR};
+funcs.floquet = yamada_VAR_symbolic();
 
 % Boundary conditions: Floquet multipliers
-% bcs_funcs.bcs_floquet = {@bcs_floquet};
-bcs_funcs.bcs_floquet = bcs_floquet_symbolic();
+% bcs_funcs.bcs_floquet = {@bcs_VAR};
+bcs_funcs.bcs_floquet = bcs_VAR_symbolic();
 
 %=========================================================================%
 %                    CALCULATE INITIAL PERIODIC ORBIT                     %
