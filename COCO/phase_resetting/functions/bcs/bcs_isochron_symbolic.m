@@ -1,5 +1,5 @@
-function bcs_coco_out = bcs_PR_segs_symbolic()
-  % bcs_coco_out = bcs_PR_segs_symbolic()
+function bcs_coco_out = bcs_isochron_symbolic()
+  % bcs_coco_out = bcs_isochron_symbolic()
   %
   % Boundary conditions for the four segments of the phase-resetting problem:
   %                          x1(0) - x2(1) = 0 ,
@@ -84,10 +84,10 @@ function bcs_coco_out = bcs_PR_segs_symbolic()
   % Phase resetting parameters
   syms T k theta_old theta_new
   syms mu_s eta
-  syms A_perturb theta_perturb phi_perturb
+  syms d_x d_y d_z
   p_PR = [T; k; theta_old; theta_new;
           mu_s; eta;
-          A_perturb; theta_perturb; phi_perturb];
+          d_x; d_y; d_z];
 
   %============================================================================%
   %                         BOUNDARY CONDITION ENCODING                        %
@@ -118,15 +118,10 @@ function bcs_coco_out = bcs_PR_segs_symbolic()
   %-------------------%
   %     Segment 4     %
   %-------------------%
-  % d_vec = [cos(theta_perturb) * sin(phi_perturb);
-  %          sin(theta_perturb) * sin(phi_perturb);
-  %          cos(phi_perturb)];
-  d_vec = [cos(theta_perturb);
-           0.0;
-           sin(theta_perturb)];
+  d_vec = [d_x; d_y; d_z];
 
   % Boundary Conditions - Segment 4
-  bcs_seg4_1 = x0_seg4 - x0_seg3 - (A_perturb * d_vec);
+  bcs_seg4_1 = x0_seg4 - x0_seg3 - d_vec;
   bcs_seg4_2 = dot(x1_seg4 - x0_seg2, w0_seg2);
   % bcs_seg4_3 = norm(x1_seg4 - x0_seg2) - eta;
 
@@ -155,7 +150,7 @@ function bcs_coco_out = bcs_PR_segs_symbolic()
           bcs_seg4_1; bcs_seg4_2; bcs_seg4_3];
 
   % Filename for output functions
-  filename_out = './functions/symcoco/F_bcs_PR_segs';
+  filename_out = './functions/symcoco/F_bcs_isochron';
 
   % COCO Function encoding
   bcs_coco = sco_sym2funcs(bcs, {uvec}, {'u'}, 'filename', filename_out);

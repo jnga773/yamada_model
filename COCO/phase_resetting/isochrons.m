@@ -56,8 +56,8 @@ funcs.seg4 = func_seg4_symbolic();
 bcs_funcs.bcs_T = bcs_T_symbolic();
 
 % Boundary conditions: Phase-resetting segments
-% bcs_funcs.bcs_segs = {@bcs_PR_segs_isochron};
-bcs_funcs.bcs_segs = bcs_PR_segs_isochron_symbolic();
+% bcs_funcs.bcs_PR = {@bcs_isochron};
+bcs_funcs.bcs_PR = bcs_isochron_symbolic();
 
 %-------------------------------------------------------------------------%
 %%            Move Along Periodic Orbit (theta_old, theta_new)           %%

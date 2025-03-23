@@ -56,8 +56,8 @@ funcs.seg4 = func_seg4_symbolic();
 bcs_funcs.bcs_T = bcs_T_symbolic();
 
 % Boundary conditions: Phase-resetting segments
-% bcs_funcs.bcs_segs = {@bcs_PR_segs};
-bcs_funcs.bcs_segs = bcs_PR_segs_symbolic();
+% bcs_funcs.bcs_PR = {@bcs_PR};
+bcs_funcs.bcs_PR = bcs_PR_symbolic();
 
 %-------------------------------------------------------------------------%
 %%                   Increasing Pertubation Amplitude                    %%
