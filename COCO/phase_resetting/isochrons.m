@@ -224,76 +224,17 @@ fprintf('Fix theta_old and theta_new, and follow isochrons in one direciton \n')
 fprintf('Run name: %s \n', run_new);
 fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 
-%----------------------------%
-%     Setup Continuation     %
-%----------------------------%
-% Set up the COCO problem
-prob = coco_prob();
-
-% Set tolerance
-% prob = coco_set(prob, 'corr', 'TOL', 5e-7);
-
-% Set step sizes
-prob = coco_set(prob, 'cont', 'h_min', 1e-2);
-prob = coco_set(prob, 'cont', 'h0', 5e-1);
-prob = coco_set(prob, 'cont', 'h_max', 1e0);
-
-% Set adaptive meshR
-% prob = coco_set(prob, 'cont', 'NAdapt', 10);
-
-% Set number of steps
-PtMX = 400;
-prob = coco_set(prob, 'cont', 'PtMX', [PtMX, 0]);
-
-% Set norm to int
-prob = coco_set(prob, 'cont', 'norm', inf);
-
-% Set MaxRes and al_max
-% prob = coco_set(prob, 'cont', 'MaxRes', 10);
-% prob = coco_set(prob, 'cont', 'al_max', 25);
-
-%-------------------------------------------%
-%     Continue from Trajectory Segments     %
-%-------------------------------------------%
-% Segment 1
-prob = ode_coll2coll(prob, 'seg1', run_old, label_old);
-% Segment 2
-prob = ode_coll2coll(prob, 'seg2', run_old, label_old);
-% Segment 3
-prob = ode_coll2coll(prob, 'seg3', run_old, label_old);
-% Segment 4
-prob = ode_coll2coll(prob, 'seg4', run_old, label_old); 
-
-%------------------------------------------------%
-%     Apply Boundary Conditions and Settings     %
-%------------------------------------------------%
-% Apply all boundary conditions, glue parameters together, and
-% all that other good COCO stuff. Looking the function file
-% if you need to know more ;)
-prob = apply_isochron_boundary_conditions(prob, data_PR, bcs_funcs);
-
-%-------------------------%
-%     Add COCO Events     %
-%-------------------------%
-% Array of values for special event
-SP_values = 0.0 : 0.2 : 4.0;
-
-% When the parameter we want (from param) equals a value in A_vec
-prob = coco_add_event(prob, 'SP', 'iso2', SP_values);
-
 %------------------%
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-prange = {[], [], [], [0.99, 1.01], [], [-2, 8]};
-bdtest = coco(prob, run_new, [], 1, ...
-              {'d_x', 'd_y', 'eta', 'mu_s', 'T', 'iso2'}, prange);
+run_isochron_continuation(this_run_name, run_old, label_old, data_PR, bcs_funcs, {'d_x', 'd_y'});
 
 %--------------------%
 %     Test Plots     %
 %--------------------%
 % Plot phase transition curve (PTC)
-plot_single_isochron(run_new, false);
+plot_single_isochron(run_new);
 
 %-------------------------------------------------------------------------%
 %%                Calculate Isochrons in (d_x, d_z) Plane                %%
@@ -317,70 +258,11 @@ fprintf('Continue isochron in (dx, dz) plane \n');
 fprintf('Run name: %s \n', run_new);
 fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
 
-%----------------------------%
-%     Setup Continuation     %
-%----------------------------%
-% Set up the COCO problem
-prob = coco_prob();
-
-% Set tolerance
-% prob = coco_set(prob, 'corr', 'TOL', 5e-7);
-
-% Set step sizes
-prob = coco_set(prob, 'cont', 'h_min', 5e-2);
-prob = coco_set(prob, 'cont', 'h0', 1e-2);
-prob = coco_set(prob, 'cont', 'h_max', 1e0);
-
-% Set adaptive meshR
-prob = coco_set(prob, 'cont', 'NAdapt', 10);
-
-% Set number of steps
-PtMX = 400;
-prob = coco_set(prob, 'cont', 'PtMX', PtMX);
-
-% Set norm to int
-prob = coco_set(prob, 'cont', 'norm', inf);
-
-% Set MaxRes and al_max
-prob = coco_set(prob, 'cont', 'MaxRes', 10);
-prob = coco_set(prob, 'cont', 'al_max', 25);
-
-% Set fold point detection to parameter 'iso3'
-prob = coco_set(prob, 'cont', 'fpar', 'iso3');
-
-%-------------------------------------------%
-%     Continue from Trajectory Segments     %
-%-------------------------------------------%
-% Segment 1
-prob = ode_coll2coll(prob, 'seg1', run_old, label_old);
-% Segment 2
-prob = ode_coll2coll(prob, 'seg2', run_old, label_old);
-% Segment 3
-prob = ode_coll2coll(prob, 'seg3', run_old, label_old);
-% Segment 4
-prob = ode_coll2coll(prob, 'seg4', run_old, label_old); 
-
-%------------------------------------------------%
-%     Apply Boundary Conditions and Settings     %
-%------------------------------------------------%
-% Apply all boundary conditions, glue parameters together, and
-% all that other good COCO stuff. Looking the function file
-% if you need to know more ;)
-prob = apply_isochron_boundary_conditions(prob, data_PR, bcs_funcs);
-
-%-------------------------%
-%     Add COCO Events     %
-%-------------------------%
-% % Array of values for special event
-% SP_values = -10.0 : 1.0 : 0.0;
-
-% % When the parameter we want (from param) equals a value in A_vec
-% prob = coco_add_event(prob, 'SP', 'd_y', SP_values);
-
 %------------------%
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
+run_isochron_continuation(run_new, run_old, label_old, data_PR, bcs_funcs, {'d_x', 'd_z'});
 prange = {[], [], [], [0.99, 1.01], [], [-4, 6], [-4, 6], []};
 bdtest = coco(prob, run_new, [], 1, {'d_x', 'd_z', 'eta', 'mu_s', 'T', 'iso1', 'iso2', 'iso3'}, prange);
 
@@ -388,7 +270,7 @@ bdtest = coco(prob, run_new, [], 1, {'d_x', 'd_z', 'eta', 'mu_s', 'T', 'iso1', '
 %     Test Plots     %
 %--------------------%
 % Plot phase transition curve (PTC)
-plot_single_isochron(run_new, false);
+plot_single_isochron(run_new);
 
 %-------------------------------------------------------------------------%
 %%                       Isochron Scan - Multiple                        %%
@@ -426,7 +308,7 @@ parfor (run = 1 : length(label_old), M)
   this_run_name = {run_new; sprintf('run_%02d', run)};
 
   % Run continuation
-  isochron_scan(this_run_name, run_old, this_run_label, data_PR, bcs_funcs);
+  isochron_scan(this_run_name, run_old, this_run_label, data_PR, bcs_funcs, {'d_x', 'd_y'});
 
 end
 
@@ -436,7 +318,7 @@ end
 % Plot isochron_scan
 plot_phase_reset_phase_space({run_new, 'run_08'}, 5, 1);
 
-plot_single_isochron({run_new, 'run_08'}, false);
+plot_single_isochron({run_new, 'run_08'});
 plot_isochron_scan(run_new);
 
 % Save isochron save data
