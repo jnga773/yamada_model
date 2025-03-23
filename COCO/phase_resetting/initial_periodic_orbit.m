@@ -85,9 +85,9 @@ bcs_funcs.bcs_PO = bcs_PO_symbolic();
 % bcs_funcs.bcs_T = {@bcs_T};
 bcs_funcs.bcs_T = bcs_T_symbolic();
 
-% Adjoint equations: Functions (for floquet_mu and floquet_wnorm)
-% funcs.floquet = {@floquet_adjoint};
-funcs.floquet = floquet_symbolic();
+% Adjoint equations: Functions (for VAR_mu and VAR_wnorm)
+% funcs.VAR = {@VAR_adjoint};
+funcs.VAR = VAR_symbolic();
 
 % Boundary conditions: Floquet multipliers
 % bcs_funcs.bcs_VAR = {@bcs_VAR};
@@ -440,8 +440,8 @@ plot_initial_periodic_orbit_COLL();
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.compute_floquet_1 = 'run06_compute_floquet_bundle_1_mu';
-run_new = run_names.compute_floquet_1;
+run_names.compute_VAR_1 = 'run06_compute_VAR_bundle_1_mu';
+run_new = run_names.compute_VAR_1;
 % Which run this continuation continues from
 run_old = run_names.initial_PO;
 
@@ -482,7 +482,7 @@ prob = coco_set(prob, 'cont', 'NAdapt', 1);
 prob = coco_set(prob, 'coll', 'MXCL', 'off');
 
 % Add segment as initial solution
-prob = ode_isol2coll(prob, 'adjoint', funcs.floquet{:}, ...
+prob = ode_isol2coll(prob, 'adjoint', funcs.VAR{:}, ...
                      data_adjoint.t0, data_adjoint.x0, ...
                      data_adjoint.pnames, data_adjoint.p0);
 
@@ -516,10 +516,10 @@ coco(prob, run_new, [], 1, {'mu_s', 'w_norm', 'T'} , [0.0, 1.1]);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.compute_floquet_2 = 'run07_compute_floquet_bundle_2_w';
-run_new = run_names.compute_floquet_2;
+run_names.compute_VAR_2 = 'run07_compute_VAR_bundle_2_w';
+run_new = run_names.compute_VAR_2;
 % Which run this continuation continues from
-run_old = run_names.compute_floquet_1;
+run_old = run_names.compute_VAR_1;
 
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'BP');

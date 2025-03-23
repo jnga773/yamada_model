@@ -1,5 +1,5 @@
-function F_coco_out = floquet_symbolic()
-  % F_coco_out = floquet_symbolic()
+function F_coco_out = VAR_symbolic()
+  % F_coco_out = VAR_symbolic()
   %
   % Creates a CoCo-compatible function encoding for the adjoint
   % equation that computes the Floquet bundle.
@@ -49,7 +49,7 @@ function F_coco_out = floquet_symbolic()
   F_seg = [F_eqn; adj_eqn];
 
   % CoCo-compatible encoding
-  filename_out = './functions/symcoco/F_floquet';
+  filename_out = './functions/symcoco/F_VAR';
   F_coco = sco_sym2funcs(F_seg, {uvec, pvec}, {'x', 'p'}, 'filename', filename_out);
 
   %----------------%
