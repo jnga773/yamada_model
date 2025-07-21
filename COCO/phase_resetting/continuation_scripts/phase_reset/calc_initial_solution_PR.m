@@ -7,8 +7,7 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   % Parameters
   % ----------
   % filename_in : string
-  %     Filename for the Matlab .mat file with the solution to the adjoint
-  %     variational problem (probably './data_mat/solution_VAR.mat')
+  %     The filename for the .mat file containing data from the VAR run.
   % k_in : integer
   %     Integer for the periodicity.
   % theta_perturb_in : float
@@ -41,17 +40,17 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   % --------
   % coll_read_solution
 
-  %-----------------------%
-  %     Default Input     %
-  %-----------------------%
+  %-------------------%
+  %     Arguments     %
+  %-------------------%
   arguments
-    filename_in      = './data_mat/solution_VAR.mat';
-    k_in             = 20;
-    theta_perturb_in = 0.0;
-    phi_perturb_in   = 0.0;
+    filename_in char        = './data_mat/solution_VAR.mat';
+    k_in double             = 20;
+    theta_perturb_in double = 0.0;
+    phi_perturb_in double   = 0.0;
 
     % Optional arguments
-    options.isochron         = false;
+    options.isochron        = false;
   end
 
   %-----------------------------------------------------------------------%
@@ -60,7 +59,6 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   %-------------------%
   %     Read Data     %
   %-------------------%
-  % Read solution from .mat file
   load(filename_in);
 
   % Initial zero-phase point of the periodic orbit
@@ -71,8 +69,6 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   %----------------------------%
   %     Initial Parameters     %
   %----------------------------%
-  % Period of segment
-  T             = T_read;
   % Integer for period
   k             = k_in;
   % \theta_old (where perturbation starts)
@@ -101,20 +97,19 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   % function to ensure the correct parameters are being used.
 
   % Save the index mapping of each parameter
-  p_maps.T             = pdim + 1;
-  p_maps.k             = pdim + 2;
-  p_maps.theta_old     = pdim + 3;
-  p_maps.theta_new     = pdim + 4;
-  p_maps.mu_s          = pdim + 5;
-  p_maps.eta           = pdim + 6;
+  p_maps.k             = pdim + 1;
+  p_maps.theta_old     = pdim + 2;
+  p_maps.theta_new     = pdim + 3;
+  p_maps.mu_s          = pdim + 4;
+  p_maps.eta           = pdim + 5;
   if ~options.isochron
-    p_maps.A_perturb     = pdim + 7;
-    p_maps.theta_perturb = pdim + 8;
-    p_maps.phi_perturb   = pdim + 9;
+    p_maps.A_perturb     = pdim + 6;
+    p_maps.theta_perturb = pdim + 7;
+    p_maps.phi_perturb   = pdim + 8;
   else
-    p_maps.d_x           = pdim + 7;
-    p_maps.d_y           = pdim + 8;
-    p_maps.d_z           = pdim + 9;
+    p_maps.d_x           = pdim + 6;
+    p_maps.d_y           = pdim + 7;
+    p_maps.d_z           = pdim + 8;
   end
 
   %------------------------%
@@ -124,7 +119,6 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   p0_out = zeros(pdim+length(p_maps), 1);
   % Put parameters in order
   p0_out(1:pdim)               = p_system;
-  p0_out(p_maps.T)             = T;
   p0_out(p_maps.k)             = k;
   p0_out(p_maps.theta_old)     = theta_old;
   p0_out(p_maps.theta_new)     = theta_new;
@@ -146,7 +140,6 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
   % Parameter names
   pnames_PR                       = {pnames_system{1:pdim}};
   % Integer for period
-  pnames_PR{p_maps.T}             = 'T';
   pnames_PR{p_maps.k}             = 'k';
   pnames_PR{p_maps.theta_old}     = 'theta_old';
   pnames_PR{p_maps.theta_new}     = 'theta_new';
@@ -179,6 +172,7 @@ function data_out = calc_initial_solution_PR(filename_in, k_in, theta_perturb_in
     % Append t_PO
     t_seg4 = [t_seg4; t_max + tbp_read(2:end)];
 
+    % Update max value
     t_max = t_seg4(end);
   end
 

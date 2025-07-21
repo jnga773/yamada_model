@@ -41,15 +41,15 @@ function [data_in, y_out] = bcs_W_PO_initial(prob_in, data_in, u_in)
   %     Read Points from "data_in"     %
   %------------------------------------%
   % "End" point for segment 1
-  bcs_seg1 = -10.0;
+  bcs_seg1 = 35.0;
   % "End" point for segment 2
-  bcs_seg2 = 40.0;
+  bcs_seg2 = -4.0;
 
   %----------------%
   %     Output     %
   %----------------%
   % Boundary conditions
-  y_out = [x0_seg1(2) - bcs_seg1;
-           x0_seg2(3) - bcs_seg2];
+  y_out = [x0_seg1(3) - bcs_seg1;
+           x0_seg2(2) - bcs_seg2];
 
 end

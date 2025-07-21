@@ -82,12 +82,10 @@ function bcs_coco_out = bcs_isochron_symbolic()
   p_sys = [gam; A; B; a];
 
   % Phase resetting parameters
-  syms T k theta_old theta_new
-  syms mu_s eta
-  syms d_x d_y d_z
-  p_PR = [T; k; theta_old; theta_new;
-          mu_s; eta;
-          d_x; d_y; d_z];
+  syms k theta_old theta_new mu_s
+  syms eta d_x d_y d_z
+  p_PR = [k; theta_old; theta_new; mu_s;
+          eta; d_x; d_y; d_z];
 
   %============================================================================%
   %                         BOUNDARY CONDITION ENCODING                        %

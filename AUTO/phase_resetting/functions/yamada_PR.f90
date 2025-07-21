@@ -1216,6 +1216,8 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
   REAL(KIND=8)                :: mu_s, eta
   ! Parameters
   REAL(KIND=8)                :: A_perturb, theta_perturb, phi_perturb
+  ! pi
+  REAL(KIND=8), PARAMETER    :: pi = 3.14159265358979323846d0
   ! Directional vector
   REAL(KIND=8)                :: d_perturb(xdim)
 
@@ -1277,9 +1279,9 @@ SUBROUTINE BCS_SEGS(NDIM, NBC, U0, U1, PAR, BCS_out)
   phi_perturb   = PAR(pdim+9)
 
   ! Perturbation directional vector
-  d_perturb(1) = COS(theta_perturb)
+  d_perturb(1) = COS(theta_perturb * (2.0d0 * pi))
   d_perturb(2) = 0.0d0
-  d_perturb(3) = SIN(theta_perturb)
+  d_perturb(3) = SIN(theta_perturb * (2.0d0 * pi))
 
   !============================================================================!
   !                        BOUNDARY CONDITION ENCODING                         !
@@ -1392,6 +1394,8 @@ SUBROUTINE BCS_SEGS_DFDU(NDIM, NBC, U0, U1, PAR, J_out)
   ! Cheaty MATLAB things
   REAL(KIND=8)                :: t2, t3, t4, t5, t6, t7, t8, t9
   REAL(KIND=8)                :: t10, t11, t12, t13, t14, t15
+  ! pi
+  REAL(KIND=8), PARAMETER     :: pi = 3.14159265358979323846d0
 
   !============================================================================!
   !                              INPUT PARAMETERS                              !
@@ -1621,6 +1625,8 @@ SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
   REAL(KIND=8)                :: mu_s, eta
   ! Parameters
   REAL(KIND=8)                :: A_perturb, theta_perturb, phi_perturb
+  ! pi
+  REAL(KIND=8), PARAMETER     :: pi = 3.14159265358979323846d0
 
   !============================================================================!
   !                              INPUT PARAMETERS                              !
@@ -1687,10 +1693,10 @@ SUBROUTINE BCS_SEGS_DFDP(NDIM, NBC, U0, U1, PAR, J_out)
   J_out(11, 9)  = w0_seg1(1)
   J_out(12, 9)  = w0_seg1(2)
   J_out(13, 9)  = w0_seg1(3)
-  J_out(18, 11) = -COS(theta_perturb)
-  J_out(18, 12) = A_perturb * SIN(theta_perturb)
-  J_out(20, 11) = -SIN(theta_perturb)
-  J_out(20, 12) = -A_perturb * COS(theta_perturb)
+  J_out(18, 11) = -COS(theta_perturb * (2.0d0 * pi))
+  J_out(18, 12) = A_perturb * (2.0d0 * pi) * SIN(theta_perturb * (2.0d0 * pi))
+  J_out(20, 11) = -SIN(theta_perturb * (2.0d0 * pi))
+  J_out(20, 12) = -A_perturb * (2.0d0 * pi) * COS(theta_perturb * (2.0d0 * pi))
   J_out(22, 10) = -1.0d0
 
 END SUBROUTINE BCS_SEGS_DFDP

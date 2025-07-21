@@ -25,7 +25,7 @@ function plot_isochron_scan(isochron_run_in)
   % Cycle through each data directory
   for i = 1 : length(dir_sub_plot)
     % Sub folder name
-    dir_read = {isochron_run_in, dir_sub_plot{i}};
+    dir_read = {isochron_run_in, dir_sub_plot{i}}
     % fprintf('run_dir:  {%s, %s} \n', dir_read{1}, dir_read{2});
 
     % Bifurcation data
@@ -51,12 +51,6 @@ function plot_isochron_scan(isochron_run_in)
   parameters.theta_old = coco_bd_val(bd_read, 1, 'theta_old');
   parameters.theta_new = coco_bd_val(bd_read, 1, 'theta_new');
 
-  %--------------------------------------%
-  %     Read Data: Unperturbed Orbit     %
-  %--------------------------------------%
-  % Read unperturbed periodic orbit data
-  load('./data_mat/PO_and_manifolds.mat', 'xbp_PO', 'Ws_q', 'Ws_PO1', 'Ws_PO2');
-
   %-------------------------------------------------------------------------%
   %%                         Plot: Multi Isochrons                         %%
   %-------------------------------------------------------------------------%
@@ -77,7 +71,7 @@ function plot_isochron_scan(isochron_run_in)
   hold(ax, 'on');
 
   % Plot base orbit and manifolds
-  plot_base_periodic_orbit(ax, true);
+  plot_base_periodic_orbit(ax);
 
   % Cycle through data and plot
   for i = 1 : length(dir_sub_plot)

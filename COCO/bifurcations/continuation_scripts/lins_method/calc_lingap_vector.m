@@ -1,20 +1,45 @@
-function data_out = calc_lingap_vector(run_in, label_in)
+function data_out = calc_lingap_vector(run_in, label_in, data_in)
   % data_out = calc_lingap_vector(run_in)
   %
   % Calculates the Lin gap vector, the distance between the unstable
   % and stable trajectories, and the Lin phase condition from [run_in].
   %
-  % Input
+  % Parameters
   % ----------
   % run_in : str
   %     The string identifier for the previous COCO run that we will
   %     read information from.
+  % label_in : int
+  %     The integer solution label from the previous run.
+  % data_in : struct
+  %     Data structure containing the initial conditions for the trajectory segments.
   %
-  % Output
-  % ----------
+  % Returns
+  % -------
   % data_out : structure
-  %     Data structure containing the Lin gap vector, distance, and phase.
+  %     Data structure containing the Lin gap vector, distance, and phase:
+  %        - xdim : Original dimension of state space.
+  %        - pdim : Original dimension of parameter space.
+  %        - vgap : Normalised Lin gap vector.
+  %        - lingap0 : Initial value of the Lin gap (distance).
+  %        - lingap : Current value of the Lin gap (distance).
+  %
+  % See Also
+  % --------
+  % coll_read_solution
 
+  %-------------------%
+  %     Arguments     %
+  %-------------------%
+  arguments
+    run_in char
+    label_in double
+    data_in struct
+  end
+
+  % Input data
+  data_out = data_in;
+  
   %--------------------------------------%
   %     Read Solutions from [run_in]     %
   %--------------------------------------%

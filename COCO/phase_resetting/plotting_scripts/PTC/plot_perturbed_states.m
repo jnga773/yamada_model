@@ -1,5 +1,5 @@
-function plot_perturbed_states(run_in, label_in, fig_num_in)
-  % plot_perturbed_states(run_in, label_in, fignum_in)
+function plot_perturbed_states(run_in, label_in)
+  % plot_perturbed_states(run_in, label_in)
   %
   % Plots the perturbed orbit segments in time
 
@@ -61,7 +61,7 @@ function plot_perturbed_states(run_in, label_in, fig_num_in)
   %-------------------%
   %     Plot Data     %
   %-------------------%
-  fig = figure(fig_num_in); clf;
+  fig = figure(1); clf;
   fig.Name = 'Initial Periodic Orbits';
   fig.Units = 'inches'; fig.Position = [3, 3, 14, 10]; fig.PaperSize = [14, 10];
 

@@ -1,7 +1,11 @@
-function plot_single_isochron(run_in, PO_manifold)
-  % plot_single_isochron(run_in, save_figure)
+function plot_single_isochron(run_in, labels_to_plot)
+  % plot_single_isochron(run_in, label_plot)
   %
   % Plots a single isochron from the isochron_test.m run.
+  arguments
+    run_in char;
+    labels_to_plot char = '';
+  end
 
   %-------------------%
   %     Read Data     %
@@ -14,8 +18,13 @@ function plot_single_isochron(run_in, PO_manifold)
   iso2 = coco_bd_col(bd_read, 'iso2');
   iso3 = coco_bd_col(bd_read, 'iso3');
 
-  % Read unperturbed periodic orbit data
-  load('./data_mat/PO_and_manifolds.mat', 'xbp_PO', 'Ws_q', 'Ws_PO1', 'Ws_PO2');
+  % Get coordinates for 'FP' points
+  if ~isempty(labels_to_plot)
+    FP_idxs = coco_bd_idxs(bd_read, labels_to_plot);
+  end
+
+  % % Read unperturbed periodic orbit data
+  % load('./data_mat/PO_and_manifolds.mat', 'xbp_PO', 'Ws_q', 'Ws_PO1', 'Ws_PO2');
 
   %-------------------------------------------------------------------------%
   %%                         Plot: Single Isochron                         %%
@@ -37,11 +46,21 @@ function plot_single_isochron(run_in, PO_manifold)
   hold(ax, 'on');
 
   % Plot base orbit and manifolds
-  plot_base_periodic_orbit(ax, PO_manifold);
+  plot_base_periodic_orbit(ax);
+
+  hold(ax, 'on');
 
   % Plot single isochron
   plot3(ax, iso1, iso2, iso3, Color='k', LineStyle='-', ...
         DisplayName='Isochron');
+  
+  if ~isempty(labels_to_plot)
+    plot3(ax, iso1(FP_idxs), iso2(FP_idxs), iso3(FP_idxs), ...
+          MarkerFaceColor='r', LineStyle='none', Marker='o', ...
+          DisplayName='FP');
+  end
+
+  hold(ax, 'off');
 
   % Legend
   legend(ax, Interpreter='latex');

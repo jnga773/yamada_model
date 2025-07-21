@@ -23,12 +23,10 @@ function F_coco_out = func_seg1_symbolic()
   p_sys = [gam; A; B; a];
 
   % Phase resetting parameters
-  syms T k theta_old theta_new
-  syms mu_s eta
-  syms A_perturb theta_perturb phi_perturb
-  p_PR = [T; k; theta_old; theta_new;
-          mu_s; eta;
-          A_perturb; theta_perturb; phi_perturb];
+  syms k theta_old theta_new mu_s
+  syms eta A_perturb theta_perturb phi_perturb
+  p_PR = [k; theta_old; theta_new; mu_s;
+          eta; A_perturb; theta_perturb; phi_perturb];
 
   % Total vectors
   uvec = [xvec; wvec];
@@ -41,13 +39,13 @@ function F_coco_out = func_seg1_symbolic()
   F_vec = yamada_symbolic_field(xvec, p_sys);
 
   % Vector equation
-  vec_eqn = T * theta_new * F_vec;
+  vec_eqn = theta_new * F_vec;
 
   % Calculate tranpose of Jacobian at point xvec
   J_T = transpose(jacobian(F_vec, xvec));
 
   % Adjoint equation
-  adj_eqn = -T * theta_new * J_T * wvec;
+  adj_eqn = -theta_new * J_T * wvec;
 
   % Total equation
   F_seg = [vec_eqn; adj_eqn];

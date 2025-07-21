@@ -110,10 +110,16 @@ bcs_funcs.bcs_lingap = {@bcs_lingap};
 run_names.initial_run = 'run01_initial_run';
 run_new = run_names.initial_run;
 
-% Print to console
-fprintf('~~~ Initialisation: First run (ode_isol2ep) ~~~\n');
-fprintf('Initial continuation from equilibrium point x0 \n');
-fprintf('Run name: %s \n', run_new);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Initialisation: First Run\n');
+fprintf(' Initial continuation from equilibrium point x0\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Continuation parameters : %s\n', 'A');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -138,8 +144,12 @@ prob = ode_isol2ep(prob, '', funcs.field{:}, x0, pnames, p0);
 %------------------%
 %     Run COCO     %
 %------------------%
+% Set continuation parameters and range
+pcont = {'A', 'gamma'};
+prange = {A_range, gamma_range};
+
 % Run COCO continuation
-coco(prob, run_new, [], 1, 'A', A_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %-------------------------------------------------------------------------%
 %%                     Continue From Branching Point                     %%
@@ -157,11 +167,18 @@ run_old = run_names.initial_run;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'BP');
 label_old = label_old(1);
 
-% Print to console
-fprintf('~~~ Initialisation: Second run (ode_BP2ep) ~~~\n');
-fprintf('Continue bifurcations from the branching point\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Initialisation: Second Run\n');
+fprintf(' Continue bifurcations from the branching point\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -182,13 +199,19 @@ prob = coco_set(prob, 'ep', 'BTP', true);
 %     Setup Continuation     %
 %----------------------------%
 % Continue from branching point
-prob = ode_BP2ep(prob, '', run_old, label_old);
+% prob = ode_BP2ep(prob, '', run_old, label_old);
+prob = ode_ep2ep(prob, '', run_old, label_old);
+prob = coco_set(prob, 'cont', 'branch', 'switch');
 
 %------------------%
 %     Run COCO     %
 %------------------%
+% Set continuation parameters and range
+pcont = {'A', 'gamma'};
+prange = {A_range, gamma_range};
+
 % Run COCO continuation
-coco(prob, run_new, [], 1, 'A', A_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %-------------------------------------------------------------------------%
 %%                         Hopf Bifurcations (H)                         %%
@@ -206,11 +229,18 @@ run_old = run_names.branching_point;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'HB');
 label_old = label_old(1);
 
-% Print to console
-fprintf('~~~ Third run (ode_HB2HB) ~~~ \n');
-fprintf('Calculate line of Hopf bifurcation points H\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Hopf Bifurcation (H)\n');
+fprintf(' Calculate line of Hopf bifurcations\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, gamma');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -249,8 +279,12 @@ prob = coco_add_event(prob, 'DL_PT', 'A', 6.715);
 %------------------%
 %     Run COCO     %
 %------------------%
+% Set continuation parameters and range
+pcont = {'A', 'gamma'};
+prange = {A_range, gamma_range};
+
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma'}, {A_range, gamma_range});
+coco(prob, run_new, [], 1, pcont, prange);
 
 %-------------------------------------------------------------------------%
 %%                           Saddle-Node (A_S)                           %%
@@ -268,11 +302,18 @@ run_old = run_names.branching_point;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'SN');
 label_old = label_old(1);
 
-% Print to console
-fprintf('~~~ Fourth run (ode_SN2SN) ~~~ \n');
-fprintf('Calculate line of saddle-node points A_S\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Saddle Nodes\n');
+fprintf(' Calculate line of saddle-nodes\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, gamma');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -296,8 +337,12 @@ prob = ode_SN2SN(prob, '', run_old, label_old);
 %------------------%
 %     Run COCO     %
 %------------------%
+% Set continuation parameters and range
+pcont = {'A', 'gamma'};
+prange = {A_range, gamma_range};
+
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma'}, {A_range, gamma_range});
+coco(prob, run_new, [], 1, pcont, prange);
 
 %-------------------------------------------------------------------------%
 %%                          Transcritical (A_T)                          %%
@@ -315,11 +360,18 @@ run_old = run_names.branching_point;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'EP');
 label_old = label_old(3);
 
-% Print to console
-fprintf('~~~ Fifth run (ode_ep2ep) ~~~ \n');
-fprintf('Calculate line of transcritical points A_T\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Transcritical Points (A_T)\n');
+fprintf(' Calculate line of transcritical points A_T\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'gamma, A');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -343,8 +395,12 @@ prob = ode_ep2ep(prob, '', run_old, label_old);
 %------------------%
 %     Run COCO     %
 %------------------%
+% Set continuation parameters and range
+pcont = {'gamma', 'A'};
+prange = {gamma_range, A_range};
+
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'gamma', 'A'}, {gamma_range, A_range});
+coco(prob, run_new, [], 1, pcont, prange);
 
 %=========================================================================%
 %%                      Compute Double Limit Cycle                       %%
@@ -368,11 +424,18 @@ run_old = run_names.hopf_bifurcations;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'DL_PT');
 label_old = max(label_old);
 
-% Print to console
-fprintf('~~~ Double Limit Cycle: Second Run (ode_SN2SN) ~~~ \n');
-fprintf('Continue saddle-node of periodic orbits\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Double Limit Cycle: First Run\n');
+fprintf(' Compute from Hopf to find saddle-node periodic orbit\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'gamma, A');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -406,8 +469,12 @@ prob = ode_HB2po(prob, '', run_old, label_old);
 %------------------%
 %     Run COCO     %
 %------------------%
+% Set continuation parameters and range
+pcont = {'gamma', 'A'};
+prange = {gamma_range, A_range};
+
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'gamma', 'A'}, gamma_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %-------------------------------------------------------------------------%
 %%                Continue Saddle Node of Periodic Orbits                %%
@@ -425,11 +492,18 @@ run_old = run_names.limit_cycle.initial_PO;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'SN');
 label_old = max(label_old);
 
-% Print to console
-fprintf('~~~ Double Limit Cycle: Second Run (ode_SN2SN) ~~~ \n');
-fprintf('Continue saddle-node of periodic orbits\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Double Limit Cycle: Second Run\n');
+fprintf(' Continue saddle-node of periodic orbits\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, gamma');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -464,11 +538,12 @@ prob = ode_SN2SN(prob, '', run_old, label_old);
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {A_range, gamma_range};
+% Set continuation parameters and range
+pcont = {'A', 'gamma'};
+prange = {A_range, gamma_range};
 
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %=========================================================================%
 %%                Compute Homoclinic Orbits (Approximate)                %%
@@ -493,11 +568,18 @@ run_old = run_names.branching_point;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'HB');
 label_old = label_old(1);
 
-% Print to console
-fprintf('~~~ Approximate Homoclinic: First Run (ode_HB2po) ~~~\n');
-fprintf('Continue periodic orbits from a Hopf bifurcation\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s\n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Approximate Homoclinic: First Run\n');
+fprintf(' Continue periodic orbits from a Hopf bifurcation\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, po.period');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -531,11 +613,12 @@ prob = ode_HB2po(prob, '', run_old, label_old);
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {A_range, [0, 1e6]};
+% Set continuation parameters and range
+pcont = {'A', 'po.period'};
+prange = {A_range, [0, 1e6]};
 
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'po.period'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %-------------------%
 %     Plot Data     %
@@ -571,11 +654,18 @@ run_old = run_names.approx_homo.PO_from_hopf;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'EP');
 label_old = max(label_old);
 
-% Print to console
-fprintf('~~~ Approximate Homoclinic: Second Run (ode_isol2po) ~~~\n');
-fprintf('Find reconstructed high-period periodic orbit approximating a homoclinic connection\n');
-fprintf('Run name: %s\n', run_new);
-fprintf('Continuing from point %d in run: %s\n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Approximate Homoclinic: Second Run\n');
+fprintf(' Find reconstructed high-period periodic orbit approximating a homoclinic\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, homo.po.orb.coll.err_TF, homo.po.period');
+fprintf(' =====================================================================\n');
 
 %-------------------%
 %     Read Data     %
@@ -627,10 +717,10 @@ prob = glue_parameters(prob);
 prob = coco_xchg_pars(prob, 'gamma', 'homo.po.period');
 
 % Parameter range
-p_range = {A_range, [], []};
+prange = {A_range, [], []};
 
 % Run COCO continuation
-coco(prob, run_new, [], 0, {'A', 'homo.po.orb.coll.err_TF', 'homo.po.period'}, p_range);
+coco(prob, run_new, [], 0, {'A', 'homo.po.orb.coll.err_TF', 'homo.po.period'}, prange);
 
 %--------------%
 %     Plot     %
@@ -654,11 +744,18 @@ run_old = run_names.approx_homo.large_period_PO;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'EP');
 label_old = max(label_old);
 
-% Print to console
-fprintf('~~~ Approximate Homoclinic: Third Run (ode_po2po) ~~~\n');
-fprintf('Continue family of periodic orbits approximating homoclinics\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s\n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Approximate Homoclinic: Third Run\n');
+fprintf(' Continue family of periodic orbits approximating homoclinics\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, gamma, homo.po.period');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -704,11 +801,12 @@ prob = glue_parameters(prob);
 % latter is fixed during root finding.
 prob = coco_xchg_pars(prob, 'gamma', 'homo.po.period');
 
-% Parameter range
-p_range = {A_range, gamma_range, []};
+% Set continuation parameters and range
+pcont = {'A', 'gamma', 'homo.po.period'};
+prange = {A_range, gamma_range, []};
 
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma', 'homo.po.period'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %=========================================================================%
 %%                Compute Homoclinic Orbits (Lin's Method)               %%
@@ -731,17 +829,24 @@ run_old = run_names.approx_homo.continue_homoclinics;
 % Grab the label for the previous run solution
 label_old = 1;
 
-% Print to console
-fprintf("~~~ Lin's Method: First Run (ode_isol2coll) ~~~ \n");
-fprintf('Continue unstable trajectory segment until we hit Sigma plane \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s\n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(" Lin's Method: First Run\n");
+fprintf(' Continue unstable trajectory segment until we hit Sigma plane\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'seg_u, T1, T2');
+fprintf(' =====================================================================\n');
 
 %-------------------%
 %     Read Data     %
 %-------------------%
 % Initial Lin's Method data structure
-data_lins = calc_lins_initial_conditions(run_old, label_old);
+data_lins = calc_initial_solution_lins(run_old, label_old);
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -792,16 +897,17 @@ prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, data_lins.xpos, data_lins.p0);
 %     Apply Boundary Conditions     %
 %-----------------------------------%
 % Glue that shit together, haumi ;)
-prob = apply_manifold_conditions(prob, data_lins, bcs_funcs);
+prob = apply_boundary_conditions_lins(prob, data_lins, bcs_funcs, false);
 
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {[], [0, 1e3], []};
+% Set continuation parameters and range
+pcont = {'seg_u', 'T1', 'T2'};
+prange = {[], [0, 1e3], []};
 
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'seg_u', 'T1', 'T2'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------%
 %     Plot     %
@@ -826,7 +932,7 @@ plot_homoclinic_manifold_run(run_new, label_plot, data_lins);
 % fprintf('Unstable starting point = (%.3f, %.3f, %.3f)\n', sol1.xbp(1, :));
 % fprintf('Unstable ending point   = (%.3f, %.3f, %.3f)\n', sol1.xbp(end, :));
 % fprintf('Stable starting point   = (%.3f, %.3f, %.3f)\n', sol2.xbp(1, :));
-% fprintf('Stable ending point    ` = (%.3f, %.3f, %.3f)\n', sol2.xbp(end, :));
+% fprintf('Stable ending point     = (%.3f, %.3f, %.3f)\n', sol2.xbp(end, :));
 
 %-------------------------------------------------------------------------%
 %%                Grow Stable Manifold of Stationary Point               %%
@@ -845,11 +951,18 @@ label_old = coco_bd_labs(coco_bd_read(run_old), 'DelU');
 label_old = sort(label_old);
 label_old = label_old(2);
 
-% Print to console
-fprintf("~~~ Lin's Method: Second Run (ode_coll2coll) ~~~\n");
-fprintf('Continue stable trajectory segment until we hit Sigma plane\n');
-fprintf('Run name: %s\n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(" Lin's Method: Second Run\n");
+fprintf(' Continue stable trajectory segment until we hit Sigma plane\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'seg_s, T2, T1');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -893,19 +1006,20 @@ prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
 %     Apply Boundary Conditions     %
 %-----------------------------------%
 % Read epsilon and eig data from previous run
-data_eps_eig = read_eps_eig_data(run_old, label_old);
+data_lingap = read_data_lins(run_old, label_old, false);
 
 % Glue that shit together, haumi ;)
-prob = apply_manifold_conditions(prob, data_eps_eig, bcs_funcs);
+prob = apply_boundary_conditions_lins(prob, data_lingap, bcs_funcs, false);
 
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {[-20, 0], [0, 1e3], []};
+% Set continuation parameters and range
+pcont = {'seg_s', 'T2', 'T1'};
+prange = {[-20, 0], [0, 1e3], []};
 
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'seg_s', 'T2', 'T1'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------%
 %     Plot     %
@@ -946,11 +1060,18 @@ run_old = run_names.lins_method.stable_manifold;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'DelS');
 label_old = label_old(1);
 
-% Print to console
-fprintf("~~~ Lin's Method: Third Run (ode_coll2coll) ~~~ \n");
-fprintf('Close the Lin Gap on the Sigma Plane \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(" Lin's Method: Third Run\n");
+fprintf(' Close the Lin Gap on the Sigma Plane\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'lingap, T1, T2, theta, A, seg_u');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -994,28 +1115,24 @@ prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
 %     Apply Boundary Conditions     %
 %-----------------------------------%
 % Read epsilon and eig data from previous run
-data_eps_eig = read_eps_eig_data(run_old, label_old);
-
-% Glue that shit together, haumi ;)
-prob = apply_manifold_conditions(prob, data_eps_eig, bcs_funcs);
+data_lingap = read_data_lins(run_old, label_old, false);
 
 % Calculate Lin gap and vector
-data_lingap = calc_lingap_vector(run_old, label_old);
-% Initial lingap
-lingap = data_lingap.lingap0;
+data_lingap = calc_lingap_vector(run_old, label_old, data_lingap);
 
-% Apply Lin's conditions
-prob = glue_lingap_conditions(prob, data_lingap, bcs_funcs);
+% Glue that shit together, haumi ;)
+prob = apply_boundary_conditions_lins(prob, data_lingap, bcs_funcs, true);
 
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {[0, lingap], [], [], [], [], []};
+% Set continuation parameters and range
+pcont = {'lingap', 'T1', 'T2', 'theta', 'A', 'seg_u'};
+% pcont = {'lingap', 'eps1', 'eps2', 'theta', 'gamma', 'seg_u'};
+prange = {[0, data_lingap.lingap], [], [], [], [], []};
 
 % Run COCO continuation
-% coco(prob, run_new, [], 1, {'lingap', 'T1', 'T2', 'theta', 'A', 'seg_s'}, p_range);
-coco(prob, run_new, [], 1, {'lingap', 'eps1', 'eps2', 'theta', 'gamma', 'seg_u'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------%
 %     Plot     %
@@ -1027,7 +1144,7 @@ label_plot = coco_bd_labs(coco_bd_read(run_new), 'Lin0');
 plot_homoclinic_manifold_run(run_new, label_plot, data_lins);
 
 %-------------------------------------------------------------------------%
-%%                        Close the Distance eps2                        %%
+%%                        Close the Distance eps1                        %%
 %-------------------------------------------------------------------------%
 %------------------%
 %     Run Name     %
@@ -1042,11 +1159,18 @@ run_old = run_names.lins_method.close_lingap;
 label_old = coco_bd_labs(coco_bd_read(run_old), 'Lin0');
 label_old = max(label_old);
 
-% Print to console
-fprintf("~~~ Lin's Method: Fourth Run (ode_coll2coll) ~~~ \n");
-fprintf('Close epsilon gap until eps1=1e-8 \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(" Lin's Method: Fourth Run\n");
+fprintf(' Close epsilon gap until eps1=1e-8\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'eps1, theta, gamma, T1, T2, seg_u');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -1072,7 +1196,7 @@ prob = coco_set(prob, 'coll', 'MXCL', false);
 prob = coco_set(prob, 'cont', 'NAdapt', 10);
 
 % Set Continuation steps
-PtMX = 500;
+PtMX = 200;
 prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set frequency of saved solutions
@@ -1094,19 +1218,11 @@ prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
 %-----------------------------------%
 %     Apply Boundary Conditions     %
 %-----------------------------------%
-% Read epsilon and eig data from previous run
-data_eps_eig = read_eps_eig_data(run_old, label_old);
+% Read epsilon, eig, and lingap data from previous run
+data_lingap = read_data_lins(run_old, label_old, true);
 
 % Glue that shit together, haumi ;)
-prob = apply_manifold_conditions(prob, data_eps_eig, bcs_funcs);
-
-% Calculate Lin gap and vector
-data_lingap = read_lingap_data(run_old, label_old);
-% Initial lingap
-lingap = data_lingap.lingap0;
-
-% Apply Lin's conditions
-prob = glue_lingap_conditions(prob, data_lingap, bcs_funcs);
+prob = apply_boundary_conditions_lins(prob, data_lingap, bcs_funcs, true);
 
 %------------------------%
 %     Add COCO Event     %
@@ -1117,12 +1233,12 @@ prob = coco_add_event(prob, 'EPS1', 'eps1', 1e-05);
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {[1e-8, data_eps_eig.epsilon(1)], [], [], [], [], []};
+% pcont = {'eps1', 'T1', 'theta', 'eps2', 'seg_u', 'gamma'};
+pcont = {'eps1', 'theta', 'gamma', 'T1', 'T2', 'seg_u'};
+prange = {[1e-8, data_lingap.epsilon(1)], [], [], [], [], []};
 
 % Run COCO continuation
-% coco(prob, run_new, [], 1, {'eps1', 'T1', 'theta', 'eps2', 'seg_u', 'gamma'}, p_range);
-coco(prob, run_new, [], 1, {'eps1', 'theta', 'gamma', 'T1', 'T2', 'seg_u'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------%
 %     Plot     %
@@ -1149,11 +1265,18 @@ run_old = run_names.lins_method.close_eps1;
 label_old = coco_bd_labs(coco_bd_read(run_old), '');
 label_old = max(label_old);
 
-% Print to console
-fprintf("~~~ Lin's Method: Fifth Run (ode_coll2coll) ~~~ \n");
-fprintf('Close epsilon gap until eps2=1e-8 \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(" Lin's Method: Fifth Run\n");
+fprintf(' Close epsilon gap until eps2=1e-8\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'eps2, theta, gamma, T1, T2, seg_u');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -1179,7 +1302,7 @@ prob = coco_set(prob, 'coll', 'MXCL', false);
 prob = coco_set(prob, 'cont', 'NAdapt', 10);
 
 % Set Continuation steps
-PtMX = 500;
+PtMX = 200;
 prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set frequency of saved solutions
@@ -1201,19 +1324,11 @@ prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
 %-----------------------------------%
 %     Apply Boundary Conditions     %
 %-----------------------------------%
-% Read epsilon and eig data from previous run
-data_eps_eig = read_eps_eig_data(run_old, label_old);
+% Read epsilon, eig, and lingap data from previous run
+data_lingap = read_data_lins(run_old, label_old, true);
 
 % Glue that shit together, haumi ;)
-prob = apply_manifold_conditions(prob, data_eps_eig, bcs_funcs);
-
-% Calculate Lin gap and vector
-data_lingap = read_lingap_data(run_old, label_old);
-% Initial lingap
-lingap = data_lingap.lingap0;
-
-% Apply Lin's conditions
-prob = glue_lingap_conditions(prob, data_lingap, bcs_funcs);
+prob = apply_boundary_conditions_lins(prob, data_lingap, bcs_funcs, true);
 
 %------------------------%
 %     Add COCO Event     %
@@ -1224,12 +1339,13 @@ prob = coco_add_event(prob, 'EPS2', 'eps2', 2.0614e-05);
 %------------------%
 %     Run COCO     %
 %------------------%
-% Parameter range
-p_range = {[0, data_eps_eig.epsilon(2)], [], [], [], [], []};
+% Set continuation parameters and range
+pcont = {'eps2', 'T2', 'theta', 'eps1', 'seg_u', 'gamma'};
+% pcont = {'eps2', 'theta', 'gamma', 'T1', 'T2', 'seg_u'};
+prange = {[0, data_lingap.epsilon(2)], [], [], [], [], []};
 
 % Run COCO continuation
-% coco(prob, run_new, [], 1, {'eps2', 'T2', 'theta', 'eps1', 'seg_u', 'gamma'}, p_range);
-coco(prob, run_new, [], 1, {'eps2', 'theta', 'gamma', 'T1', 'T2', 'seg_u'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------%
 %     Plot     %
@@ -1256,11 +1372,18 @@ run_old = run_names.lins_method.close_eps2;
 label_old = coco_bd_labs(coco_bd_read(run_old), '');
 label_old = max(label_old);
 
-% Print to console
-fprintf("~~~ Lin's Method: Sixth Run (ode_coll2coll) ~~~ \n");
-fprintf('Continue constrained segments to find parametrisation of homoclinic \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(" Lin's Method: Sixth Run\n");
+fprintf(' Continue constrained segments to find parametrisation of homoclinic\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, gamma, eps1, eps2, theta, seg_u');
+fprintf(' =====================================================================\n');
 
 %-------------------------------%
 %     Continuation Settings     %
@@ -1308,25 +1431,11 @@ prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
 %-----------------------------------%
 %     Apply Boundary Conditions     %
 %-----------------------------------%
-% Read epsilon and eig data from previous run
-data_eps_eig = read_eps_eig_data(run_old, label_old);
+% Read epsilon, eig, and lingap data from previous run
+data_lingap = read_data_lins(run_old, label_old, true);
 
 % Glue that shit together, haumi ;)
-prob = apply_manifold_conditions(prob, data_eps_eig, bcs_funcs);
-
-% Calculate Lin gap and vector
-data_lingap = read_lingap_data(run_old, label_old);
-% Initial lingap
-lingap = data_lingap.lingap0;
-
-% Apply Lin's conditions
-prob = glue_lingap_conditions(prob, data_lingap, bcs_funcs);
-
-%------------------------%
-%     Add COCO Event     %
-%------------------------%
-% Add event for when eps1 gets small enough
-prob = coco_add_event(prob, 'EPS2', 'eps2', 2.0614e-05);
+prob = apply_boundary_conditions_lins(prob, data_lingap, bcs_funcs, true);
 
 %------------------%
 %     Run COCO     %
@@ -1334,12 +1443,13 @@ prob = coco_add_event(prob, 'EPS2', 'eps2', 2.0614e-05);
 % Calculate Bogdanov Takens Point
 gamma_BT = -(1 + (B * (a - 1)) - 2 * sqrt(B * (a - 1))) / (sqrt(B * (a - 1)) * (1 - a - sqrt(B * (a - 1))));
 
-% Parameter range
-p_range = {A_range, [0, gamma_BT], [], [], [], []};
+% Set continuation parameters and range
+% pcont = {'A', 'gamma', 'T1', 'T2', 'theta', 'seg_u'};
+pcont = {'A', 'gamma', 'eps1', 'eps2', 'theta', 'seg_u'};
+prange = {A_range, [0, gamma_BT], [], [], [], []};
 
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma', 'eps1', 'eps2', 'theta', 'seg_u'}, p_range);
-% coco(prob, run_new, [], 1, {'A', 'gamma', 'T1', 'T2', 'theta', 'seg_u'}, p_range);
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------%
 %     Plot     %

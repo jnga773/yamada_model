@@ -51,10 +51,6 @@ funcs.seg3 = func_seg3_symbolic();
 % funcs.seg4 = {@func_seg4};
 funcs.seg4 = func_seg4_symbolic();
 
-% Boundary conditions: Period
-% bcs_funcs.bcs_T = {@bcs_T};
-bcs_funcs.bcs_T = bcs_T_symbolic();
-
 % Boundary conditions: Phase-resetting segments
 % bcs_funcs.bcs_PR = {@bcs_PR};
 bcs_funcs.bcs_PR = bcs_PR_symbolic();
@@ -66,22 +62,28 @@ bcs_funcs.bcs_PR = bcs_PR_symbolic();
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.phase_reset_perturbation = 'run09_phase_reset_perturbation';
+run_names.phase_reset_perturbation = 'run01_PTC_perturbation';
 run_new = run_names.phase_reset_perturbation;
 
-% Print to console
-fprintf("~~~ Phase Transition Curve: First Run ~~~ \n");
-fprintf('Increase perturbation amplitude \n');
-fprintf('Run name: %s \n', run_new);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Phase Transition Curve: First Run\n');
+fprintf(' Increase perturbation amplitude\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Continuation parameters : %s\n', 'A_perturb, theta_new, eta, mu_s');
+fprintf(' =====================================================================\n');
 
 %-------------------%
 %     Read Data     %
 %-------------------%
 % Set periodicity
 k = 20;
-% Set perturbation direction
+% Set perturbation direction (in units of 2 \pi)
 theta_perturb = 0.0;
-% theta_perturb = 0.5 * pi;
+% theta_perturb = 0.25;
 phi_perturb = 0.0;
 
 % Set initial conditions from previous solutions
@@ -143,7 +145,7 @@ prob = coco_set(prob, 'seg4.coll', 'NTST', NTST(4));
 %             point (gamma_0) to the point where the perturbed trajectory 
 %             comes close to the periodic orbit (at theta_new).
 prob = ode_isol2coll(prob, 'seg1', funcs.seg1{:}, ...
-                     data_PR.t_seg1, data_PR.x_seg1, data_PR.p0);
+                     data_PR.t_seg1, data_PR.x_seg1, data_PR.pnames, data_PR.p0);
 
 % Segment 2 - Trajectory segment of the periodic from the end of Segment 1
 %             (at theta_new) back to the zero-phase point (gamma_0).
@@ -183,10 +185,14 @@ prob = coco_add_event(prob, 'SP', 'A_perturb', SP_values);
 %------------------%
 %     Run COCO     %
 %------------------%
-% Run COCO continuation
-prange = {[-1e-4, max(SP_values)], [], [], [0.99, 1.01], []};
-bdtest = coco(prob, run_new, [], 1, ...
-              {'A_perturb', 'theta_new', 'eta', 'mu_s', 'T'}, prange);
+% Set continuation parameters and parameter range
+pcont  = {'A_perturb', 'theta_new', ...
+          'eta', 'mu_s'};
+prange = {[-1e-4, max(SP_values)], [], ...
+          [], [0.99, 1.01]};
+
+% Run COCO
+coco(prob, run_new, [], 1, pcont, prange);
 
 %--------------------%
 %     Test Plots     %
@@ -196,10 +202,10 @@ label_plot = sort(coco_bd_labs(coco_bd_read(run_new), 'SP'));
 label_plot = label_plot(end);
 
 % Plot some stuff my g
-plot_phase_reset_phase_space(run_new, label_plot, 1);
+plot_phase_reset_phase_space(run_new, label_plot);
 
-% Plot perturbation amplitude against theta_new
-plot_A_perturb_theta_new(run_new);
+% % Plot perturbation amplitude against theta_new
+% plot_A_perturb_theta_new(run_new);
 
 %-------------------------------------------------------------------------%
 %%                 Phase Transition Curve (PTC) - Single                 %%
@@ -208,7 +214,7 @@ plot_A_perturb_theta_new(run_new);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.phase_transition_curve = 'run10_phase_reset_PTC_single';
+run_names.phase_transition_curve = 'run02_PTC_single';
 run_new = run_names.phase_transition_curve;
 % Which run this continuation continues from
 run_old = run_names.phase_reset_perturbation;
@@ -218,71 +224,37 @@ label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
 label_old = label_old(end);
 % label_old = 67;
 
-% Print to console
-fprintf("~~~ Phase Reset: Second Run ~~~ \n");
-fprintf('Fix A_perturb and continue in theta_perturb \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Phase Transition Curve: Second Run\n');
+fprintf(' Calculate PTC (single)\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'theta_old, theta_new, eta, mu_s');
+fprintf(' =====================================================================\n');
 
-%----------------------------%
-%     Setup Continuation     %
-%----------------------------%
-% Set up the COCO problem
-prob = coco_prob();
+%------------------%
+%     Run COCO     %
+%------------------%
+% Set continuation parameters and parameter range
+pcont  = {'theta_old', 'theta_new', ...
+          'eta', 'mu_s'};
+prange = {[0.0, 2.0], [], ...
+          [], [0.99, 1.01]};
 
-% Set tolerance
-% prob = coco_set(prob, 'corr', 'TOL', 5e-7);
-
-% Set step sizes
-prob = coco_set(prob, 'cont', 'h_min', 5e-2);
-prob = coco_set(prob, 'cont', 'h0', 1e-1);
-prob = coco_set(prob, 'cont', 'h_max', 1e0);
-
-% Set adaptive meshR
-prob = coco_set(prob, 'cont', 'NAdapt', 10);
-
-% Set number of steps
-prob = coco_set(prob, 'cont', 'PtMX', 750);
-
-% Set norm to int
-prob = coco_set(prob, 'cont', 'norm', inf);
-
-% Set MaxRes and al_max
-prob = coco_set(prob, 'cont', 'MaxRes', 10);
-prob = coco_set(prob, 'cont', 'al_max', 25);
-
-%-------------------------------------------%
-%     Continue from Trajectory Segments     %
-%-------------------------------------------%
-% Segment 1
-prob = ode_coll2coll(prob, 'seg1', run_old, label_old);
-% Segment 2
-prob = ode_coll2coll(prob, 'seg2', run_old, label_old);
-% Segment 3
-prob = ode_coll2coll(prob, 'seg3', run_old, label_old);
-% Segment 4
-prob = ode_coll2coll(prob, 'seg4', run_old, label_old); 
-
-%------------------------------------------------%
-%     Apply Boundary Conditions and Settings     %
-%------------------------------------------------%
-% Apply all boundary conditions, glue parameters together, and
-% all that other good COCO stuff. Looking the function file
-% if you need to know more ;)
-prob = apply_boundary_conditions_PR(prob, data_PR, bcs_funcs);
-
-%-------------------------%
-%     Add COCO Events     %
-%-------------------------%
 % Run COCO continuation
-prange = {[0.0, 2.0], [], [], [0.99, 1.01], [], []};
-coco(prob, run_new, [], 1, {'theta_old', 'theta_new', 'eta', 'mu_s', 'T', 'A_perturb'}, prange);
+run_PR_continuation(run_new, run_old, label_old, data_PR, bcs_funcs, ...
+                    pcont, prange);
 
 %--------------------%
 %     Test Plots     %
 %--------------------%
 % Plot first SP solution
-plot_phase_reset_phase_space(run_new, 2, 1);
+plot_phase_reset_phase_space(run_new, 2);
 
 % Plot phase transition curve (PTC)
 plot_phase_transition_curve(run_new);
@@ -294,40 +266,61 @@ plot_phase_transition_curve(run_new);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.phase_transition_curve = 'run10_phase_reset_PTC_scan';
+run_names.phase_transition_curve = 'run02_PTC_scan';
 run_new = run_names.phase_transition_curve;
 % Which run this continuation continues from
 run_old = run_names.phase_reset_perturbation;
 
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'SP');
-% label_old = [2, 3, 5, 7, 8, 10, 12, 13, 15, 17, 18, 26, 34, 41, 55, 62, 69, 75, 105, 135, 141, 147, 152, 158, 164];
 
-% Print to console
-fprintf("~~~ Phase Reset: Second Run ~~~ \n");
-fprintf('Calculate phase transition curve \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from SP points in run: %s \n', run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' ~~~ Phase Reset: Second Run ~~~ \n');
+fprintf(' Calculate phase transition curve \n');
+fprintf(' Run name: %s \n', run_new);
+fprintf(' Continuing from SP points in run: %s \n', run_old);
 
 %---------------------------------%
 %     Cycle through SP labels     %
 %---------------------------------%
 % Set number of threads
-M = 6;
+M = 0;
 parfor (run = 1 : length(label_old), M)
   % Label for this run
   this_run_label = label_old(run);
 
   % Data directory for this run
-  fprintf('\n Continuing from point %d in run: %s \n', this_run_label, run_old);
-
   this_run_name = {run_new; sprintf('run_%02d', run)};
+
+  %--------------------------%
+  %     Print to Console     %
+  %--------------------------%
+  fprintf(' =====================================================================\n');
+  fprintf(' Phase Transition Curve: Second Run\n');
+  fprintf(' Calculate PTC (scan)\n');
+  fprintf(' ---------------------------------------------------------------------\n');
+  fprintf(' This run name           : {%s, %s}\n', this_run_name{1}, this_run_name{2});
+  fprintf(' Previous run name       : %s\n', run_old);
+  fprintf(' Previous solution label : %d\n', this_run_label);
+  fprintf(' Continuation parameters : %s\n', 'theta_old, theta_new, eta, mu_s');
+  fprintf(' =====================================================================\n');
 
   % Save solution points for theta_old
   SP_values = -1.0 : 0.1 : 2.0;
 
   % Run continuation
-  run_PTC_continuation(this_run_name, run_old, this_run_label, data_PR, SP_values, bcs_funcs);
+  % Set continuation parameters and parameter range
+  pcont  = {'theta_old', 'theta_new', ...
+            'eta', 'mu_s'};
+  prange = {[0.0, 2.0], [], ...
+            [], [0.99, 1.01]};
+
+  % Run COCO continuation
+  run_PR_continuation(run_new, run_old, label_old, data_PR, bcs_funcs, ...
+                      pcont, prange, ...
+                      SP_parameter='theta_old', SP_values=SP_values);
 
 end
 
@@ -338,8 +331,7 @@ end
 plot_PTC_plane_A_perturb(run_new);
 
 % Save PTC scan data
-% save_PTC_scan_data(run_new, './data_mat/PTC_scan_data_G_small_set.mat');
-save_data_PTC(run_new, './data_mat/PTC_scan_data_I_small_set.mat');
+save_data_PTC_scan(run_new, './data_mat/PTC_scan_data.mat');
 
 %=========================================================================%
 %                               END OF FILE                               %

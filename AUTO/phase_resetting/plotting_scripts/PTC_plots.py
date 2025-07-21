@@ -59,8 +59,10 @@ def plot_single_PTC(run_in):
     #--------------#
     # Plot isochron
     # ax.plot(theta_old, theta_new)
-    ax.plot(theta_old_1, theta_new_1, color='C0', ls='solid')
-    ax.plot(theta_old_2, theta_new_2, color='C0', ls='solid')
+    ax.plot(theta_old_1, theta_new_1+1, color='C0', ls='solid',
+            label=r'$\theta_{{\mathrm{{old}}}} < 1$')
+    ax.plot(theta_old_2, theta_new_2, color='C1', ls='dashed',
+            label=r'$\theta_{{\mathrm{{old}}}} > 1$')
     
     # Legend
     ax.legend(loc='upper right')

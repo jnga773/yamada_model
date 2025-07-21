@@ -41,10 +41,6 @@ addpath('./plotting_scripts/initial_periodic_orbit');
 B = 5.8;
 a = 1.8;
 
-% Set some initial values for \gamma and A
-gamma = 0.10;
-A = 6.6;
-
 % Parameters for the periodic orbit
 gamma_PO = 3.5e-2;
 A_PO     = 7.4;
@@ -56,15 +52,10 @@ A_PO     = 7.4;
 pnames = {'gamma', 'A', 'B', 'a'};
 
 % Initial parameter values
-p0 = [gamma; A; B; a];
+p0 = [gamma_PO; A_PO; B; a];
 
 % Initial state values
-x0 = [A; B; 0];
-
-% Parameter ranges
-gamma_range = [0.0, 0.25];
-A_range = [5.0, 11.0];
-p_range = {A_range, gamma_range};
+x0 = [10; 10; 10];
 
 % State dimensions
 pdim = length(p0);
@@ -81,12 +72,8 @@ funcs.field = yamada_symbolic();
 % bcs_funcs.bcs_PO = {@bcs_PO};
 bcs_funcs.bcs_PO = bcs_PO_symbolic();
 
-% Boundary conditions: Period
-% bcs_funcs.bcs_T = {@bcs_T};
-bcs_funcs.bcs_T = bcs_T_symbolic();
-
-% Adjoint equations: Functions (for VAR_mu and VAR_wnorm)
-% funcs.VAR = {@VAR_adjoint};
+% Adjoint equations: Functions (for floquet_mu and floquet_wnorm)
+% funcs.VAR = {@VAR_symbolic};
 funcs.VAR = VAR_symbolic();
 
 % Boundary conditions: Floquet multipliers
@@ -104,175 +91,33 @@ bcs_funcs.bcs_VAR = bcs_VAR_symbolic();
 % We then verify this solution using the 'COLL' toolbox.
 
 %-------------------------------------------------------------------------%
-%%                   Compute Initial Equilibrium Point                   %%
+%%                 Confirm ODE45 Periodic Orbit Solution                 %%
 %-------------------------------------------------------------------------%
-% We compute and continue the equilibrium point of the model using
-% the 'EP' toolbox constructor 'ode_isol2ep'.
+% Calculate the periodic orbit using MATLAB's ode45 function.
 
 %------------------%
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.initial_EP = 'run01_initial_EP';
-run_new = run_names.initial_EP;
-
-% Print to console
-fprintf('~~~ Initial Periodic Orbit: First Run ~~~\n');
-fprintf('Solve for initial solution of the equilibrium point\n')
-fprintf('Run name: %s\n', run_new);
-
-%----------------------------%
-%     Setup Continuation     %
-%----------------------------%
-% Set up COCO problem
-prob = coco_prob();
-
-% Set upper bound of continuation steps in each direction along solution
-prob = coco_set(prob, 'cont', 'PtMX', 50);
-
-% Set up isol2ep problem
-prob = ode_isol2ep(prob, '', funcs.field{:}, x0, pnames, p0);
-
-%------------------%
-%     Run COCO     %
-%------------------%
-% Run COCO continuation
-coco(prob, run_new, [], 1, 'A', A_range);
-
-%-------------------------------------------------------------------------%
-%%                   Continuation from Branching Point                   %%
-%-------------------------------------------------------------------------%
-% We switch branches at the BP point to find the Hopf bifurcations.
-
-%------------------%
-%     Run Name     %
-%------------------%
-% Current run name
-run_names.branching_point = 'run02_branching_point_continuation';
-run_new = run_names.branching_point;
-% Previous run name
-run_old = run_names.initial_EP;
-
-% Continuation point
-label_old = coco_bd_labs(coco_bd_read(run_old), 'BP');
-label_old = label_old(1);
-
-% Print to console
-fprintf('~~~ Initial Periodic Orbit: Second run ~~~\n');
-fprintf('Continue bifurcations from the branching point\n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
-
-%----------------------------%
-%     Setup Continuation     %
-%----------------------------%
-% Set up COCO problem
-prob = coco_prob();
-
-% Set NAdapt to 1?
-prob = coco_set(prob, 'cont', 'NAdapt', 1);
-
-% Set upper bound of continuation steps in each direction along solution
-PtMX = 50;
-prob = coco_set(prob, 'cont', 'PtMX', [PtMX, 0]);
-
-% Continue from branching point
-prob = ode_BP2ep(prob, '', run_old, label_old);
-
-%------------------%
-%     Run COCO     %
-%------------------%
-% Run COCO continuation
-coco(prob, run_new, [], 1, 'A', A_range);
-
-%-------------------------------------------------------------------------%
-%%                           Move Hopf A Value                           %%
-%-------------------------------------------------------------------------%
-% Continuing from a Hopf bifurcation with 'ode_HB2HB', we vary
-% the 'A' parameter to A = 7.3757
-
-%------------------%
-%     Run Name     %
-%------------------%
-% Current run name
-run_names.move_hopf = 'run03_move_hopf';
-run_new = run_names.move_hopf;
-% Which run this continuation continues from
-run_old = run_names.branching_point;
-
-% Continuation point
-label_old = coco_bd_labs(coco_bd_read(run_old), 'HB');
-label_old = label_old(1);
-
-% Print to console
-fprintf("~~~ Initial Periodic Orbit: Third Run ~~~ \n");
-fprintf('Move the gamma value \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
-
-%----------------------------%
-%     Setup Continuation     %
-%----------------------------%
-% Set up the COCO problem
-prob = coco_prob();
-
-% Set step sizes
-prob = coco_set(prob, 'cont', 'h_min', 5e-2, 'h0', 5e-2, 'h_max', 5e-2);
-
-% Set frequency of saved solutions
-prob = coco_set(prob, 'cont', 'NPR', 10);
-
-% Set upper bound of continuation steps in each direction along solution
-PtMX = 100;
-prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
-
-% Initial solution to periodic orbit (COLL Toolbox)
-prob = ode_HB2HB(prob, '', run_old, label_old);
-
-%-------------------------%
-%     Add COCO Events     %
-%-------------------------%
-% Saved-point solution for A_PO
-prob = coco_add_event(prob, 'H_PT', 'A', A_PO);
-
-%------------------%
-%     Run COCO     %
-%------------------%
-% Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma'}, A_range);
-
-%-------------------------------------------------------------------------%
-%%                        Hopf to Periodic Orbit                         %%
-%-------------------------------------------------------------------------%
-% Continue a family of periodic orbits emanating from the Hopf
-% bifurcation with 'ode_HB2po'.
-
-%------------------%
-%     Run Name     %
-%------------------%
-% Current run name
-run_names.hopf_to_PO = 'run04_hopf_to_PO';
-run_new = run_names.hopf_to_PO;
-% Which run this continuation continues from
-run_old = run_names.move_hopf;
-
-% Continuation point
-label_old = coco_bd_labs(coco_bd_read(run_old), 'H_PT');
-
-% Print to console
-fprintf("~~~ Initial Periodic Orbit: Fifth Run ~~~ \n");
-fprintf('Periodic orbits from Hopf bifurcation \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+run_names.initial_PO_ode45 = 'run01_initial_PO_ode45';
+run_new = run_names.initial_PO_ode45;
 
 %--------------------------%
-%     Calculate Things     %
+%     Print to Console     %
 %--------------------------%
-% Read previous solution
-sol = ep_read_solution('', run_old, label_old);
+fprintf(' =====================================================================\n');
+fprintf(' Initial Periodic Orbit: First Run\n');
+fprintf(' Find new periodic orbit\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Continuation parameters : %s\n', 'A, gamma');
+fprintf(' =====================================================================\n');
 
-% Calculate non-trivial solutions
-[xpos, xneg] = non_trivial_ss(sol.p);
+%----------------------------%
+%     Calculate Solution     %
+%----------------------------%
+% Calculate dem tings
+data_ode45 = calc_initial_solution_ODE45(x0, p0, funcs.field);
 
 %----------------------------%
 %     Setup Continuation     %
@@ -281,7 +126,7 @@ sol = ep_read_solution('', run_old, label_old);
 prob = coco_prob();
 
 % Set NTST mesh 
-prob = coco_set(prob, 'coll', 'NTST', 25);
+prob = coco_set(prob, 'coll', 'NTST', 50);
 
 % Set NAdpat
 prob = coco_set(prob, 'cont', 'NAdapt', 1);
@@ -290,47 +135,40 @@ prob = coco_set(prob, 'cont', 'NAdapt', 1);
 prob = coco_set(prob, 'coll', 'MXCL', false);
 
 % Set PtMX steps
-PtMX = 400;
-prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
+PtMX = 20;
+prob = coco_set(prob, 'cont', 'PtMX', PtMX);
 
 % Set frequency of saved solutions
-prob = coco_set(prob, 'cont', 'NPR', 50);
+prob = coco_set(prob, 'cont', 'NPR', 10);
 
-% Continue from Hopf bifurcation
-prob = ode_HB2po(prob, '', run_old, label_old);
+% Set initial guess to 'coll'
+prob = ode_isol2po(prob, '', funcs.field{:}, ...
+                   data_ode45.t, data_ode45.x, pnames, p0);
 
-% Follow non trivial solutions
-prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, xpos, sol.p);
-prob = ode_isol2ep(prob, 'xneg', funcs.field{:}, xneg, sol.p);
-prob = ode_isol2ep(prob, 'x0',   funcs.field{:}, x0,sol.p);
+% Add equilibrium points for non trivial steady states
+prob = ode_isol2ep(prob, 'xpos', funcs.field{:}, ...
+                   data_ode45.xpos, p0);
+prob = ode_isol2ep(prob, 'xneg', funcs.field{:}, ...
+                   data_ode45.xneg, p0);
+prob = ode_isol2ep(prob, 'x0', funcs.field{:}, ...
+                   data_ode45.x0, p0);
 
-%---------------------------------%
-%     Glue Segment Parameters     %
-%---------------------------------%
-% Glue parameters (defined in './continuation_scripts/glue_parameters.m')
+%------------------------------------------------%
+%     Apply Boundary Conditions and Settings     %
+%------------------------------------------------%
+% Glue parameters and apply boundary condition
 prob = glue_parameters_PO(prob);
 
 %-------------------------%
 %     Add COCO Events     %
 %-------------------------%
-% Saved point for solution for gamma_PO
-prob = coco_add_event(prob, 'PO_PT', 'gamma', gamma_PO);
+prob = coco_add_event(prob, 'PO_PT', 'A', A_PO);
 
 %------------------%
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'gamma', 'A', 'po.orb.NTST'}, gamma_range);
-
-%----------------------%
-%    Testing Plots     %
-%----------------------%
-% Solution to plot
-label_plot = sort(coco_bd_labs(coco_bd_read(run_new), 'PO_PT'));
-label_plot = label_plot(1);
-
-% Create plots
-plot_hopf_to_PO_solution(run_new, label_plot);
+bdtest = coco(prob, run_new, [], 1, {'A', 'gamma'});
 
 %-------------------------------------------------------------------------%
 %%                   Re-Solve for Rotated Perioid Orbit                  %%
@@ -342,26 +180,33 @@ plot_hopf_to_PO_solution(run_new, label_plot);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.initial_PO = 'run05_initial_periodic_orbit';
+run_names.initial_PO = 'run02_initial_PO';
 run_new = run_names.initial_PO;
 % Which run this continuation continues from
-run_old = run_names.hopf_to_PO;
+run_old = run_names.initial_PO_ode45;
 
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'PO_PT');
 label_old = label_old(1);
 
-% Print to console
-fprintf("~~~ Initial Periodic Orbit: Sixth Run ~~~ \n");
-fprintf('Find new periodic orbit \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Initial Periodic Orbit: Second Run\n');
+fprintf(' Rotate periodic orbit\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'A, gamma');
+fprintf(' =====================================================================\n');
 
 %----------------------------%
 %     Calculate Solution     %
 %----------------------------%
 % Calculate dem tings
-data_soln = calc_initial_solution_PO(run_old, label_old);
+data_PO = calc_initial_solution_PO(run_old, label_old);
 
 %----------------------------%
 %     Setup Continuation     %
@@ -387,7 +232,7 @@ prob = coco_set(prob, 'cont', 'NPR', 10);
 
 % Set initial guess to 'coll'
 prob = ode_isol2coll(prob, 'initial_PO', funcs.field{:}, ...
-                     data_soln.t, data_soln.x, pnames, data_soln.p);
+                     data_PO.t, data_PO.x, pnames, data_PO.p);
 
 % Add equilibrium points for non trivial steady states
 prob = ode_ep2ep(prob, 'xpos', run_old, label_old);
@@ -404,27 +249,26 @@ prob = apply_boundary_conditions_PO(prob, bcs_funcs.bcs_PO);
 %     Add COCO Events     %
 %-------------------------%
 % Event for A = 7.5
-prob = coco_add_event(prob, 'PO_PT', 'A', data_soln.p(2));
+prob = coco_add_event(prob, 'PO_PT', 'A', data_PO.p(2));
 
 %------------------%
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'A', 'gamma'}, A_range);
+coco(prob, run_new, [], 1, {'A', 'gamma'});
 
-%----------------------%
-%    Testing Plots     %
-%----------------------%
-% Label for solution plot
+%-------------------%
+%     Save Data     %
+%-------------------%
+% Label of solution to save
 label_plot = coco_bd_labs(coco_bd_read(run_new), 'PO_PT');
-label_plot = label_plot(1);
 
 % Calculate stable manifold of saddle point 'q' and save data to .mat in 
 % ./data_mat/ directory
 save_data_PO(run_new, label_plot, './data_mat/initial_PO.mat');
 
 % Plot solution
-plot_initial_periodic_orbit_COLL();
+plot_initial_PO(run_new, label_plot);
 
 %=========================================================================%
 %%            Compute Floquet Bundle at Zero Phase Point (mu)            %%
@@ -440,19 +284,26 @@ plot_initial_periodic_orbit_COLL();
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.compute_VAR_1 = 'run06_compute_VAR_bundle_1_mu';
-run_new = run_names.compute_VAR_1;
+run_names.VAR_mu = 'run03_VAR_mu';
+run_new = run_names.VAR_mu;
 % Which run this continuation continues from
 run_old = run_names.initial_PO;
 
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'PO_PT');
 
-% Print to console
-fprintf("~~~ Floquet Bundle: First Run ~~~ \n");
-fprintf('Calculate Floquet bundle (mu) \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Floquet Bundle: First Run\n');
+fprintf(' Calculate stable Floquet bundle eigenvalue\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'mu_s, w_norm');
+fprintf(' =====================================================================\n');
 
 %--------------------------%
 %     Calculate Things     %
@@ -502,7 +353,7 @@ prob = coco_add_event(prob, 'mu=1', 'mu_s', 1.0);
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'mu_s', 'w_norm', 'T'} , [0.0, 1.1]);
+coco(prob, run_new, [], 1, {'mu_s', 'w_norm'} , [0.0, 1.1]);
 
 %-------------------------------------------------------------------------%
 %%          Compute Floquet Bundle at Zero Phase Point (w_norm)          %%
@@ -516,20 +367,27 @@ coco(prob, run_new, [], 1, {'mu_s', 'w_norm', 'T'} , [0.0, 1.1]);
 %     Run Name     %
 %------------------%
 % Current run name
-run_names.compute_VAR_2 = 'run07_compute_VAR_bundle_2_w';
-run_new = run_names.compute_VAR_2;
+run_names.VAR_wnorm = 'run04_VAR_wnorm';
+run_new = run_names.VAR_wnorm;
 % Which run this continuation continues from
-run_old = run_names.compute_VAR_1;
+run_old = run_names.VAR_mu;
 
 % Continuation point
 label_old = coco_bd_labs(coco_bd_read(run_old), 'BP');
 label_old = label_old(1);
 
-% Print to console
-fprintf("~~~ Floquet Bundle: Second Run ~~~ \n");
-fprintf('Calculate Floquet bundle (w_norm) \n');
-fprintf('Run name: %s \n', run_new);
-fprintf('Continuing from point %d in run: %s \n', label_old, run_old);
+%--------------------------%
+%     Print to Console     %
+%--------------------------%
+fprintf(' =====================================================================\n');
+fprintf(' Floquet Bundle: Second Run\n');
+fprintf(' Grow norm of stable Floquet bundle vector\n');
+fprintf(' ---------------------------------------------------------------------\n');
+fprintf(' This run name           : %s\n', run_new);
+fprintf(' Previous run name       : %s\n', run_old);
+fprintf(' Previous solution label : %d\n', label_old);
+fprintf(' Continuation parameters : %s\n', 'mu_s, w_norm');
+fprintf(' =====================================================================\n');
 
 %------------------------------------%
 %     Setup Floquet Continuation     %
@@ -545,7 +403,8 @@ prob = coco_set(prob, 'cont', 'PtMX', [0, PtMX]);
 prob = coco_set(prob, 'cont', 'NPR', 100);
 
 % Continue coll from previous branching point
-prob = ode_BP2coll(prob, 'adjoint', run_old, label_old);
+prob = coco_set(prob, 'cont', 'branch', 'switch');
+prob = ode_coll2coll(prob, 'adjoint', run_old, label_old);
 
 %------------------------------------------------%
 %     Apply Boundary Conditions and Settings     %
@@ -563,7 +422,7 @@ prob = coco_add_event(prob, 'NORM1', 'w_norm', 1.0);
 %     Run COCO     %
 %------------------%
 % Run COCO continuation
-coco(prob, run_new, [], 1, {'w_norm', 'mu_s', 'T'}, {[-1e-4, 1.1], [], []});
+coco(prob, run_new, [], 1, {'mu_s', 'w_norm'}, {[], [-1e-4, 1.1]});
 
 %-------------------%
 %     Save Data     %

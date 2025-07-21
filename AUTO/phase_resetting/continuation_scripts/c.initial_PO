@@ -1,0 +1,86 @@
+#==============================================================================#
+#                     SHIFTED PERIODIC ORBIT CONTINUATION                      #
+#==============================================================================#
+#--------------------------#
+#     Problem Settings     #
+#--------------------------#
+# Equation file
+e = './functions/yamada_VAR'
+
+# Set initial solution point to 0
+IRS = 0
+# Problem type
+IPS = 4
+# Branch switching
+ISW = 1
+
+# Set fold detection to 0
+ILP = 0
+ISP = 2
+
+#----------------------------#
+#     Parameter Settings     #
+#----------------------------#
+# Maximum number of parameters
+NPAR = 5
+
+# Continuation parameters
+ICP = ['gamma', 'T']
+
+# Set boundary for A parameter
+UZSTOP = {'gamma': [0.0, 0.4]}
+
+# Set defined stopping points for A and gamma
+UZR = {'A': 7.3757, 'gamma': [2.5e-2, 3.54e-2]}
+
+#------------------------------#
+#     State Space Settings     #
+#------------------------------#
+# State space variables
+unames   = {1:'x1', 2:'x2', 3:'x3'}
+
+# State space dimesion
+NDIM = 3
+
+#------------------------------------------#
+#     Jacobian and Boundary Conditions     #
+#------------------------------------------#
+# User defines derivatives: 0 = no, 1 = yes
+JAC = 0
+
+# Number of boundary conditions
+NBC = 4
+
+# Number of integral conditions
+NINT = 0
+
+#-------------------------------#
+#     Continuation Settings     #
+#-------------------------------#
+# Number of steps
+NMX = 10
+# Number of saved steps
+NPR = 1
+
+# NTST
+NTST = 50
+
+# Step sizes
+DSMIN = 1e-3
+DS    = -1e-3
+DSMAX = 1e-2
+
+# Number of collocation points?
+NCOL = 4
+# Set adaptive mesh interval
+IAD = 1
+
+# #----------------------------#
+# #     Tolerance Settings     #
+# #----------------------------#
+# # Maximum number of iterations for locating special solutions/points
+# ITMX = 8
+# # Maximum number of correction steps
+# ITNW = 7
+# # Corrector uses full newton for [NWTN] number of steps
+# NWTN = 3

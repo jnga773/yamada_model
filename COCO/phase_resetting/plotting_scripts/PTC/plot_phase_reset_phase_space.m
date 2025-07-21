@@ -1,4 +1,4 @@
-function plot_phase_reset_phase_space(run_in, label_in, fig_num_in)
+function plot_phase_reset_phase_space(run_in, label_in)
   % plot_phase_reset_PO(run_in, label_in)
   %
   % Plots the phase resetting periodic orbit from all four segments.
@@ -6,7 +6,7 @@ function plot_phase_reset_phase_space(run_in, label_in, fig_num_in)
   %-------------------%
   %     Plot Data     %
   %-------------------%
-  fig = figure(fig_num_in); clf;
+  fig = figure(1); clf;
   fig.Name = 'Initial Periodic Orbits';
   fig.Units = 'inches'; fig.Position = [3, 3, 12, 8]; fig.PaperSize = [12, 8];
 

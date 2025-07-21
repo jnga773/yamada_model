@@ -82,12 +82,10 @@ function bcs_coco_out = bcs_PR_symbolic()
   p_sys = [gam; A; B; a];
 
   % Phase resetting parameters
-  syms T k theta_old theta_new
-  syms mu_s eta
-  syms A_perturb theta_perturb phi_perturb
-  p_PR = [T; k; theta_old; theta_new;
-          mu_s; eta;
-          A_perturb; theta_perturb; phi_perturb];
+  syms k theta_old theta_new mu_s
+  syms eta A_perturb theta_perturb phi_perturb
+  p_PR = [k; theta_old; theta_new; mu_s;
+          eta; A_perturb; theta_perturb; phi_perturb];
 
   %============================================================================%
   %                         BOUNDARY CONDITION ENCODING                        %
@@ -121,9 +119,9 @@ function bcs_coco_out = bcs_PR_symbolic()
   % d_vec = [cos(theta_perturb) * sin(phi_perturb);
   %          sin(theta_perturb) * sin(phi_perturb);
   %          cos(phi_perturb)];
-  d_vec = [cos(theta_perturb);
+  d_vec = [cos(theta_perturb * (2.0 * pi));
            0.0;
-           sin(theta_perturb)];
+           sin(theta_perturb) * (2.0 * pi)];
 
   % Boundary Conditions - Segment 4
   bcs_seg4_1 = x0_seg4 - x0_seg3 - (A_perturb * d_vec);

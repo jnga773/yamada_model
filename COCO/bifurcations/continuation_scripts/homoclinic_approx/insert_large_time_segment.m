@@ -8,7 +8,7 @@ function data_out = insert_large_time_segment(run_in, label_in, funcs_in)
   % With this point found, we insert a large time segment to
   % "trick" the periodic orbit into having a larger period.
   %
-  % Input
+  % Parameters
   % ----------
   % run_in: string
   %     The string identifier for the previous COCO run that we will
@@ -18,11 +18,15 @@ function data_out = insert_large_time_segment(run_in, label_in, funcs_in)
   % funcs_in: cell
   %     Cell of field functions and Jacobians etc.
   %
-  % Output
-  % ----------
+  % Returns
+  % -------
   % min_idx : data structure
   %     Contains the state space solution, temporal solution and
   %     parameters.
+  %
+  % See Also
+  % --------
+  % coll_read_solution
 
   % Yamada function
   func_yamada = funcs_in{1};

@@ -3,6 +3,20 @@ function prob_out = glue_parameters(prob_in)
   %
   % Glue the parameters of the EP segments and PO segment together 
   % (as they're all the same anyway)
+  %
+  % Parameters
+  % ----------
+  % prob_in : COCO problem structure
+  %     Continuation problem structure.
+  %
+  % Returns
+  % -------
+  % prob_out        : COCO problem structure
+  %     Continuation problem structure.
+  %
+  % See Also
+  % --------
+  % coco_get_func_data, coco_add_glue
 
   %---------------%
   %     Input     %

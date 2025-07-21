@@ -96,8 +96,6 @@ function [data_in, y_out] = bcs_isochron(prob_in, data_in, u_in)
   p_system     = parameters(1 : pdim);
 
   % Phase resetting parameters
-  % Period of the segment
-  % T             = parameters(p_maps.T);
   % Integer for period
   % k             = parameters(p_maps.k);
   % Phase where perturbation starts

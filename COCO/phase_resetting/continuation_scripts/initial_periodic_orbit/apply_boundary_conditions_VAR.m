@@ -36,7 +36,7 @@ function prob_out = apply_boundary_conditions_VAR(prob_in, bcs_funcs_in)
 
   % Dimensions of original structure
   xdim = 0.5 * data.xdim;
-  pdim = data.pdim - 3;
+  pdim = data.pdim - 2;
 
   % Save dimensions to be called in boundary condition functions
   dim_data.xdim = xdim;
@@ -46,20 +46,16 @@ function prob_out = apply_boundary_conditions_VAR(prob_in, bcs_funcs_in)
   %     Apply Boundary Conditions     %
   %-----------------------------------%
   % Apply periodic orbit boundary conditions
-  prob = coco_add_func(prob, 'bcs_PO', bcs_funcs_in.bcs_PO{:}, dim_data, 'zero', 'uidx', ...
+  prob = coco_add_func(prob, 'bcs_po', bcs_funcs_in.bcs_PO{:}, dim_data, 'zero', 'uidx', ...
                        uidx([maps.x0_idx(1:xdim); ...
                              maps.x1_idx(1:xdim); ...
                              maps.p_idx(1:pdim)]));
 
   % Apply adjoint boundary conditions
-  prob = coco_add_func(prob, 'bcs_VAR', bcs_funcs_in.bcs_VAR{:}, dim_data, 'zero', 'uidx', ...
+  prob = coco_add_func(prob, 'bcs_adjoint', bcs_funcs_in.bcs_VAR{:}, dim_data, 'zero', 'uidx', ...
                        uidx([maps.x0_idx(xdim+1:end); ...
                              maps.x1_idx(xdim+1:end); ...
-                             maps.p_idx(end-2:end)]));
-
-  % Apply period boundary condition
-  prob = coco_add_func(prob, 'bcs_T', bcs_funcs_in.bcs_T{:}, [], 'zero', ...
-                       'uidx', uidx(maps.T_idx));
+                             maps.p_idx(end-1:end)]));
 
   %--------------------%
   %     Parameters     %

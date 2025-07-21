@@ -35,6 +35,15 @@ function save_data_VAR(run_in, label_in, filename_out)
   % coll_read_solution
 
   %-------------------%
+  %     Arguments     %
+  %-------------------%
+  arguments
+    run_in char
+    label_in double
+    filename_out char
+  end
+
+  %-------------------%
   %     Read Data     %
   %-------------------%
   % Read COCO solution
@@ -43,7 +52,7 @@ function save_data_VAR(run_in, label_in, filename_out)
   % Original dimension of state space
   xdim = 0.5 * data.xdim;
   % Original dimension of parameter space
-  pdim = data.pdim - 3;
+  pdim = data.pdim - 2;
 
   % State space solution
   xbp_read = sol.xbp;
@@ -75,8 +84,8 @@ function save_data_VAR(run_in, label_in, filename_out)
   end
 
   % Stable eigenvalue
-  mu_s_read = p_read(end-2);
-  mu_s_name = pnames_read{end-2};
+  mu_s_read = p_read(end-1);
+  mu_s_name = pnames_read{end-1};
 
   % Period of segment
   T_read    = p_read(end);

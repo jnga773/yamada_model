@@ -16,8 +16,10 @@ function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in,
   % bcs_funcs_in : list of functions
   %     List of all of the boundary condition functions for each
   %     phase resetting segment.
-  % isochron : boolean
-  %     Flag to determine if the isochron is being calculated.
+  % bcs_isochron : boolean
+  %     Flag to determine if the isochron phase condition should be added.
+  % par_isochron : boolean
+  %     Flag to determine if isochron parameters should be recorded.
   %
   % Output
   % ----------
@@ -28,12 +30,13 @@ function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in,
   %     Default Input     %
   %-----------------------%
   arguments
-    prob_in
-    data_in
-    bcs_funcs_in
+    prob_in struct
+    data_in struct
+    bcs_funcs_in struct
 
     % Optional arguments
-    options.isochron         = false;
+    options.bcs_isochron logical = false;
+    options.par_isochron logical = false;
   end
 
   %---------------%
@@ -82,12 +85,7 @@ function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in,
   %     Add Boundary Conditions     %
   %---------------------------------%
   % Boundary condition function list
-  bcs_T  = bcs_funcs_in.bcs_T;
   bcs_PR = bcs_funcs_in.bcs_PR;
-
-  % Apply period boundary condition
-  prob = coco_add_func(prob, 'bcs_T', bcs_T{:}, dim_data, 'zero', ...
-                       'uidx', uidx1(maps1.T_idx));
 
   % Add boundary conditions for four segments
   prob = coco_add_func(prob, 'bcs_PR', bcs_PR{:}, dim_data, 'zero', 'uidx', ...
@@ -100,19 +98,35 @@ function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in,
                         uidx3(maps3.x1_idx);
                         uidx4(maps4.x1_idx);
                         uidx1(maps1.p_idx)]);
+
+  % Add phase boundary condition
+  if options.bcs_isochron
+    bcs_iso_phase = bcs_funcs_in.bcs_iso_phase;
+    prob = coco_add_func(prob, 'bcs_iso_phase', bcs_iso_phase{:}, dim_data, 'zero', 'uidx', ...
+                          uidx1(maps1.p_idx));
+  end
                         
   %------------------------%
   %     Add Parameters     %
   %------------------------%
-  % Parameter names
-  prob = coco_add_pars(prob, 'pars_all', ...
-                       uidx1(maps1.p_idx), data_in.pnames);
+  % Add parameter to monitor I at \gamma_{\theta_{o}}
+  prob = coco_add_pars(prob, 'pars_I_theta_n', ...
+                       uidx3(maps3.x0_idx(3)), 'I_theta_n', ...
+                       'active');
 
-  if options.isochron
+  if options.par_isochron
     % Add isochron parameters
     prob = coco_add_pars(prob, 'pars_isochron', ...
-                         uidx4(maps4.x0_idx), {'iso1', 'iso2', 'iso3'}, ...
-                         'active');
+                        uidx4(maps4.x0_idx), {'iso1', 'iso2', 'iso3'}, ...
+                        'active');
+
+    % Set fold point FP to follow 'iso3'
+    prob = coco_set(prob, 'cont', 'fpar', 'iso3');
+
+    % % Add norm of isochron parameters
+    % prob = coco_add_func(prob, 'iso_norm', @calc_iso_norm, [], ...
+    %                   'active', 'iso_norm', ...
+    %                   'uidx', uidx4(maps4.x0_idx));
   end
 
   %----------------%
@@ -120,6 +134,5 @@ function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in,
   %----------------%
   % Output problem structure
   prob_out = prob;
-
 
 end
