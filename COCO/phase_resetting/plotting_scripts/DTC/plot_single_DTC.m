@@ -4,14 +4,14 @@ function plot_single_DTC(run_in)
   %-------------------%
   bd_read = coco_bd_read(run_in);
 
-  % theta_old
-  theta_old = coco_bd_col(bd_read, 'theta_old');
   % theta_new
   theta_new = coco_bd_col(bd_read, 'theta_new');
   % theta_perturb
   theta_perturb = coco_bd_col(bd_read, 'theta_perturb');
+  % theta_old
+  theta_old = coco_bd_val(bd_read, 1, 'theta_old');
   % A_perturb
-  A_perturb = coco_bd_col(bd_read, 'A_perturb');
+  A_perturb = coco_bd_val(bd_read, 1, 'A_perturb');
 
   %-------------------%
   %     Plot Data     %
@@ -36,16 +36,17 @@ function plot_single_DTC(run_in)
   
 
   % DTC
-  plot(ax, theta_perturb / pi, theta_new, LineStyle='-', Color=colours(1, :));
+  plot(ax, theta_perturb, theta_new, LineStyle='-', Color=colours(1, :));
+  plot(ax, theta_perturb+1, theta_new, LineStyle='-', Color=colours(1, :));
 
   % daspect(ax, [1, 1, 1]);
 
   % Limits
-  xlim(ax, [0.0, 0.5]);
-  ylim(ax, [-0.1, 1.1]);
+  xlim(ax, [0, 1]);
+  ylim(ax, [-2, 2]);
 
   % Labels
-  xlabel(ax, '$\varphi_{\mathrm{d}} / \pi$');
+  xlabel(ax, '$\varphi_{\mathrm{d}} / (2 \pi)$');
   ylabel(ax, '$\vartheta_{\mathrm{n}}$');
   title_str = sprintf('$\\vartheta_{\\mathrm{o}} = %.4f, A_{\\mathrm{p}} = %.4f$', theta_old(1), A_perturb(1));
   title(ax, title_str);

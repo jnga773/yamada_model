@@ -58,10 +58,10 @@ function prob_out = apply_boundary_conditions_PR(prob_in, data_in, bcs_funcs_in,
   %-------------------------------%
   % Extract toolbox data and context-dependent index set for each of the orbit
   % segments.
-  [data1, uidx1]   = coco_get_func_data(prob, 'seg1.coll', 'data', 'uidx');
-  [data2, uidx2]   = coco_get_func_data(prob, 'seg2.coll', 'data', 'uidx');
-  [data3, uidx3]   = coco_get_func_data(prob, 'seg3.coll', 'data', 'uidx');
-  [data4, uidx4]   = coco_get_func_data(prob, 'seg4.coll', 'data', 'uidx');
+  [data1, uidx1]  = coco_get_func_data(prob, 'seg1.coll', 'data', 'uidx');
+  [data2, uidx2]  = coco_get_func_data(prob, 'seg2.coll', 'data', 'uidx');
+  [data3, uidx3]  = coco_get_func_data(prob, 'seg3.coll', 'data', 'uidx');
+  [data4, uidx4]  = coco_get_func_data(prob, 'seg4.coll', 'data', 'uidx');
 
   % Grab the indices from each of the orbit segments
   maps1 = data1.coll_seg.maps;

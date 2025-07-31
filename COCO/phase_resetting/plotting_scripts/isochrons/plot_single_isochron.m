@@ -3,7 +3,7 @@ function plot_single_isochron(run_in, labels_to_plot)
   %
   % Plots a single isochron from the isochron_test.m run.
   arguments
-    run_in char;
+    run_in;
     labels_to_plot char = '';
   end
 

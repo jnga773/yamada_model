@@ -1,15 +1,13 @@
-function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_perturb_in, phi_perturb_in, options)
-  % data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_perturb_in, phi_perturb_in)
+function data_out = calc_initial_solution_PR_old(filename_in, k_in, theta_perturb_in, phi_perturb_in, options)
+  % data_out = calc_initial_solution_PR_old(filename_in, k_in, theta_perturb_in, phi_perturb_in, options)
   %
   % Reads data from previous run solution and calculates the 
   % initial conditions for the various different trajectory segments.
   %
   % Parameters
   % ----------
-  % run_in : string
-  %     The run identifier for the continuation problem.
-  % label_in : integer
-  %     The label identifier for the continuation problem.
+  % filename_in : string
+  %     The filename for the .mat file containing data from the VAR run.
   % k_in : integer
   %     Integer for the periodicity.
   % theta_perturb_in : float
@@ -46,11 +44,10 @@ function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_pertu
   %     Arguments     %
   %-------------------%
   arguments
-    run_in char
-    label_in double
-    k_in double             = 25
-    theta_perturb_in double = 0.0
-    phi_perturb_in double   = 0.5
+    filename_in char        = './data_mat/solution_VAR.mat';
+    k_in double             = 20;
+    theta_perturb_in double = 0.0;
+    phi_perturb_in double   = 0.0;
 
     % Optional arguments
     options.isochron        = false;
@@ -62,46 +59,12 @@ function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_pertu
   %-------------------%
   %     Read Data     %
   %-------------------%
-  % Read COCO solution
-  [sol, data] = coll_read_solution('adjoint', run_in, label_in);
-
-  % Original dimension of state space
-  xdim = 0.5 * data.xdim;
-  % Original dimension of parameter space
-  pdim = data.pdim - 2;
-
-  % State space solution
-  xbp_read = sol.xbp;
-  
-  % Periodic orbit solution
-  gamma_read = xbp_read(:, 1:xdim);
-  % Perpendicular solution
-  wn_read    = xbp_read(:, xdim+1:end);
+  load(filename_in);
 
   % Initial zero-phase point of the periodic orbit
   gamma_0 = gamma_read(1, :)';
   % Initial perpendicular vector
   wn_0    = wn_read(1, :)';
-
-  % Time data
-  tbp_read = sol.tbp;
-
-  %--------------------%
-  %     Parameters     %
-  %--------------------%
-  p_read      = sol.p;
-  pnames_read = data.pnames;
-
-  % System parameters
-  p_system      = p_read(1:pdim);
-  pnames_system = {};
-  for i = 1 : pdim
-    pnames_system{i} = pnames_read{i};
-  end
-
-  % Stable eigenvalue
-  mu_s_read = p_read(end-1);
-  mu_s_name = pnames_read{end-1};
 
   %----------------------------%
   %     Initial Parameters     %
@@ -134,11 +97,11 @@ function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_pertu
   % function to ensure the correct parameters are being used.
 
   % Save the index mapping of each parameter
-  p_maps.k               = pdim + 1;
-  p_maps.theta_old       = pdim + 2;
-  p_maps.theta_new       = pdim + 3;
-  p_maps.mu_s            = pdim + 4;
-  p_maps.eta             = pdim + 5;
+  p_maps.k             = pdim + 1;
+  p_maps.theta_old     = pdim + 2;
+  p_maps.theta_new     = pdim + 3;
+  p_maps.mu_s          = pdim + 4;
+  p_maps.eta           = pdim + 5;
   if ~options.isochron
     p_maps.A_perturb     = pdim + 6;
     p_maps.theta_perturb = pdim + 7;
@@ -155,12 +118,12 @@ function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_pertu
   % Initial parameter array
   p0_out = zeros(pdim+length(p_maps), 1);
   % Put parameters in order
-  p0_out(1:pdim)                 = p_system;
-  p0_out(p_maps.k)               = k;
-  p0_out(p_maps.theta_old)       = theta_old;
-  p0_out(p_maps.theta_new)       = theta_new;
-  p0_out(p_maps.mu_s)            = mu_s;
-  p0_out(p_maps.eta)             = eta;
+  p0_out(1:pdim)               = p_system;
+  p0_out(p_maps.k)             = k;
+  p0_out(p_maps.theta_old)     = theta_old;
+  p0_out(p_maps.theta_new)     = theta_new;
+  p0_out(p_maps.mu_s)          = mu_s;
+  p0_out(p_maps.eta)           = eta;
   if ~options.isochron
     p0_out(p_maps.A_perturb)     = A_perturb;
     p0_out(p_maps.theta_perturb) = theta_perturb;
@@ -175,13 +138,13 @@ function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_pertu
   %     Parameter Names     %
   %-------------------------%
   % Parameter names
-  pnames_PR                         = {pnames_system{1:pdim}};
+  pnames_PR                       = {pnames_system{1:pdim}};
   % Integer for period
-  pnames_PR{p_maps.k}               = 'k';
-  pnames_PR{p_maps.theta_old}       = 'theta_old';
-  pnames_PR{p_maps.theta_new}       = 'theta_new';
-  pnames_PR{p_maps.mu_s}            = 'mu_s';
-  pnames_PR{p_maps.eta}             = 'eta';
+  pnames_PR{p_maps.k}             = 'k';
+  pnames_PR{p_maps.theta_old}     = 'theta_old';
+  pnames_PR{p_maps.theta_new}     = 'theta_new';
+  pnames_PR{p_maps.mu_s}          = mu_s_name;
+  pnames_PR{p_maps.eta}           = 'eta';
   if ~options.isochron
     pnames_PR{p_maps.A_perturb}     = 'A_perturb';
     pnames_PR{p_maps.theta_perturb} = 'theta_perturb';
@@ -209,6 +172,7 @@ function data_out = calc_initial_solution_PR(run_in, label_in, k_in, theta_pertu
     % Append t_PO
     t_seg4 = [t_seg4; t_max + tbp_read(2:end)];
 
+    % Update max value
     t_max = t_seg4(end);
   end
 
